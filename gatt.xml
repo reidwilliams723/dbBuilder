@@ -47,39 +47,6 @@
     </characteristic>
   </service>
   
-  <!--Stroke Data-->
-  <service advertise="false" name="Stroke Data" requirement="mandatory" sourceId="com.silabs.service.stroke_data" type="primary" uuid="d7af9f40-f4dc-430f-9ea2-4ec07beef279">
-    <informativeText>Abstract: The Silicon Labs OTA Service enables over-the-air firmware update of the device. </informativeText>
-    
-    <!--Hours Pumped-->
-    <characteristic id="hours_pumped" name="Hours Pumped" sourceId="com.silabs.characteristic.hours_pumped" uuid="2A6F">
-      <informativeText>Abstract: Silicon Labs OTA Control. </informativeText>
-      <value length="4" type="user" variable_length="false"/>
-      <properties notify="true" notify_requirement="mandatory" read="true" read_requirement="mandatory" write="false" write_requirement="optional"/>
-    </characteristic>
-    
-    <!--Stroke Count-->
-    <characteristic id="stroke_count" name="Stroke Count" sourceId="com.silabs.characteristic.stroke_count" uuid="2A6E">
-      <informativeText>Abstract: Silicon Labs OTA Control. </informativeText>
-      <value length="4" type="user" variable_length="false"/>
-      <properties notify="true" notify_requirement="mandatory" read="true" read_requirement="mandatory" write="false" write_requirement="optional"/>
-    </characteristic>
-    
-    <!--Raw Value-->
-    <characteristic id="raw_value" name="Raw Value" sourceId="com.silabs.characteristic.raw_value" uuid="c3057f50-acfd-4c38-a372-8f4a8a9381d6">
-      <informativeText>Custom characteristic</informativeText>
-      <value length="4" type="user" variable_length="false"/>
-      <properties notify="true" notify_requirement="mandatory" read="true" read_requirement="mandatory"/>
-    </characteristic>
-    
-    <!--Scaled Value-->
-    <characteristic id="scaled_value" name="Scaled Value" sourceId="com.silabs.characteristic.scaled_value" uuid="e0377449-8ab7-45dc-a684-55a0801ef364">
-      <informativeText>Custom characteristic</informativeText>
-      <value length="4" type="user" variable_length="false"/>
-      <properties notify="true" notify_requirement="mandatory" read="true" read_requirement="mandatory"/>
-    </characteristic>
-  </service>
-  
   <!--GENERIC_EQUIPMENT_SERVICE-->
   <service advertise="false" name="GENERIC_EQUIPMENT_SERVICE" requirement="mandatory" sourceId="com.service.generic_equipment_service" type="primary" uuid="00001A00-0000-4358-9ad6-a241984cff67">
     <informativeText>Custom service</informativeText>
@@ -142,11 +109,11 @@
     <characteristic id="ota_mcu_control" name="MCU OTA Control" sourceId="com.silabs.characteristic.ota_mcu_control" uuid="83779ad2-d526-4f6e-aca5-a6dad42c0af5">
       <informativeText>Custom characteristic</informativeText>
       <value length="1" type="user" variable_length="false"/>
-      <properties write="true" write_requirement="mandatory"/>
+      <properties notify="true" notify_requirement="optional" write="true" write_requirement="mandatory"/>
     </characteristic>
     
     <!--MCU OTA Data-->
-    <characteristic id="ota_mcu_data" name="MCU OTA Data" sourceId="com.silabs.characteristic.ota_mcu_data" uuid="83779ad2-d526-4f6e-aca5-a6dad42c0af5">
+    <characteristic id="ota_mcu_data" name="MCU OTA Data" sourceId="com.silabs.characteristic.ota_mcu_data" uuid="83779ad3-d526-4f6e-aca5-a6dad42c0af5">
       <informativeText>Custom characteristic</informativeText>
       <value length="20" type="user" variable_length="false"/>
       <properties write_no_response="true" write_no_response_requirement="optional"/>

@@ -136,7 +136,7 @@ void initGPIO()
  * @brief  Main function
  */
 int main(void)
-{
+                       {
 
   /* Initialize device */
   initMcu();
