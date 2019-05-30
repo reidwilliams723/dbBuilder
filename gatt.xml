@@ -47,169 +47,6 @@
     </characteristic>
   </service>
   
-  <!--Silicon Labs OTA-->
-  <service advertise="false" name="Silicon Labs OTA" requirement="mandatory" sourceId="com.silabs.service.ota" type="primary" uuid="1D14D6EE-FD63-4FA1-BFA4-8F47B42119F0">
-    <informativeText>Abstract: The Silicon Labs OTA Service enables over-the-air firmware update of the device. </informativeText>
-    
-    <!--Bluetooth-->
-    <characteristic id="ota_control" name="Bluetooth" sourceId="com.silabs.characteristic.ota_control" uuid="F7BF3564-FB6D-4E53-88A4-5E37E0326063">
-      <informativeText>Abstract: Silicon Labs OTA Control. </informativeText>
-      <value length="1" type="user" variable_length="false"/>
-      <properties write="true" write_requirement="optional"/>
-    </characteristic>
-    
-    <!--MCU-->
-    <characteristic id="ota_mcu" name="MCU" sourceId="com.silabs.characteristic.ota_mcu" uuid="83779ad2-d526-4f6e-aca5-a6dad42c0af5">
-      <informativeText>Custom characteristic</informativeText>
-      <value length="1" type="user" variable_length="false"/>
-    </characteristic>
-  </service>
-  
-  <!--Pressure Histogram-->
-  <service advertise="false" name="Pressure Histogram" requirement="mandatory" sourceId="org.bluetooth.service.pressure_histogram" type="primary" uuid="82080729-c2c5-47d8-9745-83ab168b4b27">
-    <informativeText>Abstract: This service exposes measurement data from an environmental sensor intended for sports and fitness applications. A wide range of environmental parameters is supported. Summary: The Environmental Sensing Service (ESS) exposes measurement data from an environmental sensor intended for sports and fitness applications. A wide range of environmental parameters is supported. </informativeText>
-    
-    <!--bin_1-->
-    <characteristic id="bin_1" name="bin_1" sourceId="org.bluetooth.characteristic.bin_1" uuid="2A6D">
-      <informativeText/>
-      <value length="4" type="user" variable_length="false"/>
-      <properties notify="true" notify_requirement="mandatory" read="true" read_requirement="mandatory"/>
-    </characteristic>
-    
-    <!--bin_2-->
-    <characteristic id="bin_2" name="bin_2" sourceId="org.bluetooth.characteristic.bin_2" uuid="2A6E">
-      <informativeText/>
-      <value length="4" type="user" variable_length="false"/>
-      <properties notify="true" notify_requirement="mandatory" read="true" read_requirement="mandatory" write="false" write_requirement="mandatory"/>
-    </characteristic>
-    
-    <!--bin_3-->
-    <characteristic id="bin_3" name="bin_3" sourceId="org.bluetooth.characteristic.bin_3" uuid="2A6F">
-      <informativeText/>
-      <value length="4" type="user" variable_length="false"/>
-      <properties notify="true" notify_requirement="mandatory" read="true" read_requirement="mandatory"/>
-    </characteristic>
-    
-    <!--bin_4-->
-    <characteristic id="bin_4" name="bin_4" sourceId="org.bluetooth.characteristic.bin_4" uuid="2A70">
-      <informativeText/>
-      <value length="4" type="user" variable_length="false"/>
-      <properties notify="true" notify_requirement="mandatory" read="true" read_requirement="mandatory"/>
-    </characteristic>
-    
-    <!--bin_5-->
-    <characteristic id="bin_5" name="bin_5" sourceId="org.bluetooth.characteristic.bin_5" uuid="2A71">
-      <informativeText/>
-      <value length="4" type="user" variable_length="false"/>
-      <properties read="true" read_requirement="mandatory"/>
-    </characteristic>
-    
-    <!--bin_6-->
-    <characteristic id="bin_6" name="bin_6" sourceId="org.bluetooth.characteristic.bin_6" uuid="2A72">
-      <informativeText/>
-      <value length="4" type="user" variable_length="false"/>
-      <properties read="true" read_requirement="mandatory"/>
-    </characteristic>
-    
-    <!--bin_7-->
-    <characteristic id="bin_7" name="bin_7" sourceId="org.bluetooth.characteristic.bin_7" uuid="2A73">
-      <informativeText/>
-      <value length="4" type="user" variable_length="false"/>
-      <properties read="true" read_requirement="mandatory"/>
-    </characteristic>
-    
-    <!--bin_8-->
-    <characteristic id="bin_8" name="bin_8" sourceId="org.bluetooth.characteristic.bin_8" uuid="2A74">
-      <informativeText/>
-      <value length="4" type="user" variable_length="false"/>
-      <properties read="true" read_requirement="mandatory"/>
-    </characteristic>
-    
-    <!--bin_9-->
-    <characteristic id="bin_9" name="bin_9" sourceId="org.bluetooth.characteristic.bin_9" uuid="2A75">
-      <informativeText/>
-      <value length="4" type="user" variable_length="false"/>
-      <properties read="true" read_requirement="mandatory"/>
-    </characteristic>
-    
-    <!--bin_10-->
-    <characteristic id="bin_10" name="bin_10" sourceId="org.bluetooth.characteristic.bin_10" uuid="2A76">
-      <informativeText/>
-      <value length="4" type="user" variable_length="false"/>
-      <properties read="true" read_requirement="mandatory"/>
-    </characteristic>
-    
-    <!--bin_11-->
-    <characteristic id="bin_11" name="bin_11" sourceId="org.bluetooth.characteristic.bin_11" uuid="2A77">
-      <informativeText/>
-      <value length="4" type="user" variable_length="false"/>
-      <properties read="true" read_requirement="mandatory"/>
-    </characteristic>
-    
-    <!--bin_12-->
-    <characteristic id="bin_12" name="bin_12" sourceId="org.bluetooth.characteristic.bin_12" uuid="2A78">
-      <informativeText/>
-      <value length="4" type="user" variable_length="false"/>
-      <properties read="true" read_requirement="mandatory"/>
-    </characteristic>
-    
-    <!--bin_13-->
-    <characteristic id="bin_13" name="bin_13" sourceId="org.bluetooth.characteristic.bin_13" uuid="2A79">
-      <informativeText/>
-      <value length="4" type="user" variable_length="false"/>
-      <properties read="true" read_requirement="mandatory"/>
-    </characteristic>
-    
-    <!--bin_14-->
-    <characteristic id="bin_14" name="bin_14" sourceId="org.bluetooth.characteristic.bin_14" uuid="2A7A">
-      <informativeText/>
-      <value length="4" type="user" variable_length="false"/>
-      <properties read="true" read_requirement="mandatory"/>
-    </characteristic>
-    
-    <!--bin_15-->
-    <characteristic id="bin_15" name="bin_15" sourceId="org.bluetooth.characteristic.bin_15" uuid="2A7B">
-      <informativeText/>
-      <value length="4" type="user" variable_length="false"/>
-      <properties read="true" read_requirement="mandatory"/>
-    </characteristic>
-    
-    <!--bin_16-->
-    <characteristic id="bin_16" name="bin_16" sourceId="org.bluetooth.characteristic.bin_16" uuid="2A7C">
-      <informativeText/>
-      <value length="4" type="user" variable_length="false"/>
-      <properties read="true" read_requirement="mandatory"/>
-    </characteristic>
-    
-    <!--bin_17-->
-    <characteristic id="bin_17" name="bin_17" sourceId="org.bluetooth.characteristic.bin_17" uuid="2A7D">
-      <informativeText/>
-      <value length="4" type="user" variable_length="false"/>
-      <properties read="true" read_requirement="mandatory"/>
-    </characteristic>
-    
-    <!--bin_18-->
-    <characteristic id="bin_18" name="bin_18" sourceId="org.bluetooth.characteristic.bin_18" uuid="2A7E">
-      <informativeText/>
-      <value length="4" type="user" variable_length="false"/>
-      <properties read="true" read_requirement="mandatory"/>
-    </characteristic>
-    
-    <!--bin_19-->
-    <characteristic id="bin_19" name="bin_19" sourceId="org.bluetooth.characteristic.bin_19" uuid="2A7F">
-      <informativeText/>
-      <value length="4" type="user" variable_length="false"/>
-      <properties read="true" read_requirement="mandatory"/>
-    </characteristic>
-    
-    <!--bin_20-->
-    <characteristic id="bin_20" name="bin_20" sourceId="org.bluetooth.characteristic.bin_20" uuid="2A80">
-      <informativeText/>
-      <value length="4" type="user" variable_length="false"/>
-      <properties read="true" read_requirement="mandatory"/>
-    </characteristic>
-  </service>
-  
   <!--Stroke Data-->
   <service advertise="false" name="Stroke Data" requirement="mandatory" sourceId="com.silabs.service.stroke_data" type="primary" uuid="d7af9f40-f4dc-430f-9ea2-4ec07beef279">
     <informativeText>Abstract: The Silicon Labs OTA Service enables over-the-air firmware update of the device. </informativeText>
@@ -240,6 +77,97 @@
       <informativeText>Custom characteristic</informativeText>
       <value length="4" type="user" variable_length="false"/>
       <properties notify="true" notify_requirement="mandatory" read="true" read_requirement="mandatory"/>
+    </characteristic>
+  </service>
+  
+  <!--GENERIC_EQUIPMENT_SERVICE-->
+  <service advertise="false" name="GENERIC_EQUIPMENT_SERVICE" requirement="mandatory" sourceId="com.service.generic_equipment_service" type="primary" uuid="00001A00-0000-4358-9ad6-a241984cff67">
+    <informativeText>Custom service</informativeText>
+    
+    <!--Strokes-->
+    <characteristic id="Strokes" name="Strokes" sourceId="com.characteristic.strokes" uuid="00002A1B-0000-4358-9ad6-a241984cff67">
+      <informativeText>Custom characteristic</informativeText>
+      <value length="4" type="user" variable_length="false"/>
+      <properties notify="true" notify_requirement="optional" read="true" read_requirement="optional"/>
+    </characteristic>
+    
+    <!--Run hours-->
+    <characteristic id="Run_hours" name="Run hours" sourceId="com.characteristic.run_hours" uuid="00002A1A-0000-4358-9ad6-a241984cff67">
+      <informativeText>Custom characteristic</informativeText>
+      <value length="4" type="user" variable_length="false"/>
+      <properties notify="true" notify_requirement="optional" read="true" read_requirement="optional"/>
+    </characteristic>
+    
+    <!--PSI-->
+    <characteristic id="PSI" name="PSI" sourceId="com.characteristic.psi" uuid="00002A1C-0000-4358-9ad6-a241984cff67">
+      <informativeText>Custom characteristic</informativeText>
+      <value length="20" type="user" variable_length="false"/>
+      <properties notify="true" notify_requirement="optional" read="true" read_requirement="optional" write="true" write_requirement="optional"/>
+    </characteristic>
+    
+    <!--Bins-->
+    <characteristic id="Bins" name="Bins" sourceId="com.characteristic.bins" uuid="00002A1E-0000-4358-9ad6-a241984cff67">
+      <informativeText>Custom characteristic</informativeText>
+      <value length="20" type="user" variable_length="false"/>
+      <properties notify="true" notify_requirement="optional" read="true" read_requirement="optional"/>
+    </characteristic>
+    
+    <!--Control_Input-->
+    <characteristic id="Control_Input" name="Control_Input" sourceId="com.characteristic.control_input" uuid="00002A1F-0000-4358-9ad6-a241984cff67">
+      <informativeText>Custom characteristic</informativeText>
+      <value length="1" type="user" variable_length="false"/>
+      <properties write="true" write_requirement="optional"/>
+    </characteristic>
+  </service>
+  
+  <!--Silicon Labs OTA-->
+  <service advertise="false" id="ota" name="Silicon Labs OTA" requirement="mandatory" sourceId="com.silabs.service.ota" type="primary" uuid="1D14D6EE-FD63-4FA1-BFA4-8F47B42119F0">
+    <informativeText>Abstract: The Silicon Labs OTA Service enables over-the-air firmware update of the device. </informativeText>
+    
+    <!--Silicon Labs OTA Control-->
+    <characteristic id="ota_control" name="Silicon Labs OTA Control" sourceId="com.silabs.characteristic.ota_control" uuid="F7BF3564-FB6D-4E53-88A4-5E37E0326063">
+      <informativeText>Abstract: Silicon Labs OTA Control. </informativeText>
+      <value length="1" type="user" variable_length="false"/>
+      <properties indicate="false" indicate_requirement="excluded" notify="false" notify_requirement="excluded" read="false" read_requirement="excluded" reliable_write="false" reliable_write_requirement="excluded" write="true" write_no_response="false" write_no_response_requirement="excluded" write_requirement="mandatory"/>
+    </characteristic>
+    
+    <!--Silicon Labs OTA Data-->
+    <characteristic id="ota_data" name="Silicon Labs OTA Data" sourceId="com.silabs.characteristic.ota_data" uuid="984227F3-34FC-4045-A5D0-2C581F81A153">
+      <informativeText>Abstract: Silicon Labs OTA Data. </informativeText>
+      <value length="20" type="user" variable_length="false"/>
+      <properties indicate="false" indicate_requirement="excluded" notify="false" notify_requirement="excluded" read="false" read_requirement="excluded" reliable_write="false" reliable_write_requirement="excluded" write="false" write_no_response="true" write_no_response_requirement="mandatory" write_requirement="excluded"/>
+    </characteristic>
+    
+    <!--MCU OTA Control-->
+    <characteristic id="ota_mcu_control" name="MCU OTA Control" sourceId="com.silabs.characteristic.ota_mcu_control" uuid="83779ad2-d526-4f6e-aca5-a6dad42c0af5">
+      <informativeText>Custom characteristic</informativeText>
+      <value length="1" type="user" variable_length="false"/>
+      <properties write="true" write_requirement="mandatory"/>
+    </characteristic>
+    
+    <!--MCU OTA Data-->
+    <characteristic id="ota_mcu_data" name="MCU OTA Data" sourceId="com.silabs.characteristic.ota_mcu_data" uuid="83779ad2-d526-4f6e-aca5-a6dad42c0af5">
+      <informativeText>Custom characteristic</informativeText>
+      <value length="20" type="user" variable_length="false"/>
+      <properties write_no_response="true" write_no_response_requirement="optional"/>
+    </characteristic>
+  </service>
+  
+  <!--Location and Navigation-->
+  <service advertise="false" id="location_and_navigation" name="Location and Navigation" requirement="mandatory" sourceId="org.bluetooth.service.location_and_navigation" type="primary" uuid="1819">
+    <informativeText>Abstract: This service exposes location and navigation-related data from a Location and Navigation sensor intended for outdoor activity applications. Summary: The Location and Navigation Service (LN Service) exposes location and navigation-related data from a Location and Navigation sensor (Server) intended for outdoor activity applications. </informativeText>
+    
+    <!--Location and Speed Characteristic-->
+    <characteristic id="location_and_speed" name="Location and Speed Characteristic" sourceId="org.bluetooth.characteristic.location_and_speed" uuid="2A67">
+      <informativeText>Summary: The Location and Speed characteristic is a variable length structure containing a Flags field and, based on the contents of the Flags field, may contain a combination of data fields listed below. Note that it is possible for this characteristic to exceed the default LE MTU size. </informativeText>
+      <value length="28" type="hex" variable_length="false"/>
+      <properties indicate="false" indicate_requirement="excluded" notify="true" notify_requirement="mandatory" read="false" read_requirement="excluded" reliable_write="false" reliable_write_requirement="excluded" write="false" write_no_response="false" write_no_response_requirement="excluded" write_requirement="excluded"/>
+      
+      <!--Client Characteristic Configuration-->
+      <descriptor id="client_characteristic_configuration" name="Client Characteristic Configuration" sourceId="org.bluetooth.descriptor.gatt.client_characteristic_configuration" uuid="2902">
+        <properties read="true" read_requirement="mandatory" write="true" write_requirement="mandatory"/>
+        <value length="2" type="hex" variable_length="false"/>
+      </descriptor>
     </characteristic>
   </service>
 </gatt>

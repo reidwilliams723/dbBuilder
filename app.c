@@ -23,40 +23,56 @@
 #include "bg_types.h"
 #include "native_gecko.h"
 #include "gatt_db.h"
+
+/* EM Lib headers */
 #include "em_usart.h"
 
+/* Other headers */
 #include "app.h"
-
 #include "serialProtocol.h"
+#include <stdbool.h>
+
+/* Interval for sending notifications */
+#define APP_TASK_INTERVAL 500 //ms
 
 /* Print boot message */
 static void bootMessage(struct gecko_msg_system_boot_evt_t *bootevt);
 
+
 /* Flag for indicating DFU Reset must be performed */
 static uint8_t boot_to_dfu = 0;
+
 
 /* Current number of connections */
 uint8_t active_connections_num;
 
-uint32_t bins[20];
-uint32_t strokes = 0x0;
 
-uint32_t runTime = 0;
-uint32_t bins1;
-uint32_t bins2;
-uint32_t bins3;
-uint32_t bins4;
-uint32_t rawValue;
-uint32_t scaledValue;
+/* Values from MCU */
+uint32_t bins[20]; // Bins buffer from MCU
+uint32_t strokes = 0x0; // Stroke value from MCU
+uint32_t runTime = 0; // Run time value from MCU
+uint32_t rawValue; // Raw PSI value from MCU
+uint32_t scaledValue; // Scaled PSI value from MCU
+uint8_t accelerationx; // Accelerometer X value from MCU
+uint8_t accelerationy; // Accelerometer Y value from MCU
+uint8_t accelerationz; // Accelerometer Z value from MCU
 
-uint32_t yes = 0;
-uint8 currentConnection;
 
+/* Buffers/Values for BLE Characteristic 'User' Types */
+uint32_t psiMessage[5]; // Holds the RawZero, RawScale, UnitsScale, PSI Raw Value, and Scaled PSI Value
+uint32_t Bins[5]; // Aggregates and divides bins[20] into 5 values
+char controlInput; // Byte for control input. 0x01 = Reset, 0x02 = Zero Out
+
+
+/* Simulating Variables */
+bool simulate = false; // Boolean for either simulating data or reading data from MCU
+uint32_t timer = 0;
+uint32_t increment = 0;
+
+
+/* Initialize Serial Port struct */
 SerialProto_t serialPort;
 
-uint8_t accelerationx;
-uint8_t accelerationy;
-uint8_t accelerationz;
 
 void unPackData(uint8_t *buffer) {
 	uint32_t index = 0;
@@ -74,80 +90,94 @@ void unPackData(uint8_t *buffer) {
 
 	memcpy(&scaledValue, buffer+index,sizeof(scaledValue));
 	index += sizeof(scaledValue);
+
+	psiMessage[4] = scaledValue;
+	psiMessage[3] = rawValue;
+
+	Bins[0] = bins[0] +  bins[1] +  bins[2] +  bins[3];
+	Bins[1] = bins[4] + bins[5] +  bins[6] +  bins[7];
+	Bins[2] = bins[8] + bins[9] +  bins[10] +  bins[11];
+	Bins[3] = bins[12] + bins[13] + bins[14] + bins[15];
+	Bins[4] = bins[16] +  bins[17] +  bins[18] +  bins[19];
+
 }
 
+void simulation(){
+	increment++;
+	if (increment > 100000)
+		increment = 0;
 
+	Bins[0] = increment;
+	Bins[1] = increment+100;
+	Bins[2] = increment+500;
+	Bins[3] = increment+600;
+	Bins[4] = 0;
+
+	strokes = increment;
+	runTime = increment - 1;
+
+	rawValue = 4;
+	scaledValue = 18234;
+
+	psiMessage[3] = rawValue;
+	psiMessage[4] = scaledValue;
+}
+void sendNotifications(){
+	if (simulate)
+		simulation();
+
+	gecko_cmd_gatt_server_send_characteristic_notification(0xFF, gattdb_Strokes, sizeof(strokes), (uint8 *)&strokes);
+	gecko_cmd_gatt_server_send_characteristic_notification(0xFF, gattdb_Run_hours, sizeof(runTime), (uint8 *)&runTime);
+	gecko_cmd_gatt_server_send_characteristic_notification(0xFF, gattdb_PSI, sizeof(psiMessage), (uint8 *)&psiMessage);
+	gecko_cmd_gatt_server_send_characteristic_notification(0xFF, gattdb_Bins, sizeof(Bins), (uint8 *)&Bins);
+}
 /* Main application */
 void appMain(gecko_configuration_t *pconfig)
 {
+
 #if DISABLE_SLEEP > 0
   pconfig->sleep.flags = 0;
 #endif
 
-  /* Initialize debug prints. Note: debug prints are off by default. See DEBUG_LEVEL in app.h */
- //initLog();
-
+/* Initialize Serial Port */
  serialPort.txState = 0;
  serialPort.rxState = 0;
  serialPort.usart = USART0;
  serialPort.txCount = 0;
  serialPort.sentCount = 0;
 
+ /* Initialize PSI Scaling if simulating */
+ if(simulate)
+ {
+	 psiMessage[0] = 4;
+	 psiMessage[1] = 20;
+	 psiMessage[2] = 20000;
+	 psiMessage[3] = rawValue;
+	 psiMessage[4] = scaledValue;
+ }
+
   /* Initialize stack */
   gecko_init(pconfig);
-  while (1) {
 
-		  processSerial(&serialPort);
-		  	  if (serialPort.rxDone) {
-		  		  serialPort.rxDone = 0;
-		  		  unPackData(serialPort.rxData);
-		  		  serialPort.rxData[0] = serialPort.rxData[0];
-		  	  }
+  while (1) {
 
     /* Event pointer for handling events */
     struct gecko_cmd_packet* evt;
 
-    /* if there are no events pending then the next call to gecko_wait_event() may cause
-     * device go to deep sleep. Make sure that debug prints are flushed before going to sleep */
-    if (!gecko_event_pending()) {
-      //flushLog();
+    /* Read serial port when simulation is not taking place */
+    if(!simulate)
+    {
+      processSerial(&serialPort);
+
+	  if (serialPort.rxDone)
+	  {
+		serialPort.rxDone = 0;
+		unPackData(serialPort.rxData);
+		serialPort.rxData[0] = serialPort.rxData[0];
+	  }
     }
 
-
     evt = gecko_peek_event();
-
-    if (evt == NULL) {
-        if (yes > 100000){
-        	yes = 0;
-    //    	bins1 = bins[0] +  bins[1] +  bins[2] +  bins[3] +  bins[4];
-    //    	bins2 =  bins[5] +  bins[6] +  bins[7] +  bins[8] +  bins[9];
-    //    	bins3 =  bins[10] +  bins[11] +  bins[12] +  bins[13] +  bins[14];
-    //    	bins4 =  bins[15] +  bins[16] +  bins[17] +  bins[18] +  bins[19];
-
-        	if (active_connections_num>0) {
-        		gecko_cmd_gatt_server_send_characteristic_notification(0xFF, gattdb_stroke_count, sizeof(strokes), (uint8 *)&strokes);
-        		gecko_cmd_gatt_server_send_characteristic_notification(0xFF, gattdb_hours_pumped, sizeof(runTime), (uint8 *)&runTime);
-        		gecko_cmd_gatt_server_send_characteristic_notification(0xFF, gattdb_raw_value, sizeof(rawValue), (uint8 *)&rawValue);
-        		gecko_cmd_gatt_server_send_characteristic_notification(0xFF, gattdb_scaled_value, sizeof(scaledValue), (uint8 *)&scaledValue);
-        	}
-
-    //    	gecko_cmd_gatt_server_send_characteristic_notification(0xFF, gattdb_bin_1, sizeof(bins1), (uint8 *)&bins[0]);
-    //    	gecko_cmd_gatt_server_send_characteristic_notification(0xFF, gattdb_bin_2, sizeof(bins2), (uint8 *)&bins[1]);
-    //    	gecko_cmd_gatt_server_send_characteristic_notification(0xFF, gattdb_bin_3, sizeof(bins3), (uint8 *)&bins[2]);
-    //    	gecko_cmd_gatt_server_send_characteristic_notification(0xFF, gattdb_bin_4, sizeof(bins4), (uint8 *)&bins[3]);
-
-    //    	for (int i = 0; i < 20; i++)
-    //        	bins[i] = 0;
-    //    		gecko_cmd_gatt_server_send_characteristic_notification(0xFF, gattdb_stroke_count, sizeof(bins[i]), (uint8 *)&bins[i]);
-        }
-        else{
-        	yes++;
-
-        }
-
-    } else {
-
-
 
     /* Handle events */
     switch (BGLIB_MSG_ID(evt->header)) {
@@ -169,41 +199,34 @@ void appMain(gecko_configuration_t *pconfig)
         /* Start general advertising and enable connections. */
         gecko_cmd_le_gap_start_advertising(0, le_gap_general_discoverable, le_gap_connectable_scannable);
 
+        /* Start soft timer */
+        gecko_cmd_hardware_set_soft_timer(32768*APP_TASK_INTERVAL/1000,0,0);
+
         break;
+
+      case gecko_evt_hardware_soft_timer_id:
+    	  sendNotifications();
+    	break;
 
       case gecko_evt_le_connection_opened_id:
 
     	/* Increment connection counter */
     	active_connections_num++;
 
-        //printLog("connection opened\r\n");
-    	currentConnection = evt->data.evt_gatt_server_user_read_request.connection;
+        gecko_cmd_le_gap_start_advertising(0, le_gap_general_discoverable, le_gap_connectable_scannable);
 
-    	// IZI - This is what makes the device disapear, this should be fixed
-        //if(active_connections_num < pconfig->bluetooth.max_connections)
-            /* If maximum connections hasn't been reached we can restart advertising. */
-        	 gecko_cmd_le_gap_start_advertising(0, le_gap_general_discoverable, le_gap_connectable_scannable);
-//        else
-        	//printLog("Max connections reached. Advertising not enabled.\r\n");
         break;
 
       case gecko_evt_le_connection_closed_id:
+
     	active_connections_num--;
-        //printLog("connection closed, reason: 0x%2.2x\r\n", evt->data.evt_le_connection_closed.reason);
 
         /* Check if need to boot to OTA DFU mode */
-        if (boot_to_dfu) {
-          /* Enter to OTA DFU mode */
+        if (boot_to_dfu)
           gecko_cmd_system_reset(2);
-        } else {
+         else
+        	gecko_cmd_le_gap_start_advertising(0, le_gap_general_discoverable, le_gap_connectable_scannable);
 
-        }
-        // IZI - This also affects the visibility of the board
-        	//if(active_connections_num == pconfig->bluetooth.max_connections - 1) {
-        		//printLog("Connection is now available. Restarting advertising\r\n");
-        		/* If we had the maximum connections we can go back to scanning and advertising as connectable */
-        		gecko_cmd_le_gap_start_advertising(0, le_gap_general_discoverable, le_gap_connectable_scannable);
-        //}
         break;
 
       /* Events related to OTA upgrading
@@ -214,6 +237,7 @@ void appMain(gecko_configuration_t *pconfig)
       case gecko_evt_gatt_server_user_write_request_id:
 
         if (evt->data.evt_gatt_server_user_write_request.characteristic == gattdb_ota_control) {
+
           /* Set flag to enter to OTA mode */
           boot_to_dfu = 1;
           /* Send response to Write Request */
@@ -225,213 +249,96 @@ void appMain(gecko_configuration_t *pconfig)
           /* Close connection to enter to DFU OTA mode */
           gecko_cmd_le_connection_close(evt->data.evt_gatt_server_user_write_request.connection);
         }
+//        if (evt->data.evt_gatt_server_user_write_request.characteristic == gattdb_ota_mcu) {
+//                    memcpy(user_char_buf + evt->data.evt_gatt_server_user_write_request.offset,
+//                    		evt->data.evt_gatt_server_user_write_request.value.data,
+//							evt->data.evt_gatt_server_user_write_request.value.len);
+//
+//                    gecko_cmd_gatt_server_send_user_write_response(
+//                    		evt->data.evt_gatt_server_user_write_request.connection,
+//                    		evt->data.evt_gatt_server_user_write_request.characteristic,
+//							bg_err_success);
+//                }
+        if (evt->data.evt_gatt_server_user_write_request.characteristic == gattdb_PSI) {
+			memcpy(psiMessage + evt->data.evt_gatt_server_user_write_request.offset,
+					&evt->data.evt_gatt_server_user_write_request.value.data,
+					evt->data.evt_gatt_server_user_write_request.value.len);
+
+			gecko_cmd_gatt_server_send_user_write_response(
+					evt->data.evt_gatt_server_user_write_request.connection,
+					evt->data.evt_gatt_server_user_write_request.characteristic,
+					bg_err_success);
+
+         }
+
+        if (evt->data.evt_gatt_server_user_write_request.characteristic == gattdb_Control_Input) {
+        			memcpy(&controlInput + evt->data.evt_gatt_server_user_write_request.offset,
+        					evt->data.evt_gatt_server_user_write_request.value.data,
+        					evt->data.evt_gatt_server_user_write_request.value.len);
+
+        			gecko_cmd_gatt_server_send_user_write_response(
+        					evt->data.evt_gatt_server_user_write_request.connection,
+        					evt->data.evt_gatt_server_user_write_request.characteristic,
+        					bg_err_success);
+
+        			// If controlInput = 01 (Data Reset)
+        			if (controlInput == 1){
+        				increment = 0;
+        				controlInput = 0;
+        				}
+        			// If controlInput = 10 (Zero Raw value)
+        			else if (controlInput == 2){
+        				psiMessage[0] = psiMessage[3];
+        				controlInput = 0;
+        			}
+        			else if (controlInput == 3){
+        				if(simulate)
+        					simulate = false;
+        				else
+        					simulate = true;
+        			}
+        }
+
         break;
 
         /* Add additional event handlers as your application requires */
              case gecko_evt_gatt_server_user_read_request_id:
-           	  if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_stroke_count) {
+           	  if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_Strokes) {
        			gecko_cmd_gatt_server_send_user_read_response(
        			  evt->data.evt_gatt_server_user_read_request.connection,
-				  gattdb_stroke_count,
+				  gattdb_Strokes,
        			  bg_err_success,
 				  sizeof(strokes),
 				  (uint8 *)&strokes);
            	  }
 
-           	  else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_hours_pumped) {
+           	  else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_Run_hours) {
          			gecko_cmd_gatt_server_send_user_read_response(
          			  evt->data.evt_gatt_server_user_read_request.connection,
-					  gattdb_hours_pumped,
+					  gattdb_Run_hours,
          			  bg_err_success,
          			  sizeof(runTime),
 					  (uint8 *)&runTime);
              	  }
-           	else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_raw_value) {
+           	else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_Bins) {
            	         			gecko_cmd_gatt_server_send_user_read_response(
            	         			  evt->data.evt_gatt_server_user_read_request.connection,
-								  gattdb_raw_value,
+								  gattdb_Bins,
            	         			  bg_err_success,
-           	         			  sizeof(rawValue),
-           						  (uint8 *)&rawValue);
+           	         			  sizeof(Bins),
+           						  (uint8 *)&Bins);
            	             	  }
-           	else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_scaled_value) {
+           	else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_PSI) {
            	         			gecko_cmd_gatt_server_send_user_read_response(
            	         			  evt->data.evt_gatt_server_user_read_request.connection,
-								  gattdb_scaled_value,
+								  gattdb_PSI,
            	         			  bg_err_success,
-           	         			  sizeof(scaledValue),
-           						  (uint8 *)&scaledValue);
+           	         			  sizeof(psiMessage),
+           						  (uint8 *)&psiMessage);
            	             	  }
-
-           	  else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_bin_1) {
-         			gecko_cmd_gatt_server_send_user_read_response(
-         			  evt->data.evt_gatt_server_user_read_request.connection,
-					  evt->data.evt_gatt_server_user_read_request.characteristic,
-         			  bg_err_success,
-         			  sizeof(bins[0]),
-					  (uint8 *)&bins[0]);
-             	  }
-           	else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_bin_2) {
-           	         			gecko_cmd_gatt_server_send_user_read_response(
-           	         			  evt->data.evt_gatt_server_user_read_request.connection,
-								  evt->data.evt_gatt_server_user_read_request.characteristic,
-           	         			  bg_err_success,
-           	         			  sizeof(bins[1]),
-								  (uint8 *)&bins[1]);
-           	             	  }
-           	else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_bin_3) {
-           	         			gecko_cmd_gatt_server_send_user_read_response(
-           	         			  evt->data.evt_gatt_server_user_read_request.connection,
-								  evt->data.evt_gatt_server_user_read_request.characteristic,
-           	         			  bg_err_success,
-           	         			  sizeof(bins[2]),
-								  (uint8 *)&bins[2]);
-           	             	  }
-           	else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_bin_4) {
-           	           	         			gecko_cmd_gatt_server_send_user_read_response(
-           	           	         			  evt->data.evt_gatt_server_user_read_request.connection,
-           									  evt->data.evt_gatt_server_user_read_request.characteristic,
-           	           	         			  bg_err_success,
-           	           	         			  sizeof(bins[3]),
-											  (uint8 *)&bins[3]);
-           	           	             	  }
-           	else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_bin_5) {
-           	           	         			gecko_cmd_gatt_server_send_user_read_response(
-           	           	         			  evt->data.evt_gatt_server_user_read_request.connection,
-           									  evt->data.evt_gatt_server_user_read_request.characteristic,
-           	           	         			  bg_err_success,
-           	           	         			  sizeof(bins[4]),
-											  (uint8 *)&bins[4]);
-           	           	             	  }
-           	else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_bin_6) {
-           	           	         			gecko_cmd_gatt_server_send_user_read_response(
-           	           	         			  evt->data.evt_gatt_server_user_read_request.connection,
-           									  evt->data.evt_gatt_server_user_read_request.characteristic,
-           	           	         			  bg_err_success,
-           	           	         			  sizeof(bins[5]),
-											  (uint8 *)&bins[5]);
-           	           	             	  }
-           	else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_bin_7) {
-           	           	         			gecko_cmd_gatt_server_send_user_read_response(
-           	           	         			  evt->data.evt_gatt_server_user_read_request.connection,
-           									  evt->data.evt_gatt_server_user_read_request.characteristic,
-           	           	         			  bg_err_success,
-           	           	         			  sizeof(bins[6]),
-											  (uint8 *)&bins[6]);
-           	           	             	  }
-           	else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_bin_8) {
-           	           	         			gecko_cmd_gatt_server_send_user_read_response(
-           	           	         			  evt->data.evt_gatt_server_user_read_request.connection,
-           									  evt->data.evt_gatt_server_user_read_request.characteristic,
-           	           	         			  bg_err_success,
-           	           	         			  sizeof(bins[7]),
-											  (uint8 *)&bins[7]);
-           	           	             	  }
-           	else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_bin_9) {
-           	           	         			gecko_cmd_gatt_server_send_user_read_response(
-           	           	         			  evt->data.evt_gatt_server_user_read_request.connection,
-           									  evt->data.evt_gatt_server_user_read_request.characteristic,
-           	           	         			  bg_err_success,
-           	           	         			  sizeof(bins[8]),
-											  (uint8 *)&bins[8]);
-           	           	             	  }
-           	else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_bin_10) {
-           	           	         			gecko_cmd_gatt_server_send_user_read_response(
-           	           	         			  evt->data.evt_gatt_server_user_read_request.connection,
-           									  evt->data.evt_gatt_server_user_read_request.characteristic,
-           	           	         			  bg_err_success,
-           	           	         			  sizeof(bins[9]),
-											  (uint8 *)&bins[9]);
-           	           	             	  }
-           	else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_bin_11) {
-           	           	         			gecko_cmd_gatt_server_send_user_read_response(
-           	           	         			  evt->data.evt_gatt_server_user_read_request.connection,
-           									  evt->data.evt_gatt_server_user_read_request.characteristic,
-           	           	         			  bg_err_success,
-           	           	         			  sizeof(bins[10]),
-											  (uint8 *)&bins[10]);
-           	           	             	  }
-           	else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_bin_12) {
-           	           	         			gecko_cmd_gatt_server_send_user_read_response(
-           	           	         			  evt->data.evt_gatt_server_user_write_request.connection,
-           									  evt->data.evt_gatt_server_user_read_request.characteristic,
-           	           	         			  bg_err_success,
-           	           	         			  sizeof(bins[11]),
-											  (uint8 *)&bins[11]);
-           	           	             	  }
-           	else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_bin_13) {
-           	           	         			gecko_cmd_gatt_server_send_user_read_response(
-           	           	         			  evt->data.evt_gatt_server_user_write_request.connection,
-           									  evt->data.evt_gatt_server_user_read_request.characteristic,
-           	           	         			  bg_err_success,
-           	           	         			  sizeof(bins[12]),
-											  (uint8 *)&bins[12]);
-           	           	             	  }
-           	else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_bin_14) {
-           	           	         			gecko_cmd_gatt_server_send_user_read_response(
-           	           	         			  evt->data.evt_gatt_server_user_write_request.connection,
-           									  evt->data.evt_gatt_server_user_read_request.characteristic,
-           	           	         			  bg_err_success,
-           	           	         			  sizeof(bins[13]),
-											  (uint8 *)&bins[13]);
-           	           	             	  }
-           	else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_bin_15) {
-           	           	         			gecko_cmd_gatt_server_send_user_read_response(
-           	           	         			  evt->data.evt_gatt_server_user_write_request.connection,
-           									  evt->data.evt_gatt_server_user_read_request.characteristic,
-           	           	         			  bg_err_success,
-           	           	         			  sizeof(bins[14]),
-											  (uint8 *)&bins[14]);
-           	           	             	  }
-           	else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_bin_16) {
-           	           	         			gecko_cmd_gatt_server_send_user_read_response(
-           	           	         			  evt->data.evt_gatt_server_user_write_request.connection,
-           									  evt->data.evt_gatt_server_user_read_request.characteristic,
-           	           	         			  bg_err_success,
-           	           	         			  sizeof(bins[15]),
-											  (uint8 *)&bins[15]);
-           	           	             	  }
-           	else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_bin_17) {
-           	           	         			gecko_cmd_gatt_server_send_user_read_response(
-           	           	         			  evt->data.evt_gatt_server_user_read_request.connection,
-           									  evt->data.evt_gatt_server_user_read_request.characteristic,
-           	           	         			  bg_err_success,
-           	           	         			  sizeof(bins[16]),
-											  (uint8 *)&bins[16]);
-           	           	             	  }
-           	else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_bin_18) {
-           	           	         			gecko_cmd_gatt_server_send_user_read_response(
-           	           	         			  evt->data.evt_gatt_server_user_read_request.connection,
-           									  evt->data.evt_gatt_server_user_read_request.characteristic,
-           	           	         			  bg_err_success,
-           	           	         			  sizeof(bins[17]),
-											  (uint8 *)&bins[17]);
-           	           	             	  }
-           	else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_bin_19) {
-           	           	         			gecko_cmd_gatt_server_send_user_read_response(
-           	           	         			  evt->data.evt_gatt_server_user_read_request.connection,
-           									  evt->data.evt_gatt_server_user_read_request.characteristic,
-           	           	         			  bg_err_success,
-           	           	         			  sizeof(bins[18]),
-											  (uint8 *)&bins[18]);
-           	           	             	  }
-           	else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_bin_20) {
-           	           	         			gecko_cmd_gatt_server_send_user_read_response(
-           	           	         			  evt->data.evt_gatt_server_user_read_request.connection,
-           									  evt->data.evt_gatt_server_user_read_request.characteristic,
-           	           	         			  bg_err_success,
-           	           	         			  sizeof(bins[19]),
-											  (uint8 *)&bins[19]);
-           	           	             	  }
-
-
-
-
-
            	 break;
       default:
         break;
-    }
     }
   }
 }

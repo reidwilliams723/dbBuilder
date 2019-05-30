@@ -5,6 +5,7 @@
 GNU\ ARM\ v7.2.1\ -\ Debug
 GNU\ ARM\ v7.2.1\ -\ Release
 GNU\ ARM\ v7.2.1\ -\ Default
+GNU\ ARM\ v7.2.1\ -\ Default\ -\ BGM111E256V2
 
 #################
 ## Eclipse
@@ -222,3 +223,4 @@ pip-log.txt
 
 #Mr Developer
 .mr.developer.cfg
+/GNU ARM v7.2.1 - Default - BGM111A256V2/
