@@ -85,6 +85,13 @@
       <value length="1" type="user" variable_length="false"/>
       <properties write="true" write_requirement="optional"/>
     </characteristic>
+    
+    <!--Accelerometer-->
+    <characteristic id="Accelerometer" name="Accelerometer" sourceId="com.characteristic.accelerometer" uuid="00002A20-0000-4358-9ad6-a241984cff67">
+      <informativeText>Custom characteristic</informativeText>
+      <value length="12" type="user" variable_length="false"/>
+      <properties notify="true" notify_requirement="optional" read="true" read_requirement="optional"/>
+    </characteristic>
   </service>
   
   <!--Silicon Labs OTA-->

@@ -165,7 +165,7 @@ void processSerial(SerialProto_t *serialObj) {
 			serialObj->rxDone = 0;
 			serialObj->rxState = SERIAL_STATE_RX_DATA;
 			// Extra safeward
-			if (rxData != 96) {
+			if (rxData != 108) {
 				serialObj->rxState = SERIAL_STATE_WAIT_RX;
 			}
 		}

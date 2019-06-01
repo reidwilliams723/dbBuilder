@@ -22,10 +22,11 @@ extern const struct bg_gattdb_def bg_gattdb_data;
 #define gattdb_PSI                             29
 #define gattdb_Bins                            32
 #define gattdb_Control_Input                   35
-#define gattdb_ota_control                     38
-#define gattdb_ota_data                        40
-#define gattdb_ota_mcu_control                 42
-#define gattdb_ota_mcu_data                    45
-#define gattdb_location_and_speed              48
+#define gattdb_Accelerometer                   37
+#define gattdb_ota_control                     41
+#define gattdb_ota_data                        43
+#define gattdb_ota_mcu_control                 45
+#define gattdb_ota_mcu_data                    48
+#define gattdb_location_and_speed              51
 
 #endif

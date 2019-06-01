@@ -61,11 +61,12 @@ uint8_t accelerationz; // Accelerometer Z value from MCU
 /* Buffers/Values for BLE Characteristic 'User' Types */
 uint32_t psiMessage[5]; // Holds the RawZero, RawScale, UnitsScale, PSI Raw Value, and Scaled PSI Value
 uint32_t Bins[5]; // Aggregates and divides bins[20] into 5 values
+uint32_t AccelerometerData[3]; // Holds the X,Y, and Z values
 char controlInput; // Byte for control input. 0x01 = Reset, 0x02 = Zero Out
 char mcuControlOTA;
 uint32_t packetIncrement = 0;
 uint32_t mcuControlData[5];
-//uint32_t packetBuffer[130000];
+
 
 
 /* Simulating Variables */
@@ -95,8 +96,21 @@ void unPackData(uint8_t *buffer) {
 	memcpy(&scaledValue, buffer+index,sizeof(scaledValue));
 	index += sizeof(scaledValue);
 
+	memcpy(accelerationx, buffer+index,sizeof(accelerationx));
+	index += sizeof(bins);
+
+	memcpy(&accelerationy, buffer+index,sizeof(accelerationy));
+	index += sizeof(rawValue);
+
+	memcpy(&accelerationz, buffer+index,sizeof(accelerationz));
+	index += sizeof(scaledValue);
+
 	psiMessage[4] = scaledValue;
 	psiMessage[3] = rawValue;
+
+	AccelerometerData[0] = accelerationx;
+	AccelerometerData[1] = accelerationy;
+	AccelerometerData[2] = accelerationz;
 
 	Bins[0] = bins[0] +  bins[1] +  bins[2] +  bins[3];
 	Bins[1] = bins[4] + bins[5] +  bins[6] +  bins[7];
@@ -134,6 +148,7 @@ void sendNotifications(){
 	gecko_cmd_gatt_server_send_characteristic_notification(0xFF, gattdb_Run_hours, sizeof(runTime), (uint8 *)&runTime);
 	gecko_cmd_gatt_server_send_characteristic_notification(0xFF, gattdb_PSI, sizeof(psiMessage), (uint8 *)&psiMessage);
 	gecko_cmd_gatt_server_send_characteristic_notification(0xFF, gattdb_Bins, sizeof(Bins), (uint8 *)&Bins);
+	gecko_cmd_gatt_server_send_characteristic_notification(0xFF, gattdb_Accelerometer, sizeof(AccelerometerData), (uint8 *)&AccelerometerData);
 }
 /* Main application */
 void appMain(gecko_configuration_t *pconfig)
@@ -353,21 +368,29 @@ void appMain(gecko_configuration_t *pconfig)
 					  (uint8 *)&runTime);
              	  }
            	else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_Bins) {
-           	         			gecko_cmd_gatt_server_send_user_read_response(
-           	         			  evt->data.evt_gatt_server_user_read_request.connection,
-								  gattdb_Bins,
-           	         			  bg_err_success,
-           	         			  sizeof(Bins),
-           						  (uint8 *)&Bins);
-           	             	  }
+					gecko_cmd_gatt_server_send_user_read_response(
+					  evt->data.evt_gatt_server_user_read_request.connection,
+					  gattdb_Bins,
+					  bg_err_success,
+					  sizeof(Bins),
+					  (uint8 *)&Bins);
+				  }
            	else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_PSI) {
-           	         			gecko_cmd_gatt_server_send_user_read_response(
-           	         			  evt->data.evt_gatt_server_user_read_request.connection,
-								  gattdb_PSI,
-           	         			  bg_err_success,
-           	         			  sizeof(psiMessage),
-           						  (uint8 *)&psiMessage);
-           	             	  }
+				gecko_cmd_gatt_server_send_user_read_response(
+				  evt->data.evt_gatt_server_user_read_request.connection,
+				  gattdb_PSI,
+				  bg_err_success,
+				  sizeof(psiMessage),
+				  (uint8 *)&psiMessage);
+			  }
+           	else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_Accelerometer) {
+				gecko_cmd_gatt_server_send_user_read_response(
+				  evt->data.evt_gatt_server_user_read_request.connection,
+				  gattdb_PSI,
+				  bg_err_success,
+				  sizeof(AccelerometerData),
+				  (uint8 *)&AccelerometerData);
+			  }
            	 break;
       default:
         break;
