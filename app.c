@@ -97,13 +97,13 @@ void unPackData(uint8_t *buffer) {
 	index += sizeof(scaledValue);
 
 	memcpy(accelerationx, buffer+index,sizeof(accelerationx));
-	index += sizeof(bins);
+	index += sizeof(accelerationx);
 
 	memcpy(&accelerationy, buffer+index,sizeof(accelerationy));
-	index += sizeof(rawValue);
+	index += sizeof(accelerationy);
 
 	memcpy(&accelerationz, buffer+index,sizeof(accelerationz));
-	index += sizeof(scaledValue);
+	index += sizeof(accelerationz);
 
 	psiMessage[4] = scaledValue;
 	psiMessage[3] = rawValue;
