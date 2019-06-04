@@ -53,9 +53,9 @@ uint32_t strokes = 0x0; // Stroke value from MCU
 uint32_t runTime = 0; // Run time value from MCU
 uint32_t rawValue; // Raw PSI value from MCU
 uint32_t scaledValue; // Scaled PSI value from MCU
-uint8_t accelerationx; // Accelerometer X value from MCU
-uint8_t accelerationy; // Accelerometer Y value from MCU
-uint8_t accelerationz; // Accelerometer Z value from MCU
+uint32_t accelerationx; // Accelerometer X value from MCU
+uint32_t accelerationy; // Accelerometer Y value from MCU
+uint32_t accelerationz; // Accelerometer Z value from MCU
 
 
 /* Buffers/Values for BLE Characteristic 'User' Types */
@@ -96,7 +96,7 @@ void unPackData(uint8_t *buffer) {
 	memcpy(&scaledValue, buffer+index,sizeof(scaledValue));
 	index += sizeof(scaledValue);
 
-	memcpy(accelerationx, buffer+index,sizeof(accelerationx));
+	memcpy(&accelerationx, buffer+index,sizeof(accelerationx));
 	index += sizeof(accelerationx);
 
 	memcpy(&accelerationy, buffer+index,sizeof(accelerationy));
@@ -105,8 +105,9 @@ void unPackData(uint8_t *buffer) {
 	memcpy(&accelerationz, buffer+index,sizeof(accelerationz));
 	index += sizeof(accelerationz);
 
-	psiMessage[4] = scaledValue;
+
 	psiMessage[3] = rawValue;
+	psiMessage[4] = scaledValue;
 
 	AccelerometerData[0] = accelerationx;
 	AccelerometerData[1] = accelerationy;
@@ -296,7 +297,7 @@ void appMain(gecko_configuration_t *pconfig)
         	{
 				packetIncrement++;
 
-				if (packetIncrement == 130000){
+				if (packetIncrement == 500){
 					uint8 tmp = 1;
 					gecko_cmd_gatt_server_send_characteristic_notification(evt->data.evt_gatt_server_user_write_request.connection,
 							gattdb_ota_mcu_control, sizeof(mcuControlOTA), (uint8 *)&tmp);

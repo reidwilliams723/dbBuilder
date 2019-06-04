@@ -17,16 +17,15 @@ extern const struct bg_gattdb_def bg_gattdb_data;
 #define gattdb_database_hash                    6
 #define gattdb_client_support_features          8
 #define gattdb_device_name                     11
-#define gattdb_Strokes                         23
-#define gattdb_Run_hours                       26
-#define gattdb_PSI                             29
-#define gattdb_Bins                            32
-#define gattdb_Control_Input                   35
-#define gattdb_Accelerometer                   37
-#define gattdb_ota_control                     41
-#define gattdb_ota_data                        43
-#define gattdb_ota_mcu_control                 45
-#define gattdb_ota_mcu_data                    48
-#define gattdb_location_and_speed              51
+#define gattdb_ota_data                        23
+#define gattdb_ota_control                     25
+#define gattdb_ota_mcu_control                 27
+#define gattdb_ota_mcu_data                    30
+#define gattdb_Strokes                         33
+#define gattdb_Run_hours                       36
+#define gattdb_PSI                             39
+#define gattdb_Bins                            42
+#define gattdb_Control_Input                   45
+#define gattdb_location_and_speed              48
 
 #endif
