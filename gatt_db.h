@@ -26,6 +26,7 @@ extern const struct bg_gattdb_def bg_gattdb_data;
 #define gattdb_PSI                             39
 #define gattdb_Bins                            42
 #define gattdb_Control_Input                   45
-#define gattdb_location_and_speed              48
+#define gattdb_Accelerometer                   47
+#define gattdb_location_and_speed              50
 
 #endif
