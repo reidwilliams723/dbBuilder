@@ -29,8 +29,10 @@
 
 /* Other headers */
 #include "app.h"
-#include "serialProtocol.h"
 #include <stdbool.h>
+#include "mcu_characteristics.h"
+#include "serialProtocol.h"
+#include "serialProtocolFunctions.h"
 
 /* Interval for sending notifications */
 #define APP_TASK_INTERVAL 500 //ms
@@ -47,109 +49,47 @@ static uint8_t boot_to_dfu = 0;
 uint8_t active_connections_num;
 
 
-/* Values from MCU */
-uint32_t bins[20]; // Bins buffer from MCU
-uint32_t strokes = 0x0; // Stroke value from MCU
-uint32_t runTime = 0; // Run time value from MCU
-uint32_t rawValue; // Raw PSI value from MCU
-uint32_t scaledValue; // Scaled PSI value from MCU
-uint32_t accelerationx; // Accelerometer X value from MCU
-uint32_t accelerationy; // Accelerometer Y value from MCU
-uint32_t accelerationz; // Accelerometer Z value from MCU
-
-
-/* Buffers/Values for BLE Characteristic 'User' Types */
-uint32_t psiMessage[5]; // Holds the RawZero, RawScale, UnitsScale, PSI Raw Value, and Scaled PSI Value
-uint32_t Bins[5]; // Aggregates and divides bins[20] into 5 values
-uint32_t AccelerometerData[3]; // Holds the X,Y, and Z values
 char controlInput; // Byte for control input. 0x01 = Reset, 0x02 = Zero Out
 char mcuControlOTA;
 uint32_t packetIncrement = 0;
 uint32_t mcuControlData[5];
 
 
-
 /* Simulating Variables */
-bool simulate = false; // Boolean for either simulating data or reading data from MCU
-uint32_t timer = 0;
+bool simulate = true; // Boolean for either simulating data or reading data from MCU
 uint32_t increment = 0;
-
 
 /* Initialize Serial Port struct */
 SerialProto_t serialPort;
-
-
-void unPackData(uint8_t *buffer) {
-	uint32_t index = 0;
-	memcpy(&strokes, buffer+index,sizeof(strokes));
-	index += sizeof(strokes);
-
-	memcpy(&runTime, buffer+index,sizeof(runTime));
-	index += sizeof(runTime);
-
-	memcpy(bins, buffer+index,sizeof(bins));
-	index += sizeof(bins);
-
-	memcpy(&rawValue, buffer+index,sizeof(rawValue));
-	index += sizeof(rawValue);
-
-	memcpy(&scaledValue, buffer+index,sizeof(scaledValue));
-	index += sizeof(scaledValue);
-
-	memcpy(&accelerationx, buffer+index,sizeof(accelerationx));
-	index += sizeof(accelerationx);
-
-	memcpy(&accelerationy, buffer+index,sizeof(accelerationy));
-	index += sizeof(accelerationy);
-
-	memcpy(&accelerationz, buffer+index,sizeof(accelerationz));
-	index += sizeof(accelerationz);
-
-
-	psiMessage[3] = rawValue;
-	psiMessage[4] = scaledValue;
-
-	AccelerometerData[0] = accelerationx;
-	AccelerometerData[1] = accelerationy;
-	AccelerometerData[2] = accelerationz;
-
-	Bins[0] = bins[0] +  bins[1] +  bins[2] +  bins[3];
-	Bins[1] = bins[4] + bins[5] +  bins[6] +  bins[7];
-	Bins[2] = bins[8] + bins[9] +  bins[10] +  bins[11];
-	Bins[3] = bins[12] + bins[13] + bins[14] + bins[15];
-	Bins[4] = bins[16] +  bins[17] +  bins[18] +  bins[19];
-
-}
+MCU_Characteristics_t mcuChars;
 
 void simulation(){
 	increment++;
 	if (increment > 100000)
 		increment = 0;
 
-	Bins[0] = increment;
-	Bins[1] = increment+100;
-	Bins[2] = increment+500;
-	Bins[3] = increment+600;
-	Bins[4] = 0;
+	mcuChars.binsData[0] = increment;
+	mcuChars.binsData[1] = increment+100;
+	mcuChars.binsData[2] = increment+500;
+	mcuChars.binsData[3] = increment+600;
+	mcuChars.binsData[4] = 0;
 
-	strokes = increment;
-	runTime = increment - 1;
+	mcuChars.strokes = increment;
+	mcuChars.runTime = increment - 1;
 
-	rawValue = 4;
-	scaledValue = 18234;
+	mcuChars.psiData[3] = 15;
+	mcuChars.psiData[4] = 18234;
 
-	psiMessage[3] = rawValue;
-	psiMessage[4] = scaledValue;
 }
 void sendNotifications(){
 	if (simulate)
 		simulation();
 
-	gecko_cmd_gatt_server_send_characteristic_notification(0xFF, gattdb_Strokes, sizeof(strokes), (uint8 *)&strokes);
-	gecko_cmd_gatt_server_send_characteristic_notification(0xFF, gattdb_Run_hours, sizeof(runTime), (uint8 *)&runTime);
-	gecko_cmd_gatt_server_send_characteristic_notification(0xFF, gattdb_PSI, sizeof(psiMessage), (uint8 *)&psiMessage);
-	gecko_cmd_gatt_server_send_characteristic_notification(0xFF, gattdb_Bins, sizeof(Bins), (uint8 *)&Bins);
-	gecko_cmd_gatt_server_send_characteristic_notification(0xFF, gattdb_Accelerometer, sizeof(AccelerometerData), (uint8 *)&AccelerometerData);
+	gecko_cmd_gatt_server_send_characteristic_notification(0xFF, gattdb_Strokes, sizeof(mcuChars.strokes), (uint8 *)&mcuChars.strokes);
+	gecko_cmd_gatt_server_send_characteristic_notification(0xFF, gattdb_Run_hours, sizeof(mcuChars.runTime), (uint8 *)&mcuChars.runTime);
+	gecko_cmd_gatt_server_send_characteristic_notification(0xFF, gattdb_PSI, sizeof(mcuChars.psiData), (uint8 *)&mcuChars.psiData);
+	gecko_cmd_gatt_server_send_characteristic_notification(0xFF, gattdb_Bins, sizeof(mcuChars.binsData), (uint8 *)&mcuChars.binsData);
+	gecko_cmd_gatt_server_send_characteristic_notification(0xFF, gattdb_Accelerometer, sizeof(mcuChars.accelerometerData), (uint8 *)&mcuChars.accelerometerData);
 }
 /* Main application */
 void appMain(gecko_configuration_t *pconfig)
@@ -160,21 +100,24 @@ void appMain(gecko_configuration_t *pconfig)
 #endif
 
 /* Initialize Serial Port */
- serialPort.txState = 0;
- serialPort.rxState = 0;
- serialPort.usart = USART0;
- serialPort.txCount = 0;
- serialPort.sentCount = 0;
+// serialPort.txState = 0;
+// serialPort.rxState = 0;
+// serialPort.usart = USART0;
+// serialPort.txCount = 0;
+// serialPort.sentCount = 0;
+
+ serialPort.mcu = &mcuChars;
+ initSerialProtocol(&serialPort, USART0);
 
  /* Initialize PSI Scaling if simulating */
  if(simulate)
  {
-	 psiMessage[0] = 4;
-	 psiMessage[1] = 20;
-	 psiMessage[2] = 20000;
-	 psiMessage[3] = rawValue;
-	 psiMessage[4] = scaledValue;
+	 mcuChars.psiData[0] = 4;
+	 mcuChars.psiData[1] = 20;
+	 mcuChars.psiData[2]= 20000;
  }
+
+
 
   /* Initialize stack */
   gecko_init(pconfig);
@@ -187,14 +130,15 @@ void appMain(gecko_configuration_t *pconfig)
     /* Read serial port when simulation is not taking place */
     if(!simulate)
     {
-      processSerial(&serialPort);
-
-	  if (serialPort.rxDone)
-	  {
-		serialPort.rxDone = 0;
-		unPackData(serialPort.rxData);
-		serialPort.rxData[0] = serialPort.rxData[0];
-	  }
+//      processSerial(&serialPort);
+//
+//	  if (serialPort.rxDone)
+//	  {
+//		serialPort.rxDone = 0;
+//		unPackData(serialPort.rxData);
+//		serialPort.rxData[0] = serialPort.rxData[0];
+//	  }
+    	serialProtocolProcessMessages(&serialPort);
     }
 
     evt = gecko_peek_event();
@@ -308,7 +252,7 @@ void appMain(gecko_configuration_t *pconfig)
         }
 
         if (evt->data.evt_gatt_server_user_write_request.characteristic == gattdb_PSI) {
-			memcpy(psiMessage + evt->data.evt_gatt_server_user_write_request.offset,
+			memcpy(&mcuChars.psiData + evt->data.evt_gatt_server_user_write_request.offset,
 					&evt->data.evt_gatt_server_user_write_request.value.data,
 					evt->data.evt_gatt_server_user_write_request.value.len);
 
@@ -336,7 +280,7 @@ void appMain(gecko_configuration_t *pconfig)
         				}
         			// If controlInput = 10 (Zero Raw value)
         			else if (controlInput == 2){
-        				psiMessage[0] = psiMessage[3];
+        				mcuChars.psiData[0] = mcuChars.psiData[3];
         				controlInput = 0;
         			}
         			else if (controlInput == 3){
@@ -356,8 +300,8 @@ void appMain(gecko_configuration_t *pconfig)
        			  evt->data.evt_gatt_server_user_read_request.connection,
 				  gattdb_Strokes,
        			  bg_err_success,
-				  sizeof(strokes),
-				  (uint8 *)&strokes);
+				  sizeof(mcuChars.strokes),
+				  (uint8 *)&mcuChars.strokes);
            	  }
 
            	  else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_Run_hours) {
@@ -365,32 +309,32 @@ void appMain(gecko_configuration_t *pconfig)
          			  evt->data.evt_gatt_server_user_read_request.connection,
 					  gattdb_Run_hours,
          			  bg_err_success,
-         			  sizeof(runTime),
-					  (uint8 *)&runTime);
+         			  sizeof(mcuChars.runTime),
+					  (uint8 *)&mcuChars.runTime);
              	  }
            	else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_Bins) {
 					gecko_cmd_gatt_server_send_user_read_response(
 					  evt->data.evt_gatt_server_user_read_request.connection,
 					  gattdb_Bins,
 					  bg_err_success,
-					  sizeof(Bins),
-					  (uint8 *)&Bins);
+					  sizeof(mcuChars.binsData),
+					  (uint8 *)&mcuChars.binsData);
 				  }
            	else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_PSI) {
 				gecko_cmd_gatt_server_send_user_read_response(
 				  evt->data.evt_gatt_server_user_read_request.connection,
 				  gattdb_PSI,
 				  bg_err_success,
-				  sizeof(psiMessage),
-				  (uint8 *)&psiMessage);
+				  sizeof(mcuChars.psiData),
+				  (uint8 *)&mcuChars.psiData);
 			  }
            	else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_Accelerometer) {
 				gecko_cmd_gatt_server_send_user_read_response(
 				  evt->data.evt_gatt_server_user_read_request.connection,
 				  gattdb_PSI,
 				  bg_err_success,
-				  sizeof(AccelerometerData),
-				  (uint8 *)&AccelerometerData);
+				  sizeof(mcuChars.accelerometerData),
+				  (uint8 *)&mcuChars.accelerometerData);
 			  }
            	 break;
       default:
