@@ -56,7 +56,7 @@ uint32_t mcuControlData[5];
 
 
 /* Simulating Variables */
-bool simulate = true; // Boolean for either simulating data or reading data from MCU
+bool simulate = false; // Boolean for either simulating data or reading data from MCU
 uint32_t increment = 0;
 
 /* Initialize Serial Port struct */
@@ -100,12 +100,6 @@ void appMain(gecko_configuration_t *pconfig)
 #endif
 
 /* Initialize Serial Port */
-// serialPort.txState = 0;
-// serialPort.rxState = 0;
-// serialPort.usart = USART0;
-// serialPort.txCount = 0;
-// serialPort.sentCount = 0;
-
  serialPort.mcu = &mcuChars;
  initSerialProtocol(&serialPort, USART0);
 
@@ -262,6 +256,49 @@ void appMain(gecko_configuration_t *pconfig)
 					bg_err_success);
 
          }
+
+        if (evt->data.evt_gatt_server_user_write_request.characteristic == gattdb_Erase_Firmware) {
+        			memcpy(&mcuChars.eraseFirmwarePacket + evt->data.evt_gatt_server_user_write_request.offset,
+        					&evt->data.evt_gatt_server_user_write_request.value.data,
+        					evt->data.evt_gatt_server_user_write_request.value.len);
+
+        			gecko_cmd_gatt_server_send_user_write_response(
+        					evt->data.evt_gatt_server_user_write_request.connection,
+        					evt->data.evt_gatt_server_user_write_request.characteristic,
+        					bg_err_success);
+
+        			if (mcuChars.eraseFirmwarePacket == 3){
+        				txMsgSendEraseFirmware(&serialPort);
+        				mcuChars.eraseFirmwarePacket = 0;
+        			}
+
+                 }
+        if (evt->data.evt_gatt_server_user_write_request.characteristic == gattdb_Flash_Firmware) {
+				memcpy(&mcuChars.flashFirmwarePacket + evt->data.evt_gatt_server_user_write_request.offset,
+						&evt->data.evt_gatt_server_user_write_request.value.data,
+						evt->data.evt_gatt_server_user_write_request.value.len);
+
+				gecko_cmd_gatt_server_send_user_write_response(
+						evt->data.evt_gatt_server_user_write_request.connection,
+						evt->data.evt_gatt_server_user_write_request.characteristic,
+						bg_err_success);
+
+				if (mcuChars.flashFirmwarePacket == 5){
+					txMsgSendFlashFirmware(&serialPort);
+					mcuChars.flashFirmwarePacket = 0;
+				}
+
+			 }
+        if (evt->data.evt_gatt_server_user_write_request.characteristic == gattdb_Firmware_Data) {
+					memcpy(&mcuChars.firmwareDataBuffer + evt->data.evt_gatt_server_user_write_request.offset,
+							&evt->data.evt_gatt_server_user_write_request.value.data,
+							evt->data.evt_gatt_server_user_write_request.value.len);
+
+					txMsgSendFirmwareData(&serialPort);
+
+
+
+        }
 
         if (evt->data.evt_gatt_server_user_write_request.characteristic == gattdb_Control_Input) {
         			memcpy(&controlInput + evt->data.evt_gatt_server_user_write_request.offset,

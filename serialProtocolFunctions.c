@@ -36,29 +36,6 @@
 uint8_t messageFlags[SERIAL_PROTO_MSG_MAX];
 
 
-//// Function that process a received Firmware Data Packet
-//void rxMsgEraseFirmwareData() {
-//	//int32_t result = bootloader_eraseStorageSlot(FIRMWARE_SLOT);
-//	bootloader_eraseStorageSlot(FIRMWARE_SLOT);
-//}
-//
-//// Function that process a received Firmware Data Packet
-//// Blocks are fixed size and first element corresponds to the respective block to write
-//void rxMsgProcessFirmwareData(uint8_t *data) {
-//	uint16_t blockId = *(uint16_t *)data;
-//	uint8_t  *pRxFirmwareData = data + sizeof(uint16_t);
-///*	int32_t result = bootloader_writeStorage(FIRMWARE_SLOT,
-//	                                blockId * FIRMWARE_BLOCK_SIZE, // offset in Buffer
-//									pRxFirmwareData,               // Data
-//									FIRMWARE_BLOCK_SIZE);          // Bytes to write
-//*/
-//	bootloader_writeStorage(FIRMWARE_SLOT,
-//	                                blockId * FIRMWARE_BLOCK_SIZE, // offset in Buffer
-//									pRxFirmwareData,               // Data
-//									FIRMWARE_BLOCK_SIZE);          // Bytes to write
-//
-//}
-
 void rxMsgProcessStrokesData(SerialProto_t *pSerialObj){
 	uint8_t *data = pSerialObj->rxData + 1;
 	memcpy(&pSerialObj->mcu->strokes, data,sizeof(pSerialObj->mcu->strokes));
@@ -76,6 +53,18 @@ uint8_t txMsgStrokesDataCount = 0;
 
 int txMsgSendStrokes(SerialProto_t *pSerialObj, uint32_t strokesCount) {
 	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_REPORT_STROKES,sizeof(strokesCount),(uint8_t *)&strokesCount);
+}
+
+int txMsgSendEraseFirmware(SerialProto_t *pSerialObj) {
+	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_ERASE_FIRMWARE_SLOT,sizeof(uint8_t),(uint8_t *)&pSerialObj->mcu->eraseFirmwarePacket);
+}
+
+int txMsgSendFirmwareData(SerialProto_t *pSerialObj) {
+	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_FIRMWARE_DATA,sizeof(uint8_t),(uint8_t *)&pSerialObj->mcu->firmwareDataBuffer);
+}
+
+int txMsgSendFlashFirmware(SerialProto_t *pSerialObj){
+	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_FIRMWARE_FLASH,sizeof(uint8_t),(uint8_t *)&pSerialObj->mcu->flashFirmwarePacket);
 }
 
 
@@ -122,10 +111,10 @@ void serialProtocolProcessMessages(SerialProto_t *pSerialObj) {
 		//*********************** TESTING ONLY *************************
 		//Send a Done command as response
 
-		if (pSerialObj->txCount == 0) {
-			pSerialObj->dataToTX[0] = SERIAL_PROTO_MSG_DONE;
-			pSerialObj->txCount = 1;
-		 }
+//		if (pSerialObj->txCount == 0) {
+//			pSerialObj->dataToTX[0] = SERIAL_PROTO_MSG_DONE;
+//			pSerialObj->txCount = 1;
+//		 }
 		//*********************** END TESTING BLOCK *************************
 
 	}

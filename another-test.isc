@@ -129,6 +129,24 @@ appPlugin: stack_bridge=false
       </descriptor>
     </characteristic>
   </service>
+  <service advertise="false" id="mcu_ota" name="MCU OTA" requirement="mandatory" sourceId="com.service.mcu_ota" type="primary" uuid="001d7588-a967-41af-bdd0-025426ce7e65">
+    <informativeText>Custom service</informativeText>
+    <characteristic id="Erase_Firmware" name="Erase Firmware" sourceId="com.characteristic.erase_firmware" uuid="36209d51-1e7d-45f8-906f-0179c70996ee">
+      <informativeText>Custom characteristic</informativeText>
+      <value length="1" type="user" variable_length="false"/>
+      <properties write="true" write_requirement="optional"/>
+    </characteristic>
+    <characteristic id="Flash_Firmware" name="Flash Firmware" sourceId="com.characteristic.flash_firmware" uuid="36209d52-1e7d-45f8-906f-0179c70996ee">
+      <informativeText>Custom characteristic</informativeText>
+      <value length="1" type="user" variable_length="false"/>
+      <properties write="true" write_requirement="optional"/>
+    </characteristic>
+    <characteristic id="Firmware_Data" name="Firmware Data" sourceId="com.characteristic.firmware_data" uuid="36209d53-1e7d-45f8-906f-0179c70996ee">
+      <informativeText>Custom characteristic</informativeText>
+      <value length="18" type="user" variable_length="false"/>
+      <properties write="true" write_no_response="true" write_no_response_requirement="optional" write_requirement="optional"/>
+    </characteristic>
+  </service>
 </gatt>
 }
 {setupId:callbackConfiguration

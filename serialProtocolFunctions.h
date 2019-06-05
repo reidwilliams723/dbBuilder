@@ -61,6 +61,9 @@
 void serialProtocolProcessMessages(SerialProto_t *pSerialObj);
 
 int txMsgSendStrokes(SerialProto_t *pSerialObj, uint32_t strokesCount);
+int txMsgSendEraseFirmware(SerialProto_t *pSerialObj);
+int txMsgSendFirmwareData(SerialProto_t *pSerialObj);
+int txMsgSendFlashFirmware(SerialProto_t *pSerialObj);
 int txMsgSendMessage(SerialProto_t *pSerialObj,uint8_t msgType,uint8_t dataLength, uint8_t *pBuffer);
 
 
