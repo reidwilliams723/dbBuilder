@@ -48,24 +48,41 @@
 #define SERIAL_PROTO_MSG_FIRMWARE_DATA       	4
 #define SERIAL_PROTO_MSG_FIRMWARE_FLASH       	5
 #define SERIAL_PROTO_MSG_REPORT_STROKES         6
-
-
-
-
-
-
-
-
+#define SERIAL_PROTO_MSG_ZERO_RAW_VALUE         7
+#define SERIAL_PROTO_MSG_RESET_DATA             8
+#define SERIAL_PROTO_MSG_REPORT_RUNTIME         9
+#define SERIAL_PROTO_MSG_REPORT_BINS            10
+#define SERIAL_PROTO_MSG_REPORT_PSI             11
+#define SERIAL_PROTO_MSG_REPORT_ACCELEROMETER   12
+#define SERIAL_PROTO_MSG_REPORT_GPS             13
 
 
 void serialProtocolProcessMessages(SerialProto_t *pSerialObj);
 
-int txMsgSendStrokes(SerialProto_t *pSerialObj, uint32_t strokesCount);
+
+
+
+
+/* TX Functions */
 int txMsgSendEraseFirmware(SerialProto_t *pSerialObj);
 int txMsgSendFirmwareData(SerialProto_t *pSerialObj);
 int txMsgSendFlashFirmware(SerialProto_t *pSerialObj);
+int txMsgSendPSIScaling(SerialProto_t *pSerialObj);
+int txMsgSendResetData(SerialProto_t *pSerialObj);
+int txMsgSendZeroRawValue(SerialProto_t *pSerialObj);
 int txMsgSendMessage(SerialProto_t *pSerialObj,uint8_t msgType,uint8_t dataLength, uint8_t *pBuffer);
 
+
+
+
+
+/* RX Functions */
+void rxMsgProcessStrokesData(SerialProto_t *pSerialObj);
+void rxMsgProcessRunTimeData(SerialProto_t *pSerialObj);
+void rxMsgProcessBinsData(SerialProto_t *pSerialObj);
+void rxMsgProcessPSIData(SerialProto_t *pSerialObj);
+void rxMsgProcessAccelerometerData(SerialProto_t *pSerialObj);
+void rxMsgProcessGPSData(SerialProto_t *pSerialObj);
 
 
 

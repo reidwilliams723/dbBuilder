@@ -32,39 +32,71 @@
 
 #include "serialProtocol.h"
 #include "serialProtocolFunctions.h"
+#include "mcu_characteristics.h"
 
 uint8_t messageFlags[SERIAL_PROTO_MSG_MAX];
 
 
+
+
+/* RX Functions */
 void rxMsgProcessStrokesData(SerialProto_t *pSerialObj){
 	uint8_t *data = pSerialObj->rxData + 1;
 	memcpy(&pSerialObj->mcu->strokes, data,sizeof(pSerialObj->mcu->strokes));
 }
 
-
-
-
-uint8_t txMsgStrokesData[100];
-uint8_t txMsgStrokesDataCount = 0;
-
-
-
-
-
-int txMsgSendStrokes(SerialProto_t *pSerialObj, uint32_t strokesCount) {
-	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_REPORT_STROKES,sizeof(strokesCount),(uint8_t *)&strokesCount);
+void rxMsgProcessRunTimeData(SerialProto_t *pSerialObj){
+	uint8_t *data = pSerialObj->rxData + 1;
+	memcpy(&pSerialObj->mcu->runTime, data,sizeof(pSerialObj->mcu->runTime));
 }
 
+void rxMsgProcessBinsData(SerialProto_t *pSerialObj){
+	uint8_t *data = pSerialObj->rxData + 1;
+	memcpy(&pSerialObj->mcu->bins, data,sizeof(pSerialObj->mcu->bins));
+	calculateBins(pSerialObj->mcu);
+}
+
+void rxMsgProcessPSIData(SerialProto_t *pSerialObj){
+	uint8_t *data = pSerialObj->rxData + 1;
+	memcpy(&pSerialObj->mcu->psiData, data, sizeof(pSerialObj->mcu->psiData));
+}
+
+void rxMsgProcessAccelerometerData(SerialProto_t *pSerialObj){
+	uint8_t *data = pSerialObj->rxData + 1;
+	memcpy(&pSerialObj->mcu->accelerometerData, data,sizeof(pSerialObj->mcu->accelerometerData));
+}
+
+void rxMsgProcessGPSData(SerialProto_t *pSerialObj){
+	uint8_t *data = pSerialObj->rxData + 1;
+	memcpy(&pSerialObj->mcu->gpsData, data,sizeof(pSerialObj->mcu->gpsData));
+}
+
+
+
+
+/* TX Functions */
 int txMsgSendEraseFirmware(SerialProto_t *pSerialObj) {
 	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_ERASE_FIRMWARE_SLOT,sizeof(uint8_t),(uint8_t *)&pSerialObj->mcu->eraseFirmwarePacket);
 }
 
 int txMsgSendFirmwareData(SerialProto_t *pSerialObj) {
-	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_FIRMWARE_DATA,sizeof(uint8_t),(uint8_t *)&pSerialObj->mcu->firmwareDataBuffer);
+	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_FIRMWARE_DATA,sizeof(pSerialObj->mcu->firmwareDataBuffer),(uint8_t *)&pSerialObj->mcu->firmwareDataBuffer);
 }
 
 int txMsgSendFlashFirmware(SerialProto_t *pSerialObj){
 	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_FIRMWARE_FLASH,sizeof(uint8_t),(uint8_t *)&pSerialObj->mcu->flashFirmwarePacket);
+}
+
+int txMsgSendPSIScaling(SerialProto_t *pSerialObj){
+	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_REPORT_PSI,sizeof(pSerialObj->mcu->psiData),(uint8_t *)&pSerialObj->mcu->psiData);
+}
+
+int txMsgSendResetData(SerialProto_t *pSerialObj){
+	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_RESET_DATA,sizeof(uint8_t),(uint8_t *)&pSerialObj->mcu->resetData);
+}
+
+int txMsgSendZeroRawValue(SerialProto_t *pSerialObj){
+	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_ZERO_RAW_VALUE,sizeof(uint8_t),(uint8_t *)&pSerialObj->mcu->zeroRaw);
 }
 
 
@@ -82,7 +114,7 @@ int txMsgSendMessage(SerialProto_t *pSerialObj,uint8_t msgType,uint8_t dataLengt
 		return 0;
 	} else {
 		pSerialObj->dataToTX[0] = msgType;
-		memcpy(pSerialObj->dataToTX+1,pBuffer,dataLength+1);
+		memcpy(pSerialObj->dataToTX+1,pBuffer,dataLength);
 		pSerialObj->txCount = dataLength+1;
 	}
 	return 1;
@@ -105,6 +137,21 @@ void serialProtocolProcessMessages(SerialProto_t *pSerialObj) {
 		case SERIAL_PROTO_MSG_REPORT_STROKES:
 			rxMsgProcessStrokesData(pSerialObj);
 			break;
+		case SERIAL_PROTO_MSG_REPORT_RUNTIME:
+			rxMsgProcessRunTimeData(pSerialObj);
+			break;
+		case SERIAL_PROTO_MSG_REPORT_BINS:
+			rxMsgProcessBinsData(pSerialObj);
+			break;
+		case SERIAL_PROTO_MSG_REPORT_PSI:
+			rxMsgProcessPSIData(pSerialObj);
+			break;
+		case SERIAL_PROTO_MSG_REPORT_ACCELEROMETER:
+			rxMsgProcessAccelerometerData(pSerialObj);
+			break;
+		case SERIAL_PROTO_MSG_REPORT_GPS:
+			rxMsgProcessGPSData(pSerialObj);
+			break;
 
 		}
 		pSerialObj->rxDone = 0; // Signal Msg Processed
@@ -118,44 +165,4 @@ void serialProtocolProcessMessages(SerialProto_t *pSerialObj) {
 		//*********************** END TESTING BLOCK *************************
 
 	}
-/*
- *  This piece of code was meant to just turn flags to send messages, but data handling got to complex.
- *
- *
-
-
-	// Send Messages
-	if (pSerialObj->txCount == 0) {
-		// When Output buffer is empty check for all MSG requests
-		while (txMsgIndex<SERIAL_PROTO_MSG_MAX) {
-			if (messageFlags[txMsgIndex] & pSerialObj->portMask) {
-				switch (txMsgIndex) {
-
-				case SERIAL_PROTO_MSG_REPORT_STROKES:
-
-					uint8_t txMsgStrokesData[100];
-					uint8_t txMsgDtrokesDataCount = 0;
-
-					//int dataCount =
-					break;
-
-				default:
-					// In case is not an implemented MSG
-					messageFlags[txMsgIndex] &= ~pSerialObj->portMask;
-					txMsgIndex++;
-					break;
-				}
-
-			}
-
-		}
-
-
-		pSerialObj->dataToTX[0] = SERIAL_PROTO_MSG_DONE;
-		pSerialObj->txCount = 1;
-
-	 }*/
-
-
-
 }

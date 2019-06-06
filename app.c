@@ -207,43 +207,6 @@ void appMain(gecko_configuration_t *pconfig)
           /* Close connection to enter to DFU OTA mode */
           gecko_cmd_le_connection_close(evt->data.evt_gatt_server_user_write_request.connection);
         }
-        if (evt->data.evt_gatt_server_user_write_request.characteristic == gattdb_ota_mcu_control) {
-                    memcpy(&mcuControlOTA + evt->data.evt_gatt_server_user_write_request.offset,
-                    		evt->data.evt_gatt_server_user_write_request.value.data,
-							evt->data.evt_gatt_server_user_write_request.value.len);
-
-                    gecko_cmd_gatt_server_send_user_write_response(
-                    		evt->data.evt_gatt_server_user_write_request.connection,
-                    		evt->data.evt_gatt_server_user_write_request.characteristic,
-							bg_err_success);
-                    packetIncrement = 0;
-                }
-        if (evt->data.evt_gatt_server_user_write_request.characteristic == gattdb_ota_mcu_data) {
-        	memcpy(mcuControlData + evt->data.evt_gatt_server_user_write_request.offset,
-					evt->data.evt_gatt_server_user_write_request.value.data,
-					evt->data.evt_gatt_server_user_write_request.value.len);
-
-//        	packetBuffer[packetIncrement] = mcuControlData[0];
-
-        	if (packetIncrement+1 != mcuControlData[0]){
-        		uint8 tmp = 2;
-        		gecko_cmd_gatt_server_send_characteristic_notification(evt->data.evt_gatt_server_user_write_request.connection,
-        				gattdb_ota_mcu_control, sizeof(mcuControlOTA), (uint8 *)&tmp);
-
-        	}
-        	else
-        	{
-				packetIncrement++;
-
-				if (packetIncrement == 500){
-					uint8 tmp = 1;
-					gecko_cmd_gatt_server_send_characteristic_notification(evt->data.evt_gatt_server_user_write_request.connection,
-							gattdb_ota_mcu_control, sizeof(mcuControlOTA), (uint8 *)&tmp);
-					packetIncrement = 0;
-				}
-        	}
-
-        }
 
         if (evt->data.evt_gatt_server_user_write_request.characteristic == gattdb_PSI) {
 			memcpy(&mcuChars.psiData + evt->data.evt_gatt_server_user_write_request.offset,
@@ -297,7 +260,6 @@ void appMain(gecko_configuration_t *pconfig)
 					txMsgSendFirmwareData(&serialPort);
 
 
-
         }
 
         if (evt->data.evt_gatt_server_user_write_request.characteristic == gattdb_Control_Input) {
@@ -313,11 +275,14 @@ void appMain(gecko_configuration_t *pconfig)
         			// If controlInput = 01 (Data Reset)
         			if (controlInput == 1){
         				increment = 0;
-        				controlInput = 0;
+        				txMsgSendResetData(&serialPort);
         				}
         			// If controlInput = 10 (Zero Raw value)
         			else if (controlInput == 2){
-        				mcuChars.psiData[0] = mcuChars.psiData[3];
+        				if(simulate)
+        					mcuChars.psiData[0] = mcuChars.psiData[3];
+        				txMsgSendZeroRawValue(&serialPort);
+
         				controlInput = 0;
         			}
         			else if (controlInput == 3){
