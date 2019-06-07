@@ -31,5 +31,6 @@ extern const struct bg_gattdb_def bg_gattdb_data;
 #define gattdb_Erase_Firmware                  54
 #define gattdb_Flash_Firmware                  56
 #define gattdb_Firmware_Data                   58
+#define gattdb_Firmware_Control                60
 
 #endif

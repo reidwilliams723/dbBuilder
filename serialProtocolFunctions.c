@@ -71,7 +71,10 @@ void rxMsgProcessGPSData(SerialProto_t *pSerialObj){
 	memcpy(&pSerialObj->mcu->gpsData, data,sizeof(pSerialObj->mcu->gpsData));
 }
 
-
+void rxMsgProcessFirmwareControl(SerialProto_t *pSerialObj){
+	uint8_t *data = pSerialObj->rxData + 1;
+	memcpy(&pSerialObj->mcu->packetCounter, data,sizeof(pSerialObj->mcu->packetCounter));
+}
 
 
 /* TX Functions */
@@ -88,15 +91,21 @@ int txMsgSendFlashFirmware(SerialProto_t *pSerialObj){
 }
 
 int txMsgSendPSIScaling(SerialProto_t *pSerialObj){
-	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_REPORT_PSI,sizeof(pSerialObj->mcu->psiData),(uint8_t *)&pSerialObj->mcu->psiData);
+
+	float psiScaling[3];
+	memcpy(&psiScaling[0], &pSerialObj->mcu->newPsiScaling[0], sizeof(float));
+	memcpy(&psiScaling[1], &pSerialObj->mcu->newPsiScaling[1], sizeof(float));
+	memcpy(&psiScaling[2], &pSerialObj->mcu->newPsiScaling[2], sizeof(float));
+
+	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_PSI_SCALING,sizeof(psiScaling),(uint8_t *)psiScaling);
 }
 
 int txMsgSendResetData(SerialProto_t *pSerialObj){
-	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_RESET_DATA,sizeof(uint8_t),(uint8_t *)&pSerialObj->mcu->resetData);
+	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_RESET_DATA,sizeof(pSerialObj->mcu->resetData),(uint8_t *)&pSerialObj->mcu->resetData);
 }
 
 int txMsgSendZeroRawValue(SerialProto_t *pSerialObj){
-	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_ZERO_RAW_VALUE,sizeof(uint8_t),(uint8_t *)&pSerialObj->mcu->zeroRaw);
+	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_ZERO_RAW_VALUE,sizeof(pSerialObj->mcu->zeroRaw),(uint8_t *)&pSerialObj->mcu->zeroRaw);
 }
 
 
@@ -151,6 +160,9 @@ void serialProtocolProcessMessages(SerialProto_t *pSerialObj) {
 			break;
 		case SERIAL_PROTO_MSG_REPORT_GPS:
 			rxMsgProcessGPSData(pSerialObj);
+			break;
+		case SERIAL_PROTO_MSG_FIRMWARE_CONTROL:
+			rxMsgProcessFirmwareControl(pSerialObj);
 			break;
 
 		}

@@ -47,14 +47,16 @@
 #define SERIAL_PROTO_MSG_ERASE_FIRMWARE_SLOT 	3
 #define SERIAL_PROTO_MSG_FIRMWARE_DATA       	4
 #define SERIAL_PROTO_MSG_FIRMWARE_FLASH       	5
-#define SERIAL_PROTO_MSG_REPORT_STROKES         6
+#define SERIAL_PROTO_MSG_RESET_DATA             6
 #define SERIAL_PROTO_MSG_ZERO_RAW_VALUE         7
-#define SERIAL_PROTO_MSG_RESET_DATA             8
-#define SERIAL_PROTO_MSG_REPORT_RUNTIME         9
-#define SERIAL_PROTO_MSG_REPORT_BINS            10
-#define SERIAL_PROTO_MSG_REPORT_PSI             11
-#define SERIAL_PROTO_MSG_REPORT_ACCELEROMETER   12
-#define SERIAL_PROTO_MSG_REPORT_GPS             13
+#define SERIAL_PROTO_MSG_PSI_SCALING            8
+#define SERIAL_PROTO_MSG_REPORT_STROKES         9
+#define SERIAL_PROTO_MSG_REPORT_RUNTIME         10
+#define SERIAL_PROTO_MSG_REPORT_BINS            11
+#define SERIAL_PROTO_MSG_REPORT_PSI             12
+#define SERIAL_PROTO_MSG_REPORT_ACCELEROMETER   13
+#define SERIAL_PROTO_MSG_REPORT_GPS             14
+#define SERIAL_PROTO_MSG_FIRMWARE_CONTROL       15
 
 
 void serialProtocolProcessMessages(SerialProto_t *pSerialObj);
@@ -83,6 +85,7 @@ void rxMsgProcessBinsData(SerialProto_t *pSerialObj);
 void rxMsgProcessPSIData(SerialProto_t *pSerialObj);
 void rxMsgProcessAccelerometerData(SerialProto_t *pSerialObj);
 void rxMsgProcessGPSData(SerialProto_t *pSerialObj);
+void rxMsgProcessFirmwareControl(SerialProto_t *pSerialObj);
 
 
 

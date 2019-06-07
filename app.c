@@ -51,7 +51,7 @@ uint8_t active_connections_num;
 
 char controlInput; // Byte for control input. 0x01 = Reset, 0x02 = Zero Out
 char mcuControlOTA;
-uint32_t packetIncrement = 0;
+uint16_t packetIncrement = 0;
 uint32_t mcuControlData[5];
 
 
@@ -209,7 +209,7 @@ void appMain(gecko_configuration_t *pconfig)
         }
 
         if (evt->data.evt_gatt_server_user_write_request.characteristic == gattdb_PSI) {
-			memcpy(&mcuChars.psiData + evt->data.evt_gatt_server_user_write_request.offset,
+			memcpy(&mcuChars.newPsiScaling + evt->data.evt_gatt_server_user_write_request.offset,
 					&evt->data.evt_gatt_server_user_write_request.value.data,
 					evt->data.evt_gatt_server_user_write_request.value.len);
 
@@ -217,6 +217,8 @@ void appMain(gecko_configuration_t *pconfig)
 					evt->data.evt_gatt_server_user_write_request.connection,
 					evt->data.evt_gatt_server_user_write_request.characteristic,
 					bg_err_success);
+
+			txMsgSendPSIScaling(&serialPort);
 
          }
 
@@ -233,6 +235,7 @@ void appMain(gecko_configuration_t *pconfig)
         			if (mcuChars.eraseFirmwarePacket == 3){
         				txMsgSendEraseFirmware(&serialPort);
         				mcuChars.eraseFirmwarePacket = 0;
+        				mcuChars.packetCounter = 0;
         			}
 
                  }
@@ -257,8 +260,39 @@ void appMain(gecko_configuration_t *pconfig)
 							&evt->data.evt_gatt_server_user_write_request.value.data,
 							evt->data.evt_gatt_server_user_write_request.value.len);
 
-					txMsgSendFirmwareData(&serialPort);
 
+					if (((mcuChars.firmwareDataBuffer[1] << 8) | (mcuChars.firmwareDataBuffer[0] & 0xff)) == 33){
+						mcuChars.packetCounter++;
+					}
+					txMsgSendFirmwareData(&serialPort);
+//					gecko_cmd_gatt_server_send_user_write_response(
+//											evt->data.evt_gatt_server_user_write_request.connection,
+//											evt->data.evt_gatt_server_user_write_request.characteristic,
+//											bg_err_success);
+//					packetIncrement = (mcuChars.firmwareDataBuffer[1] << 8) | (mcuChars.firmwareDataBuffer[0] & 0xff);
+//					if (mcuChars.packetCounter != packetIncrement){
+//						gecko_cmd_gatt_server_send_characteristic_notification(
+//								evt->data.evt_gatt_server_user_write_request.connection,
+//								gattdb_Firmware_Control,
+//								sizeof(mcuChars.packetCounter),
+//								(uint8 *)&mcuChars.packetCounter);
+//					}
+//					else {
+//						txMsgSendFirmwareData(&serialPort);
+//						mcuChars.packetCounter++;
+//					}
+
+//					packetIncrement = (mcuChars.firmwareDataBuffer[1] << 8) | (mcuChars.firmwareDataBuffer[0] & 0xff);
+//					if (mcuChars.packetCounter != packetIncrement){
+//						gecko_cmd_gatt_server_send_user_write_response(
+//								evt->data.evt_gatt_server_user_write_request.connection,
+//								evt->data.evt_gatt_server_user_write_request.characteristic,
+//								bg_err_unspecified);
+//					}
+//					else {
+//						txMsgSendFirmwareData(&serialPort);
+//						mcuChars.packetCounter++;
+//					}
 
         }
 
@@ -337,8 +371,28 @@ void appMain(gecko_configuration_t *pconfig)
 				  bg_err_success,
 				  sizeof(mcuChars.accelerometerData),
 				  (uint8 *)&mcuChars.accelerometerData);
+           	}
+			else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_location_and_speed) {
+				gecko_cmd_gatt_server_send_user_read_response(
+				  evt->data.evt_gatt_server_user_read_request.connection,
+				  gattdb_location_and_speed,
+				  bg_err_success,
+				  sizeof(mcuChars.gpsData),
+				  (uint8 *)&mcuChars.gpsData);
 			  }
+ 			else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_Firmware_Control) {
+ 				gecko_cmd_gatt_server_send_user_read_response(
+ 				  evt->data.evt_gatt_server_user_read_request.connection,
+				  gattdb_Firmware_Control,
+ 				  bg_err_success,
+ 				  sizeof(mcuChars.packetCounter),
+ 				  (uint8 *)&mcuChars.packetCounter);
+
+ 				mcuChars.packetCounter = 0;
+
+ 			  }
            	 break;
+
       default:
         break;
     }
