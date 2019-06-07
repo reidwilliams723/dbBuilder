@@ -57,6 +57,7 @@
 #define SERIAL_PROTO_MSG_REPORT_ACCELEROMETER   13
 #define SERIAL_PROTO_MSG_REPORT_GPS             14
 #define SERIAL_PROTO_MSG_FIRMWARE_CONTROL       15
+#define SERIAL_PROTO_MSG_TOGGLE_LED             16
 
 
 void serialProtocolProcessMessages(SerialProto_t *pSerialObj);
@@ -72,6 +73,7 @@ int txMsgSendFlashFirmware(SerialProto_t *pSerialObj);
 int txMsgSendPSIScaling(SerialProto_t *pSerialObj);
 int txMsgSendResetData(SerialProto_t *pSerialObj);
 int txMsgSendZeroRawValue(SerialProto_t *pSerialObj);
+int txMsgSendToggleLED(SerialProto_t *pSerialObj);
 int txMsgSendMessage(SerialProto_t *pSerialObj,uint8_t msgType,uint8_t dataLength, uint8_t *pBuffer);
 
 

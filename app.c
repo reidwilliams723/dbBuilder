@@ -297,7 +297,7 @@ void appMain(gecko_configuration_t *pconfig)
         }
 
         if (evt->data.evt_gatt_server_user_write_request.characteristic == gattdb_Control_Input) {
-        			memcpy(&controlInput + evt->data.evt_gatt_server_user_write_request.offset,
+        			memcpy(&mcuChars.control + evt->data.evt_gatt_server_user_write_request.offset,
         					evt->data.evt_gatt_server_user_write_request.value.data,
         					evt->data.evt_gatt_server_user_write_request.value.len);
 
@@ -307,23 +307,22 @@ void appMain(gecko_configuration_t *pconfig)
         					bg_err_success);
 
         			// If controlInput = 01 (Data Reset)
-        			if (controlInput == 1){
+        			if (mcuChars.control == 1){
         				increment = 0;
         				txMsgSendResetData(&serialPort);
+        				mcuChars.control = 0;
         				}
         			// If controlInput = 10 (Zero Raw value)
-        			else if (controlInput == 2){
+        			else if (mcuChars.control == 2){
         				if(simulate)
         					mcuChars.psiData[0] = mcuChars.psiData[3];
         				txMsgSendZeroRawValue(&serialPort);
 
-        				controlInput = 0;
+        				mcuChars.control = 0;
         			}
-        			else if (controlInput == 3){
-        				if(simulate)
-        					simulate = false;
-        				else
-        					simulate = true;
+        			else if (mcuChars.control == 3){
+        				txMsgSendToggleLED(&serialPort);
+        				mcuChars.control = 0;
         			}
         }
 

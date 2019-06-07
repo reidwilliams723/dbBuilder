@@ -30,8 +30,8 @@ typedef struct MCU_Characteristics {
 	uint8_t firmwareDataBuffer[18];
 	uint32_t packetCounter;
 
-	uint8_t resetData;
-	uint8_t zeroRaw;
+	uint8_t control;
+
 
 } MCU_Characteristics_t;
 

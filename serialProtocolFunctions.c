@@ -101,14 +101,16 @@ int txMsgSendPSIScaling(SerialProto_t *pSerialObj){
 }
 
 int txMsgSendResetData(SerialProto_t *pSerialObj){
-	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_RESET_DATA,sizeof(pSerialObj->mcu->resetData),(uint8_t *)&pSerialObj->mcu->resetData);
+	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_RESET_DATA,sizeof(pSerialObj->mcu->control),(uint8_t *)&pSerialObj->mcu->control);
 }
 
 int txMsgSendZeroRawValue(SerialProto_t *pSerialObj){
-	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_ZERO_RAW_VALUE,sizeof(pSerialObj->mcu->zeroRaw),(uint8_t *)&pSerialObj->mcu->zeroRaw);
+	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_ZERO_RAW_VALUE,sizeof(pSerialObj->mcu->control),(uint8_t *)&pSerialObj->mcu->control);
 }
 
-
+int txMsgSendToggleLED(SerialProto_t *pSerialObj){
+	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_TOGGLE_LED,sizeof(pSerialObj->mcu->control),(uint8_t *)&pSerialObj->mcu->control);
+}
 
 
 // Function to send a message trough the serial port
