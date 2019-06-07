@@ -147,14 +147,16 @@ void processSerial(SerialProto_t *serialObj) {
 		if (txAvailable(serialObj->usart)) {
 			// If a 0xA5 is sent then next will send a dummy 0x00 to avoid a misdetection of a header
 			// The receiving side will get rid of the extra 0x00
-			if ((serialObj->sentCount>1) && (serialObj->dataToTX[serialObj->sentCount] == 0xA5)) {
+			//if ((serialObj->sentCount>1) && (serialObj->dataToTX[serialObj->sentCount] == 0xA5)) {
+			if ((serialObj->dataToTX[serialObj->sentCount] == 0xA5)) {
 				USART_Tx(serialObj->usart, serialObj->dataToTX[serialObj->sentCount++]);
 				serialObj->txState = SERIAL_STATE_SEND_NULL;
-			}
-			USART_Tx(serialObj->usart, serialObj->dataToTX[serialObj->sentCount++]);
-			if (serialObj->sentCount>=serialObj->txCount) {
-				serialObj->txState = SERIAL_STATE_WAIT_TX;
-				serialObj->txCount = 0;
+			} else {
+				USART_Tx(serialObj->usart, serialObj->dataToTX[serialObj->sentCount++]);
+				if (serialObj->sentCount>=serialObj->txCount) {
+					serialObj->txState = SERIAL_STATE_WAIT_TX;
+					serialObj->txCount = 0;
+				}
 			}
 		}
 		break;
