@@ -22,7 +22,7 @@ typedef struct MCU_Characteristics {
 	uint32_t binsData[5]; // Aggregates and divides bins[20] into 5 values
 	float psiData[5];  // Holds the RawZero, RawScale, UnitsScale, PSI Raw Value, and Scaled PSI Value
 	uint32_t accelerometerData[3]; // Holds the X,Y, and Z values
-	float gpsData[2];
+	float gpsData[5];
 	float newPsiScaling[5];
 
 	uint8_t eraseFirmwarePacket;

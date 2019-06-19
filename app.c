@@ -320,6 +320,7 @@ void appMain(gecko_configuration_t *pconfig)
 
         				mcuChars.control = 0;
         			}
+        			// If controlInput = 3, (Toggle LED)
         			else if (mcuChars.control == 3){
         				txMsgSendToggleLED(&serialPort);
         				mcuChars.control = 0;
