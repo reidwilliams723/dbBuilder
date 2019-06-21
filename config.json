@@ -1,0 +1,84 @@
+{
+  "database": {
+    "tags": {
+      "Strokes": {
+        "arraydim": 1,
+        "datatype": "Number",
+        "value": 0,
+        "config": {}
+      },
+      "Bins":{
+        "datatype": "Number",
+        "arraydim": 20,
+        "value": 0,
+        "config": {}
+      },
+      "RunTime": {
+        "arraydim": 1,
+        "datatype": "Number",
+        "value": 0,
+        "config": {}
+      },
+      "RunTimeFolder": {
+        "arraydim": 1,
+        "datatype": "Folder",
+        "children": {
+          "runTimeChild": {
+            "arraydim": 1,
+            "datatype": "Number",
+            "value": 0,
+            "config": {}
+          }
+      }
+    },
+      "PSIScaling": {
+        "datatype": "Folder",
+        "arraydim": 1,
+        "children": {
+          "rawAtZero": {
+            "arraydim": 1,
+            "datatype": "Number",
+            "value": 0,
+            "config": {}
+          },
+          "rawAtScale": {
+            "arraydim": 1,
+            "datatype": "Number",
+            "value": 0,
+            "config": {}
+          },
+          "unitsZero": {
+            "arraydim": 1,
+            "datatype": "Folder",
+            "children":{
+              "Test": {
+                "arraydim": 1,
+                "datatype": "Number",
+                "value": 0,
+                "config": {}
+              }
+            }
+          },
+          "unitsScaled": {
+            "arraydim": 1,
+            "datatype": "Number",
+            "value": 0,
+            "config": {}
+          },
+          "rawPSI": {
+            "arraydim": 1,
+            "datatype": "Number",
+            "value": 0,
+            "config": {}
+          },
+          "scaledPSI": {
+            "arraydim": 1,
+            "datatype": "Number",
+            "value": 0,
+            "config": {}
+          }
+        }
+      }
+    }
+  }
+}
