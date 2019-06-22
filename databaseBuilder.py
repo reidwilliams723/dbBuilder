@@ -36,27 +36,28 @@ class IOTeqDBBuilder():
         self.tagList.append(rootTag)
         self.addNameToCharPtr(rootName)
 
-    def setDefaultValue(self, tag):
+    def addValueToDataPtr(self, tag):
         datatype = tag["datatype"]
         if (datatype == "Number"):
             value = tag["value"]
             ba = bytearray(struct.pack("<f", value)) 
             for b in ba:
                 self.dataPtr.append(hex(b))
-
-
+        # elif (datatype == "Text"):
 
     def createTree(self, tags, parent=None):
         for tag in tags:
             for i in range(tags[tag]["arraydim"]):
 
+                # Naming function for tags with dimensions larger than 1
                 if (tags[tag]["arraydim"] > 1):
                     tagName = tag + "[" + str(i) + "]"
                 else:
                     tagName = tag  
 
+                # Adding default value to dataPtr list
                 if (tags[tag]["datatype"] != "Folder"):
-                    self.setDefaultValue(tags[tag])
+                    self.addValueToDataPtr(tags[tag])
 
                 # Add tag name in hex format to a list
                 charIndex = len(self.constPtrChar)
@@ -64,19 +65,24 @@ class IOTeqDBBuilder():
 
                 # Create tag an add to tagList
                 newTag = IOTeqTag(tagName, charIndex, len(tagName)+1) # plus 1 for \0
+
+                # Set the tags valueSize based on datatype
+                # Numbers are 4 bytes (float) and Text are 40 characters long total
                 if (tags[tag]["datatype"] != "Folder"):
                     if (tags[tag]["datatype"] == "Number"):
                         newTag.valueSize = 4
-                    elif (tags[tag]["datatype"] == "String"):
+                    elif (tags[tag]["datatype"] == "Text"):
                         newTag.valueSize = 40
 
                     newTag.valuePtr = len(self.dataPtr)
                     self.setDefaultValue(tags[tag])
                     
 
+                # Adding tag to tree and tag list
                 self.tree.create_node(tagName, tagName, parent, newTag)
                 self.tagList.append(newTag)
-                
+
+                # Recursion for tags that have children
                 if (tags[tag]["datatype"] == "Folder"):
                     self.createTree(tags[tag]["children"], tagName)
 
@@ -186,7 +192,6 @@ class IOTeqFileBuilder():
         self.addDefines()
         self.addStruct()
         self.addPtrs()
-
         self.fd.close()
 
 
@@ -196,6 +201,4 @@ ioteqDBBuilder.build()
 
 ioteqFileBuilder = IOTeqFileBuilder(os.getcwd() + "/database.c", ioteqDBBuilder)
 ioteqFileBuilder.build()
-
-ioteqDBBuilder.tree.show()
 
