@@ -1,5 +1,6 @@
 import os
 import json
+import struct
 from treelib import Node, Tree
 
 class IOTeqDBBuilder():
@@ -35,20 +36,27 @@ class IOTeqDBBuilder():
         self.tagList.append(rootTag)
         self.addNameToCharPtr(rootName)
 
+    def setDefaultValue(self, tag):
+        datatype = tag["datatype"]
+        if (datatype == "Number"):
+            value = tag["value"]
+            ba = bytearray(struct.pack("<f", value)) 
+            for b in ba:
+                self.dataPtr.append(hex(b))
+
+
+
     def createTree(self, tags, parent=None):
         for tag in tags:
             for i in range(tags[tag]["arraydim"]):
-                if (tags[tag]["arraydim"] > 1):
-                    # if (parent != None):
-                        # tagName = parent + "." + tag + "[" + str(i) + "]"
-                    # else:
-                        tagName = tag + "[" + str(i) + "]"
-                else:
-                    # if (parent != None):
-                        # tagName = parent + "." + tag
-                    # else:
-                        tagName = tag  
 
+                if (tags[tag]["arraydim"] > 1):
+                    tagName = tag + "[" + str(i) + "]"
+                else:
+                    tagName = tag  
+
+                if (tags[tag]["datatype"] != "Folder"):
+                    self.setDefaultValue(tags[tag])
 
                 # Add tag name in hex format to a list
                 charIndex = len(self.constPtrChar)
@@ -56,6 +64,16 @@ class IOTeqDBBuilder():
 
                 # Create tag an add to tagList
                 newTag = IOTeqTag(tagName, charIndex, len(tagName)+1) # plus 1 for \0
+                if (tags[tag]["datatype"] != "Folder"):
+                    if (tags[tag]["datatype"] == "Number"):
+                        newTag.valueSize = 4
+                    elif (tags[tag]["datatype"] == "String"):
+                        newTag.valueSize = 40
+
+                    newTag.valuePtr = len(self.dataPtr)
+                    self.setDefaultValue(tags[tag])
+                    
+
                 self.tree.create_node(tagName, tagName, parent, newTag)
                 self.tagList.append(newTag)
                 
@@ -96,6 +114,7 @@ class IOTeqDBBuilder():
     def createConstPtrTree(self):
         for tag in self.tagList:
             self.constPtrTree.extend(tag.getStruct())
+
 
     def build(self):
         self.setRoot("tags")
@@ -158,6 +177,9 @@ class IOTeqFileBuilder():
         
         treeBytes = ', '.join(hex(x) for x in ioteqDBBuilder.constPtrTree)
         self.write("const Tag_t tree[TOTAL_NUMBER_OF_TAGS] = " + "{" + treeBytes + "};\n\n")
+
+        dataBytes = ', '.join(x for x in ioteqDBBuilder.dataPtr)
+        self.write("uint8_t data[] = {" + dataBytes + "};\n\n")
     
     def build(self):
         self.addIncludes()
@@ -169,10 +191,11 @@ class IOTeqFileBuilder():
 
 
 
-ioteqDBBuilder  = IOTeqDBBuilder(configFile = "/Users/reidwilliams/Repositories/c-folder/dbBuilder/config.json")
+ioteqDBBuilder  = IOTeqDBBuilder(configFile = os.getcwd( )+ "/config.json")
 ioteqDBBuilder.build()
 
-ioteqFileBuilder = IOTeqFileBuilder("/Users/reidwilliams/Repositories/c-folder/dbBuilder/database.c", ioteqDBBuilder)
+ioteqFileBuilder = IOTeqFileBuilder(os.getcwd() + "/database.c", ioteqDBBuilder)
 ioteqFileBuilder.build()
 
 ioteqDBBuilder.tree.show()
+

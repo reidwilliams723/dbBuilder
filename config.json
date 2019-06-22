@@ -4,19 +4,19 @@
       "Strokes": {
         "arraydim": 1,
         "datatype": "Number",
-        "value": 0,
+        "value": 1234,
         "config": {}
       },
       "Bins":{
         "datatype": "Number",
         "arraydim": 20,
-        "value": 0,
+        "value": 678,
         "config": {}
       },
       "RunTime": {
         "arraydim": 1,
         "datatype": "Number",
-        "value": 0,
+        "value": 9012,
         "config": {}
       },
       "RunTimeFolder": {
@@ -38,13 +38,13 @@
           "rawAtZero": {
             "arraydim": 1,
             "datatype": "Number",
-            "value": 0,
+            "value": 4,
             "config": {}
           },
           "rawAtScale": {
             "arraydim": 1,
             "datatype": "Number",
-            "value": 0,
+            "value": 20,
             "config": {}
           },
           "unitsZero": {
