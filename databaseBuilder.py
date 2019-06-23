@@ -54,11 +54,7 @@ class IOTeqDBBuilder():
                     tagName = tag + "[" + str(i) + "]"
                 else:
                     tagName = tag  
-
-                # Adding default value to dataPtr list
-                if (tags[tag]["datatype"] != "Folder"):
-                    self.addValueToDataPtr(tags[tag])
-
+                    
                 # Add tag name in hex format to a list
                 charIndex = len(self.constPtrChar)
                 self.addNameToCharPtr(tagName)
@@ -74,8 +70,9 @@ class IOTeqDBBuilder():
                     elif (tags[tag]["datatype"] == "Text"):
                         newTag.valueSize = 40
 
+                    # Adding default value to dataPtr list
                     newTag.valuePtr = len(self.dataPtr)
-                    self.setDefaultValue(tags[tag])
+                    self.addValueToDataPtr(tags[tag])
                     
 
                 # Adding tag to tree and tag list
@@ -199,6 +196,6 @@ class IOTeqFileBuilder():
 ioteqDBBuilder  = IOTeqDBBuilder(configFile = os.getcwd( )+ "/config.json")
 ioteqDBBuilder.build()
 
-ioteqFileBuilder = IOTeqFileBuilder(os.getcwd() + "/database.c", ioteqDBBuilder)
+ioteqFileBuilder = IOTeqFileBuilder(os.getcwd() + "/database.h", ioteqDBBuilder)
 ioteqFileBuilder.build()
 
