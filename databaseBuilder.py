@@ -16,7 +16,7 @@ class IOTeqDBBuilder():
         self.tagList = []
         self.dataPtr = []
 
-        self.currentTagAddress = 0x00
+        self.currentTagAddress = 0
 
     def totalNumberOfTags(self):
         return len(self.tagList)
@@ -115,9 +115,9 @@ class IOTeqDBBuilder():
                         self.tagList[tagIndex].numOfChildren = len(childrenNodes)
 
     def createConstPtrTree(self):
-        for tag in self.tagList:
+        sortedTags = sorted(self.tagList, key=lambda x: x.address, reverse=False)
+        for tag in sortedTags:
             self.constPtrTree.extend(tag.getStruct())
-
 
     def build(self):
         self.setRoot("tags")
@@ -193,9 +193,13 @@ class IOTeqFileBuilder():
 
 
 
-ioteqDBBuilder  = IOTeqDBBuilder(configFile = os.getcwd( )+ "/config.json")
+# ioteqDBBuilder  = IOTeqDBBuilder(configFile = os.getcwd( )+ "/config.json")
+ioteqDBBuilder  = IOTeqDBBuilder("/Users/reidwilliams/Repositories/c-folder/dbBuilder/config.json")
+
 ioteqDBBuilder.build()
 
-ioteqFileBuilder = IOTeqFileBuilder(os.getcwd() + "/database.h", ioteqDBBuilder)
+# ioteqFileBuilder = IOTeqFileBuilder(os.getcwd() + "/database.h", ioteqDBBuilder)
+ioteqFileBuilder = IOTeqFileBuilder("/Users/reidwilliams/Repositories/c-folder/dbBuilder/database.h", ioteqDBBuilder)
 ioteqFileBuilder.build()
-
+ioteqDBBuilder.tree.show(data_property="address")
+ioteqDBBuilder.tree.show()
