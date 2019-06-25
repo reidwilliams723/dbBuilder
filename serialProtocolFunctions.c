@@ -76,6 +76,11 @@ void rxMsgProcessFirmwareControl(SerialProto_t *pSerialObj){
 	memcpy(&pSerialObj->mcu->packetCounter, data,sizeof(pSerialObj->mcu->packetCounter));
 }
 
+void rxMsgProcessFirmwareInfo(SerialProto_t *pSerialObj){
+	uint8_t *data = pSerialObj->rxData + 1;
+	memcpy(&pSerialObj->mcu->firmwareVersions, data,sizeof(pSerialObj->mcu->firmwareVersions));
+}
+
 
 /* TX Functions */
 int txMsgSendEraseFirmware(SerialProto_t *pSerialObj) {
@@ -101,14 +106,16 @@ int txMsgSendPSIScaling(SerialProto_t *pSerialObj){
 }
 
 int txMsgSendResetData(SerialProto_t *pSerialObj){
-	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_RESET_DATA,sizeof(pSerialObj->mcu->resetData),(uint8_t *)&pSerialObj->mcu->resetData);
+	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_RESET_DATA,sizeof(pSerialObj->mcu->control),(uint8_t *)&pSerialObj->mcu->control);
 }
 
 int txMsgSendZeroRawValue(SerialProto_t *pSerialObj){
-	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_ZERO_RAW_VALUE,sizeof(pSerialObj->mcu->zeroRaw),(uint8_t *)&pSerialObj->mcu->zeroRaw);
+	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_ZERO_RAW_VALUE,sizeof(pSerialObj->mcu->control),(uint8_t *)&pSerialObj->mcu->control);
 }
 
-
+int txMsgSendToggleLED(SerialProto_t *pSerialObj){
+	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_TOGGLE_LED,sizeof(pSerialObj->mcu->control),(uint8_t *)&pSerialObj->mcu->control);
+}
 
 
 // Function to send a message trough the serial port
@@ -164,7 +171,8 @@ void serialProtocolProcessMessages(SerialProto_t *pSerialObj) {
 		case SERIAL_PROTO_MSG_FIRMWARE_CONTROL:
 			rxMsgProcessFirmwareControl(pSerialObj);
 			break;
-
+		case SERIAL_PROTO_MSG_FIRMWARE_INFO:
+			rxMsgProcessFirmwareInfo(pSerialObj);
 		}
 		pSerialObj->rxDone = 0; // Signal Msg Processed
 		//*********************** TESTING ONLY *************************

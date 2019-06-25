@@ -9,7 +9,7 @@
     <!--Device Name-->
     <characteristic id="device_name" name="Device Name" sourceId="org.bluetooth.characteristic.gap.device_name" uuid="2A00">
       <informativeText/>
-      <value length="9" type="utf-8" variable_length="false">WeirDemo1</value>
+      <value length="10" type="utf-8" variable_length="false">Weir Demo2</value>
       <properties read="true" read_requirement="optional" write="true" write_requirement="optional"/>
     </characteristic>
     
@@ -124,6 +124,13 @@
       <informativeText>Custom characteristic</informativeText>
       <value length="12" type="user" variable_length="false"/>
     </characteristic>
+    
+    <!--Firmware Version-->
+    <characteristic id="firmware_version" name="Firmware Version" sourceId="com.characteristic.firmware_version" uuid="c0b948bd-94d3-48dd-ab18-a5bb457d4344">
+      <informativeText>Custom characteristic</informativeText>
+      <value length="8" type="user" variable_length="false"/>
+      <properties read="true" read_requirement="optional"/>
+    </characteristic>
   </service>
   
   <!--Location and Navigation-->
@@ -133,7 +140,7 @@
     <!--Location and Speed Characteristic-->
     <characteristic id="location_and_speed" name="Location and Speed Characteristic" sourceId="org.bluetooth.characteristic.location_and_speed" uuid="2A67">
       <informativeText>Summary: The Location and Speed characteristic is a variable length structure containing a Flags field and, based on the contents of the Flags field, may contain a combination of data fields listed below. Note that it is possible for this characteristic to exceed the default LE MTU size. </informativeText>
-      <value length="8" type="user" variable_length="false"/>
+      <value length="20" type="user" variable_length="false"/>
       <properties notify="true" notify_requirement="mandatory" read="true" read_requirement="mandatory"/>
       
       <!--Client Characteristic Configuration-->
