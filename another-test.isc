@@ -35,7 +35,7 @@ appPlugin: stack_bridge=false
     <informativeText>Abstract: The generic_access service contains generic information about the device. All available Characteristics are readonly. </informativeText>
     <characteristic id="device_name" name="Device Name" sourceId="org.bluetooth.characteristic.gap.device_name" uuid="2A00">
       <informativeText/>
-      <value length="10" type="utf-8" variable_length="false">Weir Demo1</value>
+      <value length="10" type="utf-8" variable_length="false">Weir Demo2</value>
       <properties read="true" read_requirement="optional" write="true" write_requirement="optional"/>
     </characteristic>
     <characteristic name="Appearance" sourceId="org.bluetooth.characteristic.gap.appearance" uuid="2A01">
@@ -115,6 +115,11 @@ appPlugin: stack_bridge=false
     <characteristic id="Accelerometer" name="Accelerometer" sourceId="com.characteristic.accelerometer" uuid="00002A20-0000-4358-9ad6-a241984cff67">
       <informativeText>Custom characteristic</informativeText>
       <value length="12" type="user" variable_length="false"/>
+    </characteristic>
+    <characteristic id="firmware_version" name="Firmware Version" sourceId="com.characteristic.firmware_version" uuid="c0b948bd-94d3-48dd-ab18-a5bb457d4344">
+      <informativeText>Custom characteristic</informativeText>
+      <value length="8" type="user" variable_length="false"/>
+      <properties read="true" read_requirement="optional"/>
     </characteristic>
   </service>
   <service advertise="false" id="location_and_navigation" name="Location and Navigation" requirement="mandatory" sourceId="org.bluetooth.service.location_and_navigation" type="primary" uuid="1819">

@@ -27,10 +27,11 @@ extern const struct bg_gattdb_def bg_gattdb_data;
 #define gattdb_Bins                            42
 #define gattdb_Control_Input                   45
 #define gattdb_Accelerometer                   47
-#define gattdb_location_and_speed              50
-#define gattdb_Erase_Firmware                  54
-#define gattdb_Flash_Firmware                  56
-#define gattdb_Firmware_Data                   58
-#define gattdb_Firmware_Control                60
+#define gattdb_firmware_version                49
+#define gattdb_location_and_speed              52
+#define gattdb_Erase_Firmware                  56
+#define gattdb_Flash_Firmware                  58
+#define gattdb_Firmware_Data                   60
+#define gattdb_Firmware_Control                62
 
 #endif

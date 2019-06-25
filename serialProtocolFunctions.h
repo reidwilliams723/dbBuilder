@@ -58,6 +58,7 @@
 #define SERIAL_PROTO_MSG_REPORT_GPS             14
 #define SERIAL_PROTO_MSG_FIRMWARE_CONTROL       15
 #define SERIAL_PROTO_MSG_TOGGLE_LED             16
+#define SERIAL_PROTO_MSG_FIRMWARE_INFO			17
 
 
 void serialProtocolProcessMessages(SerialProto_t *pSerialObj);
@@ -88,7 +89,7 @@ void rxMsgProcessPSIData(SerialProto_t *pSerialObj);
 void rxMsgProcessAccelerometerData(SerialProto_t *pSerialObj);
 void rxMsgProcessGPSData(SerialProto_t *pSerialObj);
 void rxMsgProcessFirmwareControl(SerialProto_t *pSerialObj);
-
+void rxMsgProcessFirmwareInfo(SerialProto_t *pSerialObj);
 
 
 

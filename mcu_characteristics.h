@@ -32,6 +32,8 @@ typedef struct MCU_Characteristics {
 
 	uint8_t control;
 
+	uint32_t firmwareVersions[2];
+
 
 } MCU_Characteristics_t;
 

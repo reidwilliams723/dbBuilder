@@ -391,6 +391,14 @@ void appMain(gecko_configuration_t *pconfig)
  				mcuChars.packetCounter = 0;
 
  			  }
+ 			else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_firmware_version) {
+ 				gecko_cmd_gatt_server_send_user_read_response(
+ 				  evt->data.evt_gatt_server_user_read_request.connection,
+				  gattdb_firmware_version,
+ 				  bg_err_success,
+ 				  sizeof(mcuChars.firmwareVersions),
+ 				  (uint8 *)&mcuChars.firmwareVersions);
+ 			  }
            	 break;
 
       default:
