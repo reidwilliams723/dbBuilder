@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "database.h"
+#include "ioteqDB.h"
+#include "ioteqDBFunctions.h"
+
 const Tag_t* parseTag(char* strTest, char delim[], const Tag_t* currentTag){
 
     for (int i = 0; i <= currentTag->numOfChildren; i++){
@@ -43,9 +45,4 @@ uint8_t* getValue(const Tag_t* tag){
 
 void setValue(const Tag_t* tag, uint8_t* value){
     memcpy((data + tag->valuePtr), value, tag->valueSize);
-}
-int main(void){
-    Tag_t* test = getTag("DeviceName");
-    char* test2 = (char*)getValue(test);
-    
 }

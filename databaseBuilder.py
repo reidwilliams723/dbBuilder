@@ -1,6 +1,7 @@
 import os
 import json
 import struct
+from datetime import date
 from treelib import Node, Tree
 
 class IOTeqDBBuilder():
@@ -153,14 +154,39 @@ class IOTeqFileBuilder():
         self.dbHeader = open(directory + "/ioteqDB.h", "w+")
         self.dbSource = open(directory + "/ioteqDB.c", "w+")
 
-    def writeHeader(self, string):
+    def writeDBHeader(self, string):
         self.dbHeader.write(string)
 
-    def writeSource(self, string):
+    def writeDBSource(self, string):
         self.dbSource.write(string)
 
-    def buildHeaderFile(self):
-        self.writeHeader(f"""
+    def buildDBHeaderFile(self):
+        self.writeDBHeader(f"""
+                /**************************************************************************
+                *
+                * Tag Database Data
+                *
+                **************************************************************************
+                *
+                * This file was automatically generated and includes the data that makes
+                * up a tag database. The database was generated using a JSON configuration file.
+                *
+                * (c) 2019, IOT-eq LLC, All Rights Reserved
+                * Programmed By: 	Reid Williams
+                * 					Inaki Zuloaga
+                *
+                * Date: {date.today().strftime("%B %d, %Y")}
+                * Contact: izi@iot-eq.com
+                *
+                *
+                *
+                *
+                *
+                **************************************************************************
+                */
+
+                #ifndef IOTEQDB_H_
+                #define IOTEQDB_H_
                 #include <stdio.h>
                 #include <stdlib.h>
                 #include <string.h>
@@ -178,14 +204,21 @@ class IOTeqFileBuilder():
                 }} Tag_t;\n
         """)
 
+        # Initialize Pointers (str, tree, data)
+        self.writeDBHeader("extern const char str[];\n")
+        self.writeDBHeader("extern const Tag_t tree[TOTAL_NUMBER_OF_TAGS];\n")
+        self.writeDBHeader("extern char data[];\n")
+
         for tag in self.dbBuilder.tagList:
             if (tag.tagName != "tags"):
-                self.writeHeader(f"""const Tag_t* {tag.tagName};\n""")
+                self.writeDBHeader(f"""const Tag_t* {tag.tagName};\n""")
 
+        self.writeDBHeader("""void initDB();\n""")
+        self.writeDBHeader("""#endif""")
         self.dbHeader.close()
 
-    def buildSourceFile(self):
-        self.writeSource("""
+    def buildDBSourceFile(self):
+        self.writeDBSource("""
                 #include <stdio.h>
                 #include <stdlib.h>
                 #include <string.h>
@@ -194,26 +227,26 @@ class IOTeqFileBuilder():
 
         # Initialize Pointers (str, tree, data)
         nameBytes = ', '.join(hex(x) for x in ioteqDBBuilder.constPtrChar)
-        self.writeSource("const char str[] = {" + nameBytes + "};\n\n")
+        self.writeDBSource("const char str[] = {" + nameBytes + "};\n\n")
         
         treeBytes = ', '.join(hex(x) for x in ioteqDBBuilder.constPtrTree)
-        self.writeSource("const Tag_t tree[TOTAL_NUMBER_OF_TAGS] = " + "{" + treeBytes + "};\n\n")
+        self.writeDBSource("const Tag_t tree[TOTAL_NUMBER_OF_TAGS] = " + "{" + treeBytes + "};\n\n")
 
         dataBytes = ', '.join(x for x in ioteqDBBuilder.dataPtr)
-        self.writeSource("char data[] = {" + dataBytes + "};\n\n")
+        self.writeDBSource("char data[] = {" + dataBytes + "};\n\n")
 
         # Initialize DB Function
-        self.writeSource("""void initDB(){\n""")
+        self.writeDBSource("""void initDB(){\n""")
         for tag in self.dbBuilder.tagList:
             if (tag.tagName != "tags"):
-                self.writeSource(f"""{tag.tagName} = getTag("{tag.tagName}");\n""")
-        self.writeSource("""\n}""")
+                self.writeDBSource(f"""{tag.tagName} = getTag("{tag.tagName}");\n""")
+        self.writeDBSource("""\n}""")
 
         self.dbSource.close()
 
     def build(self):
-        self.buildHeaderFile()
-        self.buildSourceFile()
+        self.buildDBHeaderFile()
+        self.buildDBSourceFile()
 
 
 

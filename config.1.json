@@ -4,7 +4,7 @@
       "DeviceName": {
         "arraydim": 1,
         "datatype": "Text",
-        "value": "Unknown",
+        "value": "Hello",
         "config": {}
       },
       "Temperature": {
@@ -17,12 +17,6 @@
         "arraydim": 1,
         "datatype": "Text",
         "value": "IOT-eq",
-        "config": {}
-      },
-      "Flags": {
-        "arraydim": 1,
-        "datatype": "Number",
-        "value": 6,
         "config": {}
       }
     }
