@@ -43,7 +43,12 @@ class IOTeqDBBuilder():
             ba = bytearray(struct.pack("<f", value)) 
             for b in ba:
                 self.dataPtr.append(hex(b))
-        # elif (datatype == "Text"):
+        elif (datatype == "Text"):
+            value = tag["value"]
+            for char in value:
+                self.dataPtr.append(hex(ord(char)))
+            # for i in range(len(self.dataPtr), 40):
+            self.dataPtr.append(hex(0))
 
     def createTree(self, tags, parent=None):
         for tag in tags:
@@ -68,7 +73,7 @@ class IOTeqDBBuilder():
                     if (tags[tag]["datatype"] == "Number"):
                         newTag.valueSize = 4
                     elif (tags[tag]["datatype"] == "Text"):
-                        newTag.valueSize = 40
+                        newTag.valueSize = len(tags[tag]["value"])
 
                     # Adding default value to dataPtr list
                     newTag.valuePtr = len(self.dataPtr)
@@ -143,63 +148,82 @@ class IOTeqTag(object):
                 self.nameSize, self.parentPtr, self.childPtr, self.numOfChildren]
 
 class IOTeqFileBuilder():
-    def __init__(self, fileName, dbBuilder):
+    def __init__(self, directory, dbBuilder):
         self.dbBuilder = dbBuilder
-        self.file = fileName
-        self.fd = open(self.file, "w+")
+        self.dbHeader = open(directory + "/ioteqDB.h", "w+")
+        self.dbSource = open(directory + "/ioteqDB.c", "w+")
 
-    def write(self, string):
-        self.fd.write(string)
+    def writeHeader(self, string):
+        self.dbHeader.write(string)
 
-    
-    def addIncludes(self):
-        self.write("""
+    def writeSource(self, string):
+        self.dbSource.write(string)
+
+    def buildHeaderFile(self):
+        self.writeHeader(f"""
                 #include <stdio.h>
                 #include <stdlib.h>
                 #include <string.h>
-                """)
-    def addDefines(self):
-        self.write(f"""
-                    #define TOTAL_NUMBER_OF_TAGS          {self.dbBuilder.totalNumberOfTags()}
-                    """)
-    def addStruct(self):
-        self.write(
-        """typedef struct Tag {
-            uint32_t valuePtr;
-            uint32_t valueSize;
-            uint32_t namePtr;
-            uint32_t nameSize;
-            uint32_t parentPtr;
-            uint32_t childPtr;
-            uint32_t numOfChildren;
-        } Tag_t;""")
 
-    def addPtrs(self):
+                #define TOTAL_NUMBER_OF_TAGS          {self.dbBuilder.totalNumberOfTags()}
+
+                typedef struct Tag {{
+                    uint32_t valuePtr;
+                    uint32_t valueSize;
+                    uint32_t namePtr;
+                    uint32_t nameSize;
+                    uint32_t parentPtr;
+                    uint32_t childPtr;
+                    uint32_t numOfChildren;
+                }} Tag_t;\n
+        """)
+
+        for tag in self.dbBuilder.tagList:
+            if (tag.tagName != "tags"):
+                self.writeHeader(f"""const Tag_t* {tag.tagName};\n""")
+
+        self.dbHeader.close()
+
+    def buildSourceFile(self):
+        self.writeSource("""
+                #include <stdio.h>
+                #include <stdlib.h>
+                #include <string.h>
+                #include "ioteqDB.h"
+        \n""")
+
+        # Initialize Pointers (str, tree, data)
         nameBytes = ', '.join(hex(x) for x in ioteqDBBuilder.constPtrChar)
-        self.write("const char str[] = {" + nameBytes + "};\n\n")
+        self.writeSource("const char str[] = {" + nameBytes + "};\n\n")
         
         treeBytes = ', '.join(hex(x) for x in ioteqDBBuilder.constPtrTree)
-        self.write("const Tag_t tree[TOTAL_NUMBER_OF_TAGS] = " + "{" + treeBytes + "};\n\n")
+        self.writeSource("const Tag_t tree[TOTAL_NUMBER_OF_TAGS] = " + "{" + treeBytes + "};\n\n")
 
         dataBytes = ', '.join(x for x in ioteqDBBuilder.dataPtr)
-        self.write("uint8_t data[] = {" + dataBytes + "};\n\n")
-    
+        self.writeSource("char data[] = {" + dataBytes + "};\n\n")
+
+        # Initialize DB Function
+        self.writeSource("""void initDB(){\n""")
+        for tag in self.dbBuilder.tagList:
+            if (tag.tagName != "tags"):
+                self.writeSource(f"""{tag.tagName} = getTag("{tag.tagName}");\n""")
+        self.writeSource("""\n}""")
+
+        self.dbSource.close()
+
     def build(self):
-        self.addIncludes()
-        self.addDefines()
-        self.addStruct()
-        self.addPtrs()
-        self.fd.close()
+        self.buildHeaderFile()
+        self.buildSourceFile()
 
 
 
 # ioteqDBBuilder  = IOTeqDBBuilder(configFile = os.getcwd( )+ "/config.json")
-ioteqDBBuilder  = IOTeqDBBuilder("/Users/reidwilliams/Repositories/c-folder/dbBuilder/config.json")
+ioteqDBBuilder  = IOTeqDBBuilder("/Users/reidwilliams/Repositories/c-folder/dbBuilder/config.1.json")
 
 ioteqDBBuilder.build()
 
 # ioteqFileBuilder = IOTeqFileBuilder(os.getcwd() + "/database.h", ioteqDBBuilder)
-ioteqFileBuilder = IOTeqFileBuilder("/Users/reidwilliams/Repositories/c-folder/dbBuilder/database.h", ioteqDBBuilder)
+ioteqFileBuilder = IOTeqFileBuilder(os.getcwd(), ioteqDBBuilder)
 ioteqFileBuilder.build()
 ioteqDBBuilder.tree.show(data_property="address")
 ioteqDBBuilder.tree.show()

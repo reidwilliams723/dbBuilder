@@ -1,0 +1,30 @@
+{
+  "database": {
+    "tags": {
+      "DeviceName": {
+        "arraydim": 1,
+        "datatype": "Text",
+        "value": "Unknown",
+        "config": {}
+      },
+      "Temperature": {
+        "datatype": "Number",
+        "arraydim": 1,
+        "value": 1234.12,
+        "config": {}
+      },
+      "ManufacturerData": {
+        "arraydim": 1,
+        "datatype": "Text",
+        "value": "IOT-eq",
+        "config": {}
+      },
+      "Flags": {
+        "arraydim": 1,
+        "datatype": "Number",
+        "value": 6,
+        "config": {}
+      }
+    }
+  }
+}

@@ -3,8 +3,8 @@
     "tags": {
       "Strokes": {
         "arraydim": 1,
-        "datatype": "Number",
-        "value": 1234.12,
+        "datatype": "Text",
+        "value": "Hello, world",
         "config": {}
       },
       "Bins":{
