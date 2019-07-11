@@ -33,6 +33,7 @@
 #include "mcu_characteristics.h"
 #include "serialProtocol.h"
 #include "serialProtocolFunctions.h"
+#include "flash_data.h"
 
 /* Interval for sending notifications */
 #define APP_TASK_INTERVAL 500 //ms
@@ -94,6 +95,7 @@ void sendNotifications(){
 /* Main application */
 void appMain(gecko_configuration_t *pconfig)
 {
+	char *savedId = getBLEDeviceDataPtr();
 
 #if DISABLE_SLEEP > 0
   pconfig->sleep.flags = 0;
@@ -143,7 +145,7 @@ void appMain(gecko_configuration_t *pconfig)
        * Do not call any stack commands before receiving the boot event.
        * Here the system is set to start advertising immediately after boot procedure. */
       case gecko_evt_system_boot_id:
-
+    	//gecko_cmd_gatt_server_write_attribute_value(gattdb_device_name,0,20,(uint8_t *)savedId);
         bootMessage(&(evt->data.evt_system_boot));
         //printLog("boot event - starting advertising\r\n");
 

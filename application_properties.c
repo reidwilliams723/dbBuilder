@@ -29,7 +29,7 @@
 #endif
 
 /// Version number for this application (uint32_t)
-#define APP_PROPERTIES_VERSION 1
+#define APP_PROPERTIES_VERSION 10001
 /// Unique ID (e.g. UUID or GUID) for the product this application is built for (uint8_t[16])
 #define APP_PROPERTIES_ID { 0 }
 
