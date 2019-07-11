@@ -54,7 +54,7 @@ char controlInput; // Byte for control input. 0x01 = Reset, 0x02 = Zero Out
 char mcuControlOTA;
 uint16_t packetIncrement = 0;
 uint32_t mcuControlData[5];
-
+char* test;
 
 /* Simulating Variables */
 bool simulate = false; // Boolean for either simulating data or reading data from MCU
@@ -95,7 +95,6 @@ void sendNotifications(){
 /* Main application */
 void appMain(gecko_configuration_t *pconfig)
 {
-	char *savedId = getBLEDeviceDataPtr();
 
 #if DISABLE_SLEEP > 0
   pconfig->sleep.flags = 0;
@@ -144,8 +143,16 @@ void appMain(gecko_configuration_t *pconfig)
       /* This boot event is generated when the system boots up after reset.
        * Do not call any stack commands before receiving the boot event.
        * Here the system is set to start advertising immediately after boot procedure. */
-      case gecko_evt_system_boot_id:
-    	//gecko_cmd_gatt_server_write_attribute_value(gattdb_device_name,0,20,(uint8_t *)savedId);
+      case gecko_evt_system_boot_id:{
+
+    	/* Get device name from flash */
+    	char *savedVal = getBLEDeviceDataPtr();
+
+    	/* By default, all flash has value 255, so if it doesn't equal...set the device name */
+    	if (*savedVal != 255)
+    		gecko_cmd_gatt_server_write_attribute_value(gattdb_device_name,0,strlen(savedVal),(uint8_t *)savedVal);
+
+
         bootMessage(&(evt->data.evt_system_boot));
         //printLog("boot event - starting advertising\r\n");
 
@@ -163,7 +170,7 @@ void appMain(gecko_configuration_t *pconfig)
         gecko_cmd_hardware_set_soft_timer(32768*APP_TASK_INTERVAL/1000,0,0);
 
         break;
-
+      }
       case gecko_evt_hardware_soft_timer_id:
     	  sendNotifications();
     	break;
@@ -255,6 +262,29 @@ void appMain(gecko_configuration_t *pconfig)
 					txMsgSendFlashFirmware(&serialPort);
 					mcuChars.flashFirmwarePacket = 0;
 				}
+
+			 }
+        if (evt->data.evt_gatt_server_user_write_request.characteristic == gattdb_device_name_mask) {
+
+        		/* Clear the flash memory */
+        		clearBLEDeviceId();
+
+        		/* Write incoming value to flash */
+        		saveBLEDeviceId((char*)evt->data.evt_gatt_server_user_write_request.value.data,
+        				evt->data.evt_gatt_server_user_write_request.value.len);
+
+
+        		/* Write new name to device name characteristic */
+        		gecko_cmd_gatt_server_write_attribute_value(
+        				gattdb_device_name,
+        				0,
+        				evt->data.evt_gatt_server_user_write_request.value.len,
+        				(uint8_t *)evt->data.evt_gatt_server_user_write_request.value.data);
+
+				gecko_cmd_gatt_server_send_user_write_response(
+						evt->data.evt_gatt_server_user_write_request.connection,
+						evt->data.evt_gatt_server_user_write_request.characteristic,
+						bg_err_success);
 
 			 }
         if (evt->data.evt_gatt_server_user_write_request.characteristic == gattdb_Firmware_Data) {
@@ -401,6 +431,17 @@ void appMain(gecko_configuration_t *pconfig)
  				  sizeof(mcuChars.firmwareVersions),
  				  (uint8 *)&mcuChars.firmwareVersions);
  			  }
+
+ 			else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_device_name_mask) {
+ 				/* Get device name from flash */
+ 				char* deviceName = getBLEDeviceDataPtr();
+ 				gecko_cmd_gatt_server_send_user_read_response(
+ 						evt->data.evt_gatt_server_user_read_request.connection,
+						gattdb_device_name_mask,
+						bg_err_success,
+						strlen(deviceName),
+						(uint8 *)deviceName);
+ 				}
            	 break;
 
       default:

@@ -9,7 +9,7 @@
     <!--Device Name-->
     <characteristic id="device_name" name="Device Name" sourceId="org.bluetooth.characteristic.gap.device_name" uuid="2A00">
       <informativeText/>
-      <value length="20" type="utf-8" variable_length="false">Weir UNNAMED        </value>
+      <value length="30" type="utf-8" variable_length="true">Weir UNNAMED1</value>
       <properties read="true" read_requirement="optional" write="true" write_requirement="optional"/>
     </characteristic>
     
@@ -130,6 +130,13 @@
       <informativeText>Custom characteristic</informativeText>
       <value length="8" type="user" variable_length="false"/>
       <properties read="true" read_requirement="optional"/>
+    </characteristic>
+    
+    <!--Device Name Mask-->
+    <characteristic id="device_name_mask" name="Device Name Mask" sourceId="com.characteristic.accelerometer" uuid="00002A22-0000-4358-9ad6-a241984cff67">
+      <informativeText>Custom characteristic</informativeText>
+      <value length="30" type="user" variable_length="true">Weir UNNAMED        </value>
+      <properties read="true" read_requirement="optional" write="true" write_requirement="optional"/>
     </characteristic>
   </service>
   
