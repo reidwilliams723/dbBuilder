@@ -54,7 +54,6 @@ char controlInput; // Byte for control input. 0x01 = Reset, 0x02 = Zero Out
 char mcuControlOTA;
 uint16_t packetIncrement = 0;
 uint32_t mcuControlData[5];
-char* test;
 
 /* Simulating Variables */
 bool simulate = false; // Boolean for either simulating data or reading data from MCU
@@ -269,9 +268,13 @@ void appMain(gecko_configuration_t *pconfig)
         		/* Clear the flash memory */
         		clearBLEDeviceId();
 
+        		char tmp[evt->data.evt_gatt_server_attribute_value.value.len+1];
+				memcpy(tmp, evt->data.evt_gatt_server_attribute_value.value.data, evt->data.evt_gatt_server_attribute_value.value.len);
+				tmp[evt->data.evt_gatt_server_attribute_value.value.len] = 0; // add null terminator
+
         		/* Write incoming value to flash */
-        		saveBLEDeviceId((char*)evt->data.evt_gatt_server_user_write_request.value.data,
-        				evt->data.evt_gatt_server_user_write_request.value.len);
+        		saveBLEDeviceId(tmp,
+        				evt->data.evt_gatt_server_user_write_request.value.len+1);
 
 
         		/* Write new name to device name characteristic */
@@ -356,7 +359,13 @@ void appMain(gecko_configuration_t *pconfig)
         			else if (mcuChars.control == 3){
         				txMsgSendToggleLED(&serialPort);
         				mcuChars.control = 0;
+
         			}
+
+					else if (mcuChars.control == 4){
+						clearBLEDeviceId();
+						gecko_cmd_system_reset(0);
+					}
         }
 
         break;

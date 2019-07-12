@@ -39,6 +39,7 @@ void flashTest()
 // Saves a device Name
 void saveBLEDeviceId(char *name,int len)
 {
+	/* Length must be divisible by 4 */
 	int wordLength = len;
 	if (len % 4 != 0){
 		wordLength = len + (4-(len % 4));
