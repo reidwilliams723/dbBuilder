@@ -39,9 +39,15 @@ void flashTest()
 // Saves a device Name
 void saveBLEDeviceId(char *name,int len)
 {
+	/* Length must be divisible by 4 */
+	int wordLength = len;
+	if (len % 4 != 0){
+		wordLength = len + (4-(len % 4));
+	}
+
 	// Write the value into the first location of the Userdata portion of the flash
 	MSC_Init();
-	MSC_WriteWord(((uint32_t*)USERDATA_BASE),name,len);
+	MSC_WriteWord(((uint32_t*)USERDATA_BASE),name,wordLength);
 	MSC_Deinit();
 
 }
@@ -49,6 +55,12 @@ void saveBLEDeviceId(char *name,int len)
 char *getBLEDeviceDataPtr()
 {
 	return USERDATA;
+}
+
+void clearBLEDeviceId(){
+	MSC_Init();
+	MSC_ErasePage((uint32_t*)USERDATA_BASE);
+	MSC_Deinit();
 }
 
 

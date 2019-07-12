@@ -18,6 +18,7 @@
 // Saves a device Name
 void saveBLEDeviceId(char *name,int len);
 char *getBLEDeviceDataPtr();
+void clearBLEDeviceId();
 
 
 #endif /* FLASH_DATA_H_ */
