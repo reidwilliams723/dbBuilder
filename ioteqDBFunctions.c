@@ -60,7 +60,7 @@ float* getValue(const Tag_t* tag){
         return getChildrenValues(tag, childValues, &index);
     }
     else{
-        return data + tag->valuePtr;
+        return (float*)(data + tag->valuePtr);
     }
 }
 
