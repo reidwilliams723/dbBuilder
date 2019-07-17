@@ -39,10 +39,45 @@ const Tag_t* getTag(char * tagName){
     }
 }
 
-uint8_t* getValue(const Tag_t* tag){
-    return data + tag->valuePtr;
+uint8_t getTagSize(const Tag_t* tag, uint8_t size){
+
+    if (tag->numOfChildren !=0){
+        for (int i = 0; i < tag->numOfChildren; i++){
+            const Tag_t* currentChild = tree + ((tag->childPtr/sizeof(Tag_t)) + i);
+            size += getTagSize(currentChild, size);
+        }
+    }
+    else {
+        size = tag->valueSize;
+    }
+    return size;
+}
+
+float* getValue(const Tag_t* tag){
+    if (tag->numOfChildren != 0){
+        uint8_t index = 0;
+        float childValues[getTagSize(tag, 0)];
+        return getChildrenValues(tag, childValues, &index);
+    }
+    else{
+        return data + tag->valuePtr;
+    }
 }
 
 void setValue(const Tag_t* tag, uint8_t* value){
     memcpy((data + tag->valuePtr), value, tag->valueSize);
+}
+
+float* getChildrenValues(const Tag_t* tag, float* dataArray, uint8_t* index){
+    if (tag->numOfChildren != 0){
+        for (int i = 0; i < tag->numOfChildren; i++){
+            const Tag_t* currentChild = tree + ((tag->childPtr/sizeof(Tag_t)) + i);
+            getChildrenValues(currentChild, dataArray, index);
+        }
+    }
+    else {
+        memcpy(dataArray + *index++, data+tag->valuePtr, tag->valueSize);
+    }
+
+    return dataArray;
 }

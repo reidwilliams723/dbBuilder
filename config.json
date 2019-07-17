@@ -1,84 +1,151 @@
 {
-  "database": {
-    "tags": {
-      "Strokes": {
-        "arraydim": 1,
-        "datatype": "Text",
-        "value": "Hello, world",
-        "config": {}
-      },
-      "Bins":{
-        "datatype": "Number",
-        "arraydim": 20,
-        "value": 678,
-        "config": {}
-      },
-      "RunTime": {
-        "arraydim": 1,
-        "datatype": "Number",
-        "value": 9012,
-        "config": {}
-      },
-      "RunTimeFolder": {
-        "arraydim": 1,
-        "datatype": "Folder",
-        "children": {
-          "runTimeChild": {
-            "arraydim": 1,
-            "datatype": "Number",
-            "value": 1337,
-            "config": {}
-          }
-      }
-    },
-      "PSIScaling": {
-        "datatype": "Folder",
-        "arraydim": 1,
-        "children": {
-          "rawAtZero": {
-            "arraydim": 1,
-            "datatype": "Number",
-            "value": 4,
-            "config": {}
-          },
-          "rawAtScale": {
-            "arraydim": 1,
-            "datatype": "Number",
-            "value": 20,
-            "config": {}
-          },
-          "unitsZero": {
-            "arraydim": 1,
+    "database": {
+      "tags": {
+        "Strokes": {
+          "arraydim": 1,
+          "datatype": "Number",
+          "value": 0,
+          "config": {}
+        },
+        "RunTime": {
+          "arraydim": 1,
+          "datatype": "Number",
+          "value": 0,
+          "config": {}
+        },
+        "Bins": {
+          "datatype": "Number",
+          "arraydim": 20,
+          "value": 0,
+          "config": {}
+        },
+        "PSIData": {
             "datatype": "Folder",
+            "arraydim": 1,
             "children":{
-              "Test": {
-                "arraydim": 1,
-                "datatype": "Number",
-                "value": 911,
-                "config": {}
-              }
+                "RawZero": {
+                    "arraydim": 1,
+                    "datatype": "Folder",
+                    "children":{
+                        "RawZerotest": {
+                            "arraydim": 1,
+                            "datatype": "Number",
+                            "value": 4,
+                            "config": {}
+                        },
+                        "RawZerotest2": {
+                            "arraydim": 1,
+                            "datatype": "Number",
+                            "value": 1234,
+                            "config": {}
+                        }
+                    }
+                },
+                "RawScale": {
+                    "arraydim": 1,
+                    "datatype": "Number",
+                    "value": 20,
+                    "config": {}
+                },
+                "UnitsScale": {
+                    "arraydim": 1,
+                    "datatype": "Number",
+                    "value": 20000,
+                    "config": {}
+                },
+                "PSIRawValue": {
+                    "arraydim": 1,
+                    "datatype": "Number",
+                    "value": 0,
+                    "config": {}
+                },
+                "ScaledPSIValue": {
+                    "arraydim": 1,
+                    "datatype": "Number",
+                    "value": 0,
+                    "config": {}
+                }
             }
-          },
-          "unitsScaled": {
-            "arraydim": 1,
-            "datatype": "Number",
-            "value": 0,
-            "config": {}
-          },
-          "rawPSI": {
-            "arraydim": 1,
-            "datatype": "Number",
-            "value": 0,
-            "config": {}
-          },
-          "scaledPSI": {
-            "arraydim": 1,
-            "datatype": "Number",
-            "value": 0,
-            "config": {}
+        },
+        "GPSData": {
+          "arraydim": 1,
+          "datatype": "Folder",
+          "children": {
+              "Longitude": {
+                  "arraydim": 1,
+                  "datatype": "Number",
+                  "value": 0,
+                  "config": {}
+              },
+              "Latitude": {
+                  "arraydim": 1,
+                  "datatype": "Number",
+                  "value": 0,
+                  "config": {}
+              },
+              "Satellites": {
+                  "arraydim": 1,
+                  "datatype": "Number",
+                  "value": 0,
+                  "config": {}
+              },
+              "MinSNR": {
+                  "arraydim": 1,
+                  "datatype": "Number",
+                  "value": 0,
+                  "config": {}
+              },
+              "MaxSNR": {
+                  "arraydim": 1,
+                  "datatype": "Number",
+                  "value": 0,
+                  "config": {}
+              }
           }
+        },
+        "AccelerometerData": {
+          "arraydim": 1,
+          "datatype": "Folder",
+          "children": {
+              "PeakX": {
+                  "arraydim": 1,
+                  "datatype": "Number",
+                  "value": 0,
+                  "config": {}
+              },
+              "PeakY": {
+                  "arraydim": 1,
+                  "datatype": "Number",
+                  "value": 0,
+                  "config": {}
+              },
+              "PeakZ": {
+                  "arraydim": 1,
+                  "datatype": "Number",
+                  "value": 0,
+                  "config": {}
+              }
+          }
+        },
+        "SystemInformation": {
+            "datatype": "Folder",
+            "arraydim": 1,
+            "children":{
+                "Bootloader": {
+                    "arraydim": 1,
+                    "datatype": "Number",
+                    "value": 0,
+                    "config": {}
+                },
+                "Firmware": {
+                    "arraydim": 1,
+                    "datatype": "Number",
+                    "value": 0,
+                    "config": {}
+                }
+            }
         }
       }
     }
   }
-}
+  

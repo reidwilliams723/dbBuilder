@@ -12,7 +12,7 @@
                 * Programmed By: 	Reid Williams
                 * 					Inaki Zuloaga
                 *
-                * Date: June 28, 2019
+                * Date: July 17, 2019
                 * Contact: izi@iot-eq.com
                 *
                 *
@@ -28,7 +28,7 @@
                 #include <stdlib.h>
                 #include <string.h>
 
-                #define TOTAL_NUMBER_OF_TAGS          4
+                #define TOTAL_NUMBER_OF_TAGS          44
 
                 typedef struct Tag {
                     uint32_t valuePtr;
@@ -43,7 +43,4 @@
         extern const char str[];
 extern const Tag_t tree[TOTAL_NUMBER_OF_TAGS];
 extern char data[];
-const Tag_t* DeviceName;
-const Tag_t* Temperature;
-const Tag_t* ManufacturerData;
 #endif

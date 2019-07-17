@@ -112,6 +112,8 @@ class IOTeqDBBuilder():
                         parentTag = self.tree.parent(node).data
                         # Set Parent Ptr of current tag
                         self.tagList[tagIndex].parentPtr = parentTag.address
+                        if (parentTag.tagName != "tags"):
+                            self.tagList[tagIndex].parentTag = parentTag
                     
                     # If node has children
                     if (self.tree.get_node(node).is_leaf() != True):
@@ -143,10 +145,27 @@ class IOTeqTag(object):
         self.numOfChildren = 0
         self.tagName = tagName
         self.address = address
+        self.parentTag = None
     
     def getStruct(self):
         return [self.valuePtr, self.valueSize, self.namePtr,
                 self.nameSize, self.parentPtr, self.childPtr, self.numOfChildren]
+
+    def getFullName(self, currentName=None):
+        if (currentName == None):
+            currentName = self.tagName
+            if (self.parentTag != None):
+                currentName = self.parentTag.tagName + "." + currentName
+                return self.parentTag.getFullName(currentName)
+            else:
+                return currentName
+        else:
+            if (self.parentTag != None):
+                currentName = self.parentTag.tagName + "." + currentName
+                return self.parentTag.getFullName(currentName)
+
+            else:
+                return currentName
 
 class IOTeqFileBuilder():
     def __init__(self, directory, dbBuilder):
@@ -208,12 +227,6 @@ class IOTeqFileBuilder():
         self.writeDBHeader("extern const char str[];\n")
         self.writeDBHeader("extern const Tag_t tree[TOTAL_NUMBER_OF_TAGS];\n")
         self.writeDBHeader("extern char data[];\n")
-
-        for tag in self.dbBuilder.tagList:
-            if (tag.tagName != "tags"):
-                self.writeDBHeader(f"""const Tag_t* {tag.tagName};\n""")
-
-        self.writeDBHeader("""void initDB();\n""")
         self.writeDBHeader("""#endif""")
         self.dbHeader.close()
 
@@ -235,13 +248,6 @@ class IOTeqFileBuilder():
         dataBytes = ', '.join(x for x in ioteqDBBuilder.dataPtr)
         self.writeDBSource("char data[] = {" + dataBytes + "};\n\n")
 
-        # Initialize DB Function
-        self.writeDBSource("""void initDB(){\n""")
-        for tag in self.dbBuilder.tagList:
-            if (tag.tagName != "tags"):
-                self.writeDBSource(f"""{tag.tagName} = getTag("{tag.tagName}");\n""")
-        self.writeDBSource("""\n}""")
-
         self.dbSource.close()
 
     def build(self):
@@ -250,13 +256,8 @@ class IOTeqFileBuilder():
 
 
 
-# ioteqDBBuilder  = IOTeqDBBuilder(configFile = os.getcwd( )+ "/config.json")
-ioteqDBBuilder  = IOTeqDBBuilder("/Users/reidwilliams/Repositories/c-folder/dbBuilder/config.1.json")
-
+ioteqDBBuilder  = IOTeqDBBuilder(configFile = os.getcwd( )+ "/config.json")
 ioteqDBBuilder.build()
 
-# ioteqFileBuilder = IOTeqFileBuilder(os.getcwd() + "/database.h", ioteqDBBuilder)
 ioteqFileBuilder = IOTeqFileBuilder(os.getcwd(), ioteqDBBuilder)
 ioteqFileBuilder.build()
-ioteqDBBuilder.tree.show(data_property="address")
-ioteqDBBuilder.tree.show()
