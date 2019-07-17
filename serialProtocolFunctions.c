@@ -33,42 +33,75 @@
 #include "serialProtocol.h"
 #include "serialProtocolFunctions.h"
 #include "mcu_characteristics.h"
+#include "ioteqDB.h"
+#include "ioteqDBFunctions.h"
 
 uint8_t messageFlags[SERIAL_PROTO_MSG_MAX];
 
+void initTags(){
+	Strokes = getTag("Strokes");
+	RunTime = getTag("RunTime");
 
+//	for(int i = 0; i < sizeof(Bins); i++){
+//
+//		memcpy(Bins + i, getTag("Bins[%d]",i), sizeof(Tag_t));
+//	}
+//
+//	for(int i = 0; i < sizeof(CalculatedBins); i++){
+//		memcpy(CalculatedBins + i, getTag("CalculatedBins[%d]",i), sizeof(Tag_t));
+//	}
+	PSIData = getTag("PSIData");
+	AccelerometerData = getTag("AccelerometerData");
+	GPSData = getTag("GPSData");
+	SystemInformation = getTag("SystemInformation");
+}
 
 
 /* RX Functions */
 void rxMsgProcessStrokesData(SerialProto_t *pSerialObj){
 	uint8_t *data = pSerialObj->rxData + 1;
-	memcpy(&pSerialObj->mcu->strokes, data,sizeof(pSerialObj->mcu->strokes));
+	setValue(Strokes, data);
 }
 
 void rxMsgProcessRunTimeData(SerialProto_t *pSerialObj){
 	uint8_t *data = pSerialObj->rxData + 1;
-	memcpy(&pSerialObj->mcu->runTime, data,sizeof(pSerialObj->mcu->runTime));
+	setValue(RunTime, data);
 }
 
-void rxMsgProcessBinsData(SerialProto_t *pSerialObj){
-	uint8_t *data = pSerialObj->rxData + 1;
-	memcpy(&pSerialObj->mcu->bins, data,sizeof(pSerialObj->mcu->bins));
-	calculateBins(pSerialObj->mcu);
-}
+//void rxMsgProcessBinsData(SerialProto_t *pSerialObj){
+//	uint8_t *data = pSerialObj->rxData + 1;
+//	for(int i = 0; i < sizeof(Bins); i++)
+//		setValue(Bins[i], &data[i*sizeof(float)]);
+//
+//	setValue(CalculatedBins[0],&(uint8_t)(*getValue("Bins[0]") + *getValue("Bins[1]") +*getValue("Bins[2]") +
+//			*getValue("Bins[3]")));
+//
+//	setValue(CalculatedBins[1],&(uint8_t)(*getValue("Bins[4]") + *getValue("Bins[5]") +*getValue("Bins[6]") +
+//			*getValue("Bins[7]")));
+//
+//	setValue(CalculatedBins[2],&(uint8_t)(*getValue("Bins[8]") + *getValue("Bins[9]") +*getValue("Bins[10]") +
+//			*getValue("Bins[11]")));
+//
+//	setValue(CalculatedBins[3],&(uint8_t)(*getValue("Bins[12]") + *getValue("Bins[13]") +*getValue("Bins[14]") +
+//			*getValue("Bins[15]")));
+//
+//	setValue(CalculatedBins[4],&(uint8_t)(*getValue("Bins[16]") + *getValue("Bins[17]") +*getValue("Bins[18]") +
+//			*getValue("Bins[19]")));
+//}
 
 void rxMsgProcessPSIData(SerialProto_t *pSerialObj){
 	uint8_t *data = pSerialObj->rxData + 1;
-	memcpy(&pSerialObj->mcu->psiData, data, sizeof(pSerialObj->mcu->psiData));
+	setValue(PSIData, data);
 }
 
 void rxMsgProcessAccelerometerData(SerialProto_t *pSerialObj){
 	uint8_t *data = pSerialObj->rxData + 1;
-	memcpy(&pSerialObj->mcu->accelerometerData, data,sizeof(pSerialObj->mcu->accelerometerData));
+	setValue(AccelerometerData, data);
 }
 
 void rxMsgProcessGPSData(SerialProto_t *pSerialObj){
 	uint8_t *data = pSerialObj->rxData + 1;
-	memcpy(&pSerialObj->mcu->gpsData, data,sizeof(pSerialObj->mcu->gpsData));
+	setValue(GPSData, data);
 }
 
 void rxMsgProcessFirmwareControl(SerialProto_t *pSerialObj){
@@ -78,7 +111,7 @@ void rxMsgProcessFirmwareControl(SerialProto_t *pSerialObj){
 
 void rxMsgProcessFirmwareInfo(SerialProto_t *pSerialObj){
 	uint8_t *data = pSerialObj->rxData + 1;
-	memcpy(&pSerialObj->mcu->firmwareVersions, data,sizeof(pSerialObj->mcu->firmwareVersions));
+	setValue(SystemInformation, data);
 }
 
 
@@ -157,7 +190,7 @@ void serialProtocolProcessMessages(SerialProto_t *pSerialObj) {
 			rxMsgProcessRunTimeData(pSerialObj);
 			break;
 		case SERIAL_PROTO_MSG_REPORT_BINS:
-			rxMsgProcessBinsData(pSerialObj);
+//			rxMsgProcessBinsData(pSerialObj);
 			break;
 		case SERIAL_PROTO_MSG_REPORT_PSI:
 			rxMsgProcessPSIData(pSerialObj);

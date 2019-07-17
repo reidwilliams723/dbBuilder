@@ -34,6 +34,7 @@
 #include "serialProtocol.h"
 #include "serialProtocolFunctions.h"
 #include "flash_data.h"
+#include "ioteqDBFunctions.h"
 
 /* Interval for sending notifications */
 #define APP_TASK_INTERVAL 500 //ms
@@ -433,12 +434,13 @@ void appMain(gecko_configuration_t *pconfig)
 
  			  }
  			else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_firmware_version) {
+ 				uint8_t* value = (uint8_t*)getValue(SystemInformation);
  				gecko_cmd_gatt_server_send_user_read_response(
  				  evt->data.evt_gatt_server_user_read_request.connection,
 				  gattdb_firmware_version,
  				  bg_err_success,
- 				  sizeof(mcuChars.firmwareVersions),
- 				  (uint8 *)&mcuChars.firmwareVersions);
+ 				  sizeof(value),
+ 				  value);
  			  }
 
  			else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_device_name_mask) {

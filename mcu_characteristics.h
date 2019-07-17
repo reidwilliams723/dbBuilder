@@ -16,12 +16,12 @@
 
 typedef struct MCU_Characteristics {
 
-	uint32_t strokes;
-	uint32_t runTime;
-	uint32_t bins[20];
-	uint32_t binsData[5]; // Aggregates and divides bins[20] into 5 values
+	float strokes;
+	float runTime;
+	float bins[20];
+	float binsData[5]; // Aggregates and divides bins[20] into 5 values
 	float psiData[5];  // Holds the RawZero, RawScale, UnitsScale, PSI Raw Value, and Scaled PSI Value
-	uint32_t accelerometerData[3]; // Holds the X,Y, and Z values
+	float accelerometerData[3]; // Holds the X,Y, and Z values
 	float gpsData[5];
 	float newPsiScaling[5];
 
@@ -32,7 +32,7 @@ typedef struct MCU_Characteristics {
 
 	uint8_t control;
 
-	uint32_t firmwareVersions[2];
+	float firmwareVersions[2];
 
 
 } MCU_Characteristics_t;

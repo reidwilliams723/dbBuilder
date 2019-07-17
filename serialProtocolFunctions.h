@@ -29,6 +29,8 @@
 #define SRC_SERIALPROTOCOLFUNCTIONS_H_
 
 
+#include "ioteqDB.h"
+
 // This is the Slot of internal memory where firmware is copied
 #define FIRMWARE_SLOT 0
 
@@ -92,6 +94,20 @@ void rxMsgProcessFirmwareControl(SerialProto_t *pSerialObj);
 void rxMsgProcessFirmwareInfo(SerialProto_t *pSerialObj);
 
 
+
+
+
+/* Declare Tags */
+const Tag_t* Strokes;
+const Tag_t* RunTime;
+const Tag_t Bins[20];
+const Tag_t CalculatedBins[5];
+const Tag_t* PSIData;
+const Tag_t* AccelerometerData;
+const Tag_t* GPSData;
+const Tag_t* SystemInformation;
+
+void initTags();
 
 
 #endif /* SRC_SERIALPROTOCOLFUNCTIONS_H_ */

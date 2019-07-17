@@ -12,6 +12,9 @@
 #include <stdio.h>
 #include <string.h>
 
+void initMCUChars(MCU_Characteristics_t *mcuChars){
+
+}
 void calculateBins(MCU_Characteristics_t *mcuChars){
 	mcuChars->binsData[0] = mcuChars->bins[0] + mcuChars->bins[1] + mcuChars->bins[2] +
 			mcuChars->bins[3];
