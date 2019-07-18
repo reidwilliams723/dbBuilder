@@ -30,6 +30,7 @@
 
 
 #include "ioteqDB.h"
+#include "serialProtocol.h"
 
 // This is the Slot of internal memory where firmware is copied
 #define FIRMWARE_SLOT 0

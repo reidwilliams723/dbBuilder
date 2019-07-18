@@ -68,7 +68,7 @@ void rxMsgProcessRunTimeData(SerialProto_t *pSerialObj){
 	setValue(RunTime, data);
 }
 
-//void rxMsgProcessBinsData(SerialProto_t *pSerialObj){
+void rxMsgProcessBinsData(SerialProto_t *pSerialObj){
 //	uint8_t *data = pSerialObj->rxData + 1;
 //	for(int i = 0; i < sizeof(Bins); i++)
 //		setValue(Bins[i], &data[i*sizeof(float)]);
@@ -87,7 +87,10 @@ void rxMsgProcessRunTimeData(SerialProto_t *pSerialObj){
 //
 //	setValue(CalculatedBins[4],&(uint8_t)(*getValue("Bins[16]") + *getValue("Bins[17]") +*getValue("Bins[18]") +
 //			*getValue("Bins[19]")));
-//}
+	uint8_t *data = pSerialObj->rxData + 1;
+	memcpy(&pSerialObj->mcu->bins, data,sizeof(pSerialObj->mcu->bins));
+	calculateBins(pSerialObj->mcu);
+}
 
 void rxMsgProcessPSIData(SerialProto_t *pSerialObj){
 	uint8_t *data = pSerialObj->rxData + 1;
@@ -135,7 +138,7 @@ int txMsgSendPSIScaling(SerialProto_t *pSerialObj){
 	memcpy(&psiScaling[1], &pSerialObj->mcu->newPsiScaling[1], sizeof(float));
 	memcpy(&psiScaling[2], &pSerialObj->mcu->newPsiScaling[2], sizeof(float));
 
-	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_PSI_SCALING,sizeof(psiScaling),(uint8_t *)psiScaling);
+	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_PSI_SCALING,getTagSize(PSIData,0),(uint8_t *)getValue(PSIData));
 }
 
 int txMsgSendResetData(SerialProto_t *pSerialObj){
@@ -190,7 +193,7 @@ void serialProtocolProcessMessages(SerialProto_t *pSerialObj) {
 			rxMsgProcessRunTimeData(pSerialObj);
 			break;
 		case SERIAL_PROTO_MSG_REPORT_BINS:
-//			rxMsgProcessBinsData(pSerialObj);
+			rxMsgProcessBinsData(pSerialObj);
 			break;
 		case SERIAL_PROTO_MSG_REPORT_PSI:
 			rxMsgProcessPSIData(pSerialObj);
