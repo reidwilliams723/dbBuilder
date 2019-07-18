@@ -41,9 +41,16 @@ class IOTeqDBBuilder():
         datatype = tag["datatype"]
         if (datatype == "Number"):
             value = tag["value"]
-            ba = bytearray(struct.pack("<f", value)) 
+            
+            if (tag["config"] != {} and tag["config"]["numtype"] != None):
+                if (tag["config"]["numtype"] == "float"):
+                    ba = bytearray(struct.pack("<f", value))
+            else:
+                ba = bytearray(struct.pack("<L", value)) 
+
             for b in ba:
                 self.dataPtr.append(hex(b))
+
         elif (datatype == "Text"):
             value = tag["value"]
             for char in value:

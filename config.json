@@ -19,51 +19,55 @@
           "value": 0,
           "config": {}
         },
+        "CalculatedBins": {
+            "datatype": "Number",
+            "arraydim": 5,
+            "value": 0,
+            "config": {}
+        },
         "PSIData": {
             "datatype": "Folder",
             "arraydim": 1,
             "children":{
                 "RawZero": {
                     "arraydim": 1,
-                    "datatype": "Folder",
-                    "children":{
-                        "RawZerotest": {
-                            "arraydim": 1,
-                            "datatype": "Number",
-                            "value": 4,
-                            "config": {}
-                        },
-                        "RawZerotest2": {
-                            "arraydim": 1,
-                            "datatype": "Number",
-                            "value": 1234,
-                            "config": {}
-                        }
+                    "datatype": "Number",
+                    "value": 4,
+                    "config": {
+                        "numtype": "float"
                     }
                 },
                 "RawScale": {
                     "arraydim": 1,
                     "datatype": "Number",
                     "value": 20,
-                    "config": {}
+                    "config": {
+                        "numtype": "float"
+                    }
                 },
                 "UnitsScale": {
                     "arraydim": 1,
                     "datatype": "Number",
                     "value": 20000,
-                    "config": {}
+                    "config": {
+                        "numtype": "float"
+                    }
                 },
                 "PSIRawValue": {
                     "arraydim": 1,
                     "datatype": "Number",
                     "value": 0,
-                    "config": {}
+                    "config": {
+                        "numtype": "float"
+                    }
                 },
                 "ScaledPSIValue": {
                     "arraydim": 1,
                     "datatype": "Number",
                     "value": 0,
-                    "config": {}
+                    "config": {
+                        "numtype": "float"
+                    }
                 }
             }
         },
@@ -134,13 +138,13 @@
                 "Bootloader": {
                     "arraydim": 1,
                     "datatype": "Number",
-                    "value": 0,
+                    "value": 1234,
                     "config": {}
                 },
                 "Firmware": {
                     "arraydim": 1,
                     "datatype": "Number",
-                    "value": 0,
+                    "value": 110,
                     "config": {}
                 }
             }

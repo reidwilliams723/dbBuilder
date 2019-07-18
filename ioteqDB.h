@@ -12,7 +12,7 @@
                 * Programmed By: 	Reid Williams
                 * 					Inaki Zuloaga
                 *
-                * Date: July 17, 2019
+                * Date: July 18, 2019
                 * Contact: izi@iot-eq.com
                 *
                 *
@@ -28,7 +28,7 @@
                 #include <stdlib.h>
                 #include <string.h>
 
-                #define TOTAL_NUMBER_OF_TAGS          44
+                #define TOTAL_NUMBER_OF_TAGS          47
 
                 typedef struct Tag {
                     uint32_t valuePtr;
