@@ -41,7 +41,7 @@ class IOTeqDBBuilder():
         datatype = tag["datatype"]
         if (datatype == "Number"):
             value = tag["value"]
-            
+
             if (tag["config"] != {} and tag["config"]["numtype"] != None):
                 if (tag["config"]["numtype"] == "float"):
                     ba = bytearray(struct.pack("<f", value))
@@ -233,7 +233,7 @@ class IOTeqFileBuilder():
         # Initialize Pointers (str, tree, data)
         self.writeDBHeader("extern const char str[];\n")
         self.writeDBHeader("extern const Tag_t tree[TOTAL_NUMBER_OF_TAGS];\n")
-        self.writeDBHeader("extern char data[];\n")
+        self.writeDBHeader("extern uint8_t data[];\n")
         self.writeDBHeader("""#endif""")
         self.dbHeader.close()
 
@@ -253,7 +253,7 @@ class IOTeqFileBuilder():
         self.writeDBSource("const Tag_t tree[TOTAL_NUMBER_OF_TAGS] = " + "{" + treeBytes + "};\n\n")
 
         dataBytes = ', '.join(x for x in ioteqDBBuilder.dataPtr)
-        self.writeDBSource("char data[] = {" + dataBytes + "};\n\n")
+        self.writeDBSource("uint8_t data[] = {" + dataBytes + "};\n\n")
 
         self.dbSource.close()
 

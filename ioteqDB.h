@@ -42,5 +42,5 @@
 
         extern const char str[];
 extern const Tag_t tree[TOTAL_NUMBER_OF_TAGS];
-extern char data[];
+extern uint8_t data[];
 #endif
