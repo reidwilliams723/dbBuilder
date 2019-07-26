@@ -4,14 +4,18 @@
         "Strokes": {
           "arraydim": 1,
           "datatype": "Number",
-          "value": 0,
-          "config": {}
+          "value": 123,
+          "config": {
+              "persistent": true
+          }
         },
         "RunTime": {
           "arraydim": 1,
           "datatype": "Number",
-          "value": 0,
-          "config": {}
+          "value": 9,
+          "config": {
+              "persistent": true
+          }
         },
         "Bins": {
           "datatype": "Number",
@@ -34,7 +38,8 @@
                     "datatype": "Number",
                     "value": 4,
                     "config": {
-                        "numtype": "float"
+                        "numtype": "float",
+                        "persistent": true
                     }
                 },
                 "RawScale": {
@@ -42,7 +47,8 @@
                     "datatype": "Number",
                     "value": 20,
                     "config": {
-                        "numtype": "float"
+                        "numtype": "float",
+                        "persistent": true
                     }
                 },
                 "UnitsScale": {
@@ -50,7 +56,8 @@
                     "datatype": "Number",
                     "value": 20000,
                     "config": {
-                        "numtype": "float"
+                        "numtype": "float",
+                        "persistent": true
                     }
                 },
                 "PSIRawValue": {
@@ -79,31 +86,41 @@
                   "arraydim": 1,
                   "datatype": "Number",
                   "value": 0,
-                  "config": {}
+                  "config": {
+                      "numtype": "float"
+                  }
               },
               "Latitude": {
                   "arraydim": 1,
                   "datatype": "Number",
                   "value": 0,
-                  "config": {}
+                  "config": {
+                      "numtype": "float"
+                  }
               },
               "Satellites": {
                   "arraydim": 1,
                   "datatype": "Number",
                   "value": 0,
-                  "config": {}
+                  "config": {
+                      "numtype": "float"
+                  }
               },
               "MinSNR": {
                   "arraydim": 1,
                   "datatype": "Number",
                   "value": 0,
-                  "config": {}
+                  "config": {
+                      "numtype": "float"
+                  }
               },
               "MaxSNR": {
                   "arraydim": 1,
                   "datatype": "Number",
                   "value": 0,
-                  "config": {}
+                  "config": {
+                      "numtype": "float"
+                  }
               }
           }
         },
@@ -115,19 +132,25 @@
                   "arraydim": 1,
                   "datatype": "Number",
                   "value": 0,
-                  "config": {}
+                  "config": {
+                      "numtype": "float"
+                  }
               },
               "PeakY": {
                   "arraydim": 1,
                   "datatype": "Number",
                   "value": 0,
-                  "config": {}
+                  "config": {
+                      "numtype": "float"
+                  }
               },
               "PeakZ": {
                   "arraydim": 1,
                   "datatype": "Number",
                   "value": 0,
-                  "config": {}
+                  "config": {
+                      "numtype": "float"
+                  }
               }
           }
         },

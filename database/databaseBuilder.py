@@ -16,6 +16,7 @@ class IOTeqDBBuilder():
         self.constPtrTree = []
         self.tagList = []
         self.dataPtr = []
+        self.persistentPtr = []
 
         self.currentTagAddress = 0
 
@@ -42,14 +43,19 @@ class IOTeqDBBuilder():
         if (datatype == "Number"):
             value = tag["value"]
 
-            if (tag["config"] != {} and tag["config"]["numtype"] != None):
+            if ("numtype" in tag["config"]):
                 if (tag["config"]["numtype"] == "float"):
                     ba = bytearray(struct.pack("<f", value))
             else:
                 ba = bytearray(struct.pack("<L", value)) 
 
-            for b in ba:
-                self.dataPtr.append(hex(b))
+                if ("persistent" in tag["config"]):
+                    if (tag["config"]["persistent"] == True):
+                        for b in ba:
+                            self.persistentPtr.append(hex(b))
+                else:
+                    for b in ba:
+                        self.dataPtr.append(hex(b))
 
         elif (datatype == "Text"):
             value = tag["value"]
@@ -82,10 +88,15 @@ class IOTeqDBBuilder():
                         newTag.valueSize = 4
                     elif (tags[tag]["datatype"] == "Text"):
                         newTag.valueSize = len(tags[tag]["value"])
-
-                    # Adding default value to dataPtr list
-                    newTag.valuePtr = len(self.dataPtr)
-                    self.addValueToDataPtr(tags[tag])
+                    if ("persistent" in tags[tag]["config"]):
+                        if (tags[tag]["config"]["persistent"] == True):
+                            newTag.valuePtr = len(self.persistentPtr)
+                            newTag.persistent = 1
+                            self.addValueToDataPtr(tags[tag])
+                    else:       
+                        # Adding default value to dataPtr list
+                        newTag.valuePtr = len(self.dataPtr)
+                        self.addValueToDataPtr(tags[tag])
                     
 
                 # Adding tag to tree and tag list
@@ -153,10 +164,11 @@ class IOTeqTag(object):
         self.tagName = tagName
         self.address = address
         self.parentTag = None
+        self.persistent = 0
     
     def getStruct(self):
         return [self.valuePtr, self.valueSize, self.namePtr,
-                self.nameSize, self.parentPtr, self.childPtr, self.numOfChildren]
+                self.nameSize, self.parentPtr, self.childPtr, self.numOfChildren, self.persistent]
 
     def getFullName(self, currentName=None):
         if (currentName == None):
@@ -227,6 +239,7 @@ class IOTeqFileBuilder():
                     uint32_t parentPtr;
                     uint32_t childPtr;
                     uint32_t numOfChildren;
+                    uint8_t persistent;
                 }} Tag_t;\n
         """)
 
@@ -234,6 +247,7 @@ class IOTeqFileBuilder():
         self.writeDBHeader("extern const char str[];\n")
         self.writeDBHeader("extern const Tag_t tree[TOTAL_NUMBER_OF_TAGS];\n")
         self.writeDBHeader("extern uint8_t data[];\n")
+        self.writeDBHeader("volatile uint32_t* persistentData;\n")
         self.writeDBHeader("""#endif""")
         self.dbHeader.close()
 

@@ -12,7 +12,7 @@
                 * Programmed By: 	Reid Williams
                 * 					Inaki Zuloaga
                 *
-                * Date: July 18, 2019
+                * Date: July 25, 2019
                 * Contact: izi@iot-eq.com
                 *
                 *
@@ -38,9 +38,11 @@
                     uint32_t parentPtr;
                     uint32_t childPtr;
                     uint32_t numOfChildren;
+                    uint8_t persistent;
                 } Tag_t;
 
         extern const char str[];
 extern const Tag_t tree[TOTAL_NUMBER_OF_TAGS];
 extern uint8_t data[];
+uint32_t volatile* persistentData;
 #endif

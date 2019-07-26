@@ -383,7 +383,56 @@ void appMain(gecko_configuration_t *pconfig)
 				}
 
 				else {
-            	  	handleUserReadRequest(evt);
+					switch (evt->data.evt_gatt_server_user_read_request.characteristic){
+						case gattdb_Strokes:
+							gecko_cmd_gatt_server_send_user_read_response(
+							  evt->data.evt_gatt_server_user_read_request.connection,
+							  evt->data.evt_gatt_server_user_read_request.characteristic,
+							  bg_err_success,
+							  getTagSize(Strokes, 0),
+							  (uint8 *)getValue(Strokes));
+							  break;
+						case gattdb_Run_hours:
+							gecko_cmd_gatt_server_send_user_read_response(
+							  evt->data.evt_gatt_server_user_read_request.connection,
+							  evt->data.evt_gatt_server_user_read_request.characteristic,
+							  bg_err_success,
+							  getTagSize(RunTime, 0),
+							  (uint8 *)getValue(RunTime));
+							  break;
+						case gattdb_PSI:
+							gecko_cmd_gatt_server_send_user_read_response(
+							  evt->data.evt_gatt_server_user_read_request.connection,
+							  evt->data.evt_gatt_server_user_read_request.characteristic,
+							  bg_err_success,
+							  getTagSize(PSIData, 0),
+							  (uint8 *)getValue(PSIData));
+							  break;
+						case gattdb_Accelerometer:
+							gecko_cmd_gatt_server_send_user_read_response(
+							  evt->data.evt_gatt_server_user_read_request.connection,
+							  evt->data.evt_gatt_server_user_read_request.characteristic,
+							  bg_err_success,
+							  getTagSize(AccelerometerData, 0),
+							  (uint8 *)getValue(AccelerometerData));
+							  break;
+						case gattdb_location_and_speed:
+							gecko_cmd_gatt_server_send_user_read_response(
+							  evt->data.evt_gatt_server_user_read_request.connection,
+							  evt->data.evt_gatt_server_user_read_request.characteristic,
+							  bg_err_success,
+							  getTagSize(GPSData, 0),
+							  (uint8 *)getValue(GPSData));
+							  break;
+						case gattdb_firmware_version:
+							gecko_cmd_gatt_server_send_user_read_response(
+							  evt->data.evt_gatt_server_user_read_request.connection,
+							  evt->data.evt_gatt_server_user_read_request.characteristic,
+							  bg_err_success,
+							  getTagSize(SystemInformation, 0),
+							  (uint8 *)getValue(SystemInformation));
+							  break;
+					}
             	}
 
 				break;

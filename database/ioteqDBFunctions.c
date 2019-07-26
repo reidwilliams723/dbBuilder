@@ -55,50 +55,43 @@ uint8_t getTagSize(const Tag_t* tag, uint8_t size){
 
 uint8_t* getValue(const Tag_t* tag){
     if (tag->numOfChildren != 0){
-        uint8_t index = 0;
-        uint8_t childValues[getTagSize(tag, 0)];
-        return getChildrenValues(tag, childValues, &index);
+
+        for (int i = 0; i < tag->numOfChildren; i++){
+        	const Tag_t* child = tree + ((tag->childPtr/sizeof(Tag_t)) + i);
+        	if (child->persistent && *(persistentData-1) == 0x00A5005A){
+//        		memcpy((data + child->valuePtr), persistentData + (sizeof(uint32_t)/child->valuePtr), (sizeof(uint32_t)/child->valueSize));
+        	}
+        }
+        const Tag_t* child = tree + (tag->childPtr/sizeof(Tag_t));
+        return data + child->valuePtr;
     }
     else{
-        return data + tag->valuePtr;
+        if (tag->persistent)
+        	if (*(persistentData-1) != 0x00A5005A)
+        		return data + tag->valuePtr;
+        	else
+        		return (uint8_t*)(persistentData + (sizeof(uint32_t)/tag->valuePtr));
+        else
+            return data + tag->valuePtr;
     }
 }
 
 void setValue(const Tag_t* tag, uint8_t* value){
 
     if (tag->numOfChildren != 0){
-        uint8_t index = 0;
-        setChildrenValues(tag, value, &index);
+        const Tag_t* child = tree + (tag->childPtr/sizeof(Tag_t));
+        memcpy(data + child->valuePtr, value, getTagSize(tag, 0));
     }
     else{
-        memcpy((data + tag->valuePtr), value, tag->valueSize);
+    	if (tag->persistent)
+    		*(persistentData + tag->valuePtr) = *(uint32_t*)value;
+
+    	memcpy((data + tag->valuePtr), value, tag->valueSize);
     }
 }
 
-void setChildrenValues(const Tag_t* tag, uint8_t* valueArray, uint8_t* index){
-    if (tag->numOfChildren != 0){
-        for (int i = 0; i < tag->numOfChildren; i++){
-            const Tag_t* currentChild = tree + ((tag->childPtr/sizeof(Tag_t)) + i);
-            setChildrenValues(currentChild, valueArray, index);
-        }
-    }
-    else {
-        memcpy((data + tag->valuePtr), valueArray + (*index)*tag->valueSize, tag->valueSize);
-        *index = *index+1;
-    }
-}
-
-uint8_t* getChildrenValues(const Tag_t* tag, uint8_t* dataArray, uint8_t* index){
-    if (tag->numOfChildren != 0){
-        for (int i = 0; i < tag->numOfChildren; i++){
-            const Tag_t* currentChild = tree + ((tag->childPtr/sizeof(Tag_t)) + i);
-            getChildrenValues(currentChild, dataArray, index);
-        }
-    }
-    else {
-        memcpy(dataArray + (*index)*tag->valueSize, data+tag->valuePtr, tag->valueSize);
-        *index = *index+1;
-    }
-
-    return dataArray;
+void initPersistentMemory(uint32_t volatile *address){
+	if (address[0] != 0x00A5005A)
+		address[0] = 0x00A5005A;
+	persistentData = address+1;
 }
