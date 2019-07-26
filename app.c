@@ -35,6 +35,9 @@
 #include "serialProtocolFunctions.h"
 #include "flash_data.h"
 
+#include "ioteqDB.h"
+#include "ioteqDBFunctions.h"
+
 /* Interval for sending notifications */
 #define APP_TASK_INTERVAL 500 //ms
 
@@ -56,40 +59,78 @@ uint16_t packetIncrement = 0;
 uint32_t mcuControlData[5];
 
 /* Simulating Variables */
-bool simulate = false; // Boolean for either simulating data or reading data from MCU
+bool simulate = true; // Boolean for either simulating data or reading data from MCU
 uint32_t increment = 0;
 
 /* Initialize Serial Port struct */
 SerialProto_t serialPort;
 MCU_Characteristics_t mcuChars;
 
+
+void initDatabase(){
+	Strokes = getTag("Strokes");
+	RunTime = getTag("RunTime");
+	PSIData = getTag("PSIData");
+	PSIRawValue = getTag("PSIData.PSIRawValue");
+	ScaledPSIValue = getTag("PSIData.ScaledPSIValue");
+	GPSData = getTag("GPSData");
+	SystemInformation = getTag("SystemInformation");
+	AccelerometerData = getTag("AccelerometerData");
+
+	for (int i = 0; i < sizeof(CalculatedBins)/sizeof(Tag_t); i++){
+			char binTag[20];
+			char strIndex[3] = "";
+			sprintf(strIndex, "%d", i);
+			strcpy(binTag, "CalculatedBins[");
+			strcat(binTag, strIndex);
+			strcat(binTag,"]");
+			memcpy(CalculatedBins+i, getTag(binTag), sizeof(Tag_t));
+		}
+}
+
 void simulation(){
 	increment++;
 	if (increment > 100000)
 		increment = 0;
+	setValue(&CalculatedBins[0], (uint8_t*)&increment);
+	increment+=100;
+	setValue(&CalculatedBins[1], (uint8_t*)&increment);
+	increment-=100;
+	increment+=500;
+	setValue(&CalculatedBins[2], (uint8_t*)&increment);
+	increment-=500;
+	increment+=600;
+	setValue(&CalculatedBins[3], (uint8_t*)&increment);
+	increment-=600;
+	increment+=700;
+	setValue(&CalculatedBins[4], (uint8_t*)&increment);
+	increment-=700;
 
-	mcuChars.binsData[0] = increment;
-	mcuChars.binsData[1] = increment+100;
-	mcuChars.binsData[2] = increment+500;
-	mcuChars.binsData[3] = increment+600;
-	mcuChars.binsData[4] = 0;
+	setValue(Strokes, (uint8_t*)&increment);
+	increment--;
+	setValue(RunTime, (uint8_t*)&(increment));
+	increment++;
 
-	mcuChars.strokes = increment;
-	mcuChars.runTime = increment - 1;
+	float psiValue = 15;
+	float scaledValue = 18234;
 
-	mcuChars.psiData[3] = 15;
-	mcuChars.psiData[4] = 18234;
+	setValue(PSIRawValue, (uint8_t*)&psiValue);
+	setValue(ScaledPSIValue, (uint8_t*)&scaledValue);
 
 }
 void sendNotifications(){
 	if (simulate)
 		simulation();
 
-	gecko_cmd_gatt_server_send_characteristic_notification(0xFF, gattdb_Strokes, sizeof(mcuChars.strokes), (uint8 *)&mcuChars.strokes);
-	gecko_cmd_gatt_server_send_characteristic_notification(0xFF, gattdb_Run_hours, sizeof(mcuChars.runTime), (uint8 *)&mcuChars.runTime);
-	gecko_cmd_gatt_server_send_characteristic_notification(0xFF, gattdb_PSI, sizeof(mcuChars.psiData), (uint8 *)&mcuChars.psiData);
-	gecko_cmd_gatt_server_send_characteristic_notification(0xFF, gattdb_Bins, sizeof(mcuChars.binsData), (uint8 *)&mcuChars.binsData);
-	gecko_cmd_gatt_server_send_characteristic_notification(0xFF, gattdb_Accelerometer, sizeof(mcuChars.accelerometerData), (uint8 *)&mcuChars.accelerometerData);
+	uint32_t binsData[5];
+	for (int i = 0; i < 5; i++){
+		binsData[i] = *(uint32_t*)getValue(&CalculatedBins[i]);
+	}
+	gecko_cmd_gatt_server_send_characteristic_notification(0xFF, gattdb_Strokes, getTagSize(Strokes,0), (uint8 *)getValue(Strokes));
+	gecko_cmd_gatt_server_send_characteristic_notification(0xFF, gattdb_Run_hours, getTagSize(RunTime,0), (uint8 *)getValue(RunTime));
+	gecko_cmd_gatt_server_send_characteristic_notification(0xFF, gattdb_PSI, getTagSize(PSIData,0), (uint8 *)getValue(PSIData));
+	gecko_cmd_gatt_server_send_characteristic_notification(0xFF, gattdb_Bins, sizeof(binsData), (uint8 *)binsData);
+	gecko_cmd_gatt_server_send_characteristic_notification(0xFF, gattdb_Accelerometer, getTagSize(AccelerometerData,0), (uint8 *)getValue(AccelerometerData));
 }
 /* Main application */
 void appMain(gecko_configuration_t *pconfig)
@@ -102,15 +143,8 @@ void appMain(gecko_configuration_t *pconfig)
 /* Initialize Serial Port */
  serialPort.mcu = &mcuChars;
  initSerialProtocol(&serialPort, USART0);
-
+ initDatabase();
  /* Initialize PSI Scaling if simulating */
- if(simulate)
- {
-	 mcuChars.psiData[0] = 4;
-	 mcuChars.psiData[1] = 20;
-	 mcuChars.psiData[2]= 20000;
- }
-
 
 
   /* Initialize stack */
@@ -217,16 +251,17 @@ void appMain(gecko_configuration_t *pconfig)
         }
 
         if (evt->data.evt_gatt_server_user_write_request.characteristic == gattdb_PSI) {
-			memcpy(&mcuChars.newPsiScaling + evt->data.evt_gatt_server_user_write_request.offset,
-					&evt->data.evt_gatt_server_user_write_request.value.data,
-					evt->data.evt_gatt_server_user_write_request.value.len);
+        	setValue(PSIData, (uint8_t*)&evt->data.evt_gatt_server_user_write_request.value.data);
+//			memcpy(&mcuChars.newPsiScaling + evt->data.evt_gatt_server_user_write_request.offset,
+//					&evt->data.evt_gatt_server_user_write_request.value.data,
+//					evt->data.evt_gatt_server_user_write_request.value.len);
 
 			gecko_cmd_gatt_server_send_user_write_response(
 					evt->data.evt_gatt_server_user_write_request.connection,
 					evt->data.evt_gatt_server_user_write_request.characteristic,
 					bg_err_success);
 
-			txMsgSendPSIScaling(&serialPort);
+//			txMsgSendPSIScaling(&serialPort);
 
          }
 
@@ -377,8 +412,8 @@ void appMain(gecko_configuration_t *pconfig)
        			  evt->data.evt_gatt_server_user_read_request.connection,
 				  gattdb_Strokes,
        			  bg_err_success,
-				  sizeof(mcuChars.strokes),
-				  (uint8 *)&mcuChars.strokes);
+				  getTagSize(Strokes, 0),
+				  (uint8 *)getValue(Strokes));
            	  }
 
            	  else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_Run_hours) {
@@ -386,40 +421,44 @@ void appMain(gecko_configuration_t *pconfig)
          			  evt->data.evt_gatt_server_user_read_request.connection,
 					  gattdb_Run_hours,
          			  bg_err_success,
-         			  sizeof(mcuChars.runTime),
-					  (uint8 *)&mcuChars.runTime);
+					  getTagSize(RunTime, 0),
+					  (uint8 *)getValue(RunTime));
              	  }
            	else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_Bins) {
+           		uint32_t binsData[5];
+           		for (int i = 0; i < 5; i++){
+           			binsData[i] = *(uint32_t*)getValue(&CalculatedBins[i]);
+           		}
 					gecko_cmd_gatt_server_send_user_read_response(
 					  evt->data.evt_gatt_server_user_read_request.connection,
 					  gattdb_Bins,
 					  bg_err_success,
-					  sizeof(mcuChars.binsData),
-					  (uint8 *)&mcuChars.binsData);
+					  sizeof(binsData),
+					  (uint8 *)binsData);
 				  }
            	else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_PSI) {
 				gecko_cmd_gatt_server_send_user_read_response(
 				  evt->data.evt_gatt_server_user_read_request.connection,
 				  gattdb_PSI,
 				  bg_err_success,
-				  sizeof(mcuChars.psiData),
-				  (uint8 *)&mcuChars.psiData);
+				  getTagSize(PSIData, 0),
+				  (uint8 *)getValue(PSIData));
 			  }
            	else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_Accelerometer) {
 				gecko_cmd_gatt_server_send_user_read_response(
 				  evt->data.evt_gatt_server_user_read_request.connection,
 				  gattdb_PSI,
 				  bg_err_success,
-				  sizeof(mcuChars.accelerometerData),
-				  (uint8 *)&mcuChars.accelerometerData);
+				  getTagSize(AccelerometerData, 0),
+				  (uint8 *)getValue(AccelerometerData));
            	}
 			else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_location_and_speed) {
 				gecko_cmd_gatt_server_send_user_read_response(
 				  evt->data.evt_gatt_server_user_read_request.connection,
 				  gattdb_location_and_speed,
 				  bg_err_success,
-				  sizeof(mcuChars.gpsData),
-				  (uint8 *)&mcuChars.gpsData);
+				  getTagSize(GPSData, 0),
+				  (uint8 *)getValue(GPSData));
 			  }
  			else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_Firmware_Control) {
  				gecko_cmd_gatt_server_send_user_read_response(
@@ -437,8 +476,8 @@ void appMain(gecko_configuration_t *pconfig)
  				  evt->data.evt_gatt_server_user_read_request.connection,
 				  gattdb_firmware_version,
  				  bg_err_success,
- 				  sizeof(mcuChars.firmwareVersions),
- 				  (uint8 *)&mcuChars.firmwareVersions);
+				  getTagSize(SystemInformation, 0),
+				  (uint8 *)getValue(SystemInformation));
  			  }
 
  			else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_device_name_mask) {

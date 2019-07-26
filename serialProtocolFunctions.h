@@ -28,6 +28,7 @@
 #ifndef SRC_SERIALPROTOCOLFUNCTIONS_H_
 #define SRC_SERIALPROTOCOLFUNCTIONS_H_
 
+#include "ioteqDB.h"
 
 // This is the Slot of internal memory where firmware is copied
 #define FIRMWARE_SLOT 0
@@ -91,7 +92,15 @@ void rxMsgProcessGPSData(SerialProto_t *pSerialObj);
 void rxMsgProcessFirmwareControl(SerialProto_t *pSerialObj);
 void rxMsgProcessFirmwareInfo(SerialProto_t *pSerialObj);
 
-
-
+/* Tags */
+const Tag_t* Strokes;
+const Tag_t* RunTime;
+const Tag_t* PSIData;
+const Tag_t* GPSData;
+const Tag_t* SystemInformation;
+const Tag_t* PSIRawValue;
+const Tag_t* ScaledPSIValue;
+const Tag_t CalculatedBins[5];
+const Tag_t* AccelerometerData;
 
 #endif /* SRC_SERIALPROTOCOLFUNCTIONS_H_ */

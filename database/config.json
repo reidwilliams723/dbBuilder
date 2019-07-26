@@ -1,0 +1,171 @@
+{
+    "database": {
+      "tags": {
+        "Strokes": {
+          "arraydim": 1,
+          "datatype": "Number",
+          "value": 0,
+          "config": {}
+        },
+        "RunTime": {
+          "arraydim": 1,
+          "datatype": "Number",
+          "value": 0,
+          "config": {}
+        },
+        "Bins": {
+          "datatype": "Number",
+          "arraydim": 20,
+          "value": 0,
+          "config": {}
+        },
+        "CalculatedBins": {
+            "datatype": "Number",
+            "arraydim": 5,
+            "value": 0,
+            "config": {}
+        },
+        "PSIData": {
+            "datatype": "Folder",
+            "arraydim": 1,
+            "children":{
+                "RawZero": {
+                    "arraydim": 1,
+                    "datatype": "Number",
+                    "value": 4,
+                    "config": {
+                        "numtype": "float"
+                    }
+                },
+                "RawScale": {
+                    "arraydim": 1,
+                    "datatype": "Number",
+                    "value": 20,
+                    "config": {
+                        "numtype": "float"
+                    }
+                },
+                "UnitsScale": {
+                    "arraydim": 1,
+                    "datatype": "Number",
+                    "value": 20000,
+                    "config": {
+                        "numtype": "float"
+                    }
+                },
+                "PSIRawValue": {
+                    "arraydim": 1,
+                    "datatype": "Number",
+                    "value": 0,
+                    "config": {
+                        "numtype": "float"
+                    }
+                },
+                "ScaledPSIValue": {
+                    "arraydim": 1,
+                    "datatype": "Number",
+                    "value": 0,
+                    "config": {
+                        "numtype": "float"
+                    }
+                }
+            }
+        },
+        "GPSData": {
+          "arraydim": 1,
+          "datatype": "Folder",
+          "children": {
+              "Longitude": {
+                  "arraydim": 1,
+                  "datatype": "Number",
+                  "value": 32.987,
+                  "config": {
+                    "numtype": "float"
+                  }
+              },
+              "Latitude": {
+                  "arraydim": 1,
+                  "datatype": "Number",
+                  "value": 14.98,
+                  "config": {
+                    "numtype": "float"
+                  }
+              },
+              "Satellites": {
+                  "arraydim": 1,
+                  "datatype": "Number",
+                  "value": 4,
+                  "config": {
+                    "numtype": "float"
+                  }
+              },
+              "MinSNR": {
+                  "arraydim": 1,
+                  "datatype": "Number",
+                  "value": 16.41,
+                  "config": {
+                      "numtype": "float"
+                  }
+              },
+              "MaxSNR": {
+                  "arraydim": 1,
+                  "datatype": "Number",
+                  "value": 20.89,
+                  "config": {
+                    "numtype": "float"
+                  }
+              }
+          }
+        },
+        "AccelerometerData": {
+          "arraydim": 1,
+          "datatype": "Folder",
+          "children": {
+              "PeakX": {
+                  "arraydim": 1,
+                  "datatype": "Number",
+                  "value": 30,
+                  "config": {
+                    "numtype": "float"
+                  }
+              },
+              "PeakY": {
+                  "arraydim": 1,
+                  "datatype": "Number",
+                  "value": 40,
+                  "config": {
+                    "numtype": "float"
+                  }
+              },
+              "PeakZ": {
+                  "arraydim": 1,
+                  "datatype": "Number",
+                  "value": 50,
+                  "config": {
+                    "numtype": "float"
+                  }
+              }
+          }
+        },
+        "SystemInformation": {
+            "datatype": "Folder",
+            "arraydim": 1,
+            "children":{
+                "Bootloader": {
+                    "arraydim": 1,
+                    "datatype": "Number",
+                    "value": 1098321,
+                    "config": {}
+                },
+                "Firmware": {
+                    "arraydim": 1,
+                    "datatype": "Number",
+                    "value": 110,
+                    "config": {}
+                }
+            }
+        }
+      }
+    }
+  }
+  
