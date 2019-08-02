@@ -43,7 +43,7 @@
             "datatype": "Folder",
             "arraydim": 1,
             "children":{
-                "RawZero": {
+                "DischargeRawZero": {
                     "arraydim": 1,
                     "datatype": "Number",
                     "value": 4,
@@ -51,7 +51,7 @@
                         "numtype": "float"
                     }
                 },
-                "RawScale": {
+                "DischargeRawScale": {
                     "arraydim": 1,
                     "datatype": "Number",
                     "value": 20,
@@ -59,7 +59,7 @@
                         "numtype": "float"
                     }
                 },
-                "UnitsScale": {
+                "DischargeUnitsScale": {
                     "arraydim": 1,
                     "datatype": "Number",
                     "value": 20000,
@@ -67,7 +67,7 @@
                         "numtype": "float"
                     }
                 },
-                "PSIRawValue": {
+                "DischargeRawValue": {
                     "arraydim": 1,
                     "datatype": "Number",
                     "value": 0,
@@ -75,7 +75,7 @@
                         "numtype": "float"
                     }
                 },
-                "ScaledPSIValue": {
+                "DischargePSIValue": {
                     "arraydim": 1,
                     "datatype": "Number",
                     "value": 0,
@@ -89,7 +89,7 @@
           "datatype": "Folder",
           "arraydim": 1,
           "children":{
-              "RawZero": {
+              "SuctionRawZero": {
                   "arraydim": 1,
                   "datatype": "Number",
                   "value": 4,
@@ -97,7 +97,7 @@
                       "numtype": "float"
                   }
               },
-              "RawScale": {
+              "SuctionRawScale": {
                   "arraydim": 1,
                   "datatype": "Number",
                   "value": 20,
@@ -113,7 +113,7 @@
                       "numtype": "float"
                   }
               },
-              "PSIRawValue": {
+              "SuctionRawValue": {
                   "arraydim": 1,
                   "datatype": "Number",
                   "value": 0,
@@ -121,7 +121,7 @@
                       "numtype": "float"
                   }
               },
-              "ScaledPSIValue": {
+              "SuctionPSIValue": {
                   "arraydim": 1,
                   "datatype": "Number",
                   "value": 0,

@@ -3,6 +3,7 @@ import json
 import struct
 from datetime import date
 from treelib import Node, Tree
+from itertools import groupby 
 
 class IOTeqDBBuilder():
     def __init__(self, configFile):
@@ -89,15 +90,12 @@ class IOTeqDBBuilder():
                     
 
                 # Adding tag to tree and tag list
-                if (type(parent) != str):
-                    newTag.nodeId = self.tree.create_node(tag=tagName, parent=parent.nodeId, data=newTag).identifier
-                else:
-                    newTag.nodeId = self.tree.create_node(tag=tagName, parent=parent, data=newTag).identifier
+                self.tree.create_node(tagName, tagName, parent, newTag)
                 self.tagList.append(newTag)
 
                 # Recursion for tags that have children
                 if (tags[tag]["datatype"] == "Folder"):
-                    self.createTree(tags[tag]["children"], newTag)
+                    self.createTree(tags[tag]["children"], tagName)
 
     def setTagAddresses(self):
         for level in range(self.tree.depth()+1):
@@ -110,7 +108,7 @@ class IOTeqDBBuilder():
         for node in self.tree.nodes:
             # tagIndex = None
             for tag in self.tagList:
-                if (tag.nodeId == node):
+                if (tag.tagName == node):
                     tagIndex = self.tagList.index(tag)
                     # Get IOTeq Tag
                     treeNode = self.tree.get_node(node)
@@ -154,7 +152,6 @@ class IOTeqTag(object):
         self.childPtr = 0
         self.numOfChildren = 0
         self.tagName = tagName
-        self.nodeId = 0
         self.address = address
         self.parentTag = None
     
@@ -237,7 +234,18 @@ class IOTeqFileBuilder():
         # Initialize Pointers (str, tree, data)
         self.writeDBHeader("extern const char str[];\n")
         self.writeDBHeader("extern const Tag_t tree[TOTAL_NUMBER_OF_TAGS];\n")
-        self.writeDBHeader("extern uint8_t data[];\n")
+        self.writeDBHeader("extern uint8_t data[];\n\n")
+
+        self.writeDBHeader("void initDB();\n\n")
+
+        for tag in self.dbBuilder.tagList:
+            tagName=tag.tagName
+            if "[" not in tagName and tagName != "tags":
+                self.writeDBHeader(f"const Tag_t* {tagName};\n")
+
+        for tagName, group in groupby(list(filter(lambda elem: "[" in elem.tagName, self.dbBuilder.tagList)), lambda elem: elem.tagName.split('[')[0]):
+            self.writeDBHeader(f"const Tag_t {tagName}[{len(list(group))}];\n") 
+        
         self.writeDBHeader("""#endif""")
         self.dbHeader.close()
 
@@ -247,6 +255,7 @@ class IOTeqFileBuilder():
                 #include <stdlib.h>
                 #include <string.h>
                 #include "ioteqDB.h"
+                #include "ioteqDBFunctions.h"
         \n""")
 
         # Initialize Pointers (str, tree, data)
@@ -259,7 +268,25 @@ class IOTeqFileBuilder():
         dataBytes = ', '.join(x for x in ioteqDBBuilder.dataPtr)
         self.writeDBSource("uint8_t data[] = {" + dataBytes + "};\n\n")
 
-        self.dbSource.close()
+        self.writeDBSource("void initDB(){")
+
+        for tag in self.dbBuilder.tagList:
+            tagName=tag.tagName
+            if "[" not in tagName and tagName != "tags":
+                self.writeDBSource(f"{tagName} = getTag(\"{tag.getFullName()}\");\n")
+
+        for tagName, group in groupby(list(filter(lambda elem: "[" in elem.tagName, self.dbBuilder.tagList)), lambda elem: elem.tagName.split('[')[0]):
+            self.writeDBSource(f"""for(int i = 0; i < sizeof({tagName})/sizeof(Tag_t); i++){{
+                    			char {tagName}Tag[{len(tagName) + 4}];
+                                char strIndex[4] = "";
+                                sprintf(strIndex, "%d", i);
+                                strcpy({tagName}Tag, "{tagName}[");
+                                strcat({tagName}Tag, strIndex);
+                                strcat({tagName}Tag,"]");
+                                memcpy({tagName}+i, getTag({tagName}Tag), sizeof(Tag_t));
+            }}""")
+                
+        self.writeDBSource("}")
 
     def build(self):
         self.buildDBHeaderFile()

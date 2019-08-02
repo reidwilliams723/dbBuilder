@@ -43,4 +43,34 @@
         extern const char str[];
 extern const Tag_t tree[TOTAL_NUMBER_OF_TAGS];
 extern uint8_t data[];
+
+void initDB();
+
+const Tag_t* Strokes;
+const Tag_t* RunTime;
+const Tag_t* AccelerometerData;
+const Tag_t* DischargePressure;
+const Tag_t* DischargeRawZero;
+const Tag_t* DischargeRawScale;
+const Tag_t* DischargeUnitsScale;
+const Tag_t* DischargeRawValue;
+const Tag_t* DischargePSIValue;
+const Tag_t* SuctionPressure;
+const Tag_t* SuctionRawZero;
+const Tag_t* SuctionRawScale;
+const Tag_t* UnitsScale;
+const Tag_t* SuctionRawValue;
+const Tag_t* SuctionPSIValue;
+const Tag_t* GPSData;
+const Tag_t* Longitude;
+const Tag_t* Latitude;
+const Tag_t* Satellites;
+const Tag_t* MinSNR;
+const Tag_t* MaxSNR;
+const Tag_t* SystemInformation;
+const Tag_t* Bootloader;
+const Tag_t* Firmware;
+const Tag_t Bins[20];
+const Tag_t CalculatedBins[5];
+const Tag_t Temperature[4];
 #endif
