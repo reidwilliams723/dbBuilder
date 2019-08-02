@@ -110,7 +110,7 @@ class IOTeqDBBuilder():
         for node in self.tree.nodes:
             # tagIndex = None
             for tag in self.tagList:
-                if (tag.tagName == node):
+                if (tag.nodeId == node):
                     tagIndex = self.tagList.index(tag)
                     # Get IOTeq Tag
                     treeNode = self.tree.get_node(node)
