@@ -16,7 +16,7 @@
         "Bins": {
           "datatype": "Number",
           "arraydim": 20,
-          "value": 0,
+          "value": 6,
           "config": {}
         },
         "CalculatedBins": {
@@ -154,13 +154,13 @@
                 "Bootloader": {
                     "arraydim": 1,
                     "datatype": "Number",
-                    "value": 1098321,
+                    "value": 0,
                     "config": {}
                 },
                 "Firmware": {
                     "arraydim": 1,
                     "datatype": "Number",
-                    "value": 110,
+                    "value": 0,
                     "config": {}
                 }
             }

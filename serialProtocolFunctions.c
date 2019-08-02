@@ -34,41 +34,81 @@
 #include "serialProtocolFunctions.h"
 #include "mcu_characteristics.h"
 
+#include "ioteqDBFunctions.h"
+
 uint8_t messageFlags[SERIAL_PROTO_MSG_MAX];
 
 
+void initDatabase(){
+	Strokes = getTag("Strokes");
+	RunTime = getTag("RunTime");
+	PSIData = getTag("PSIData");
+	RawZero = getTag("PSIData.RawZero");
+	PSIRawValue = getTag("PSIData.PSIRawValue");
+	ScaledPSIValue = getTag("PSIData.ScaledPSIValue");
+	GPSData = getTag("GPSData");
+	SystemInformation = getTag("SystemInformation");
+	AccelerometerData = getTag("AccelerometerData");
 
+	for (int i = 0; i < sizeof(Bins)/sizeof(Tag_t); i++){
+			char binTag[20];
+			char strIndex[3] = "";
+			sprintf(strIndex, "%d", i);
+			strcpy(binTag, "Bins[");
+			strcat(binTag, strIndex);
+			strcat(binTag,"]");
+			memcpy(Bins+i, getTag(binTag), sizeof(Tag_t));
+		}
+	for (int i = 0; i < sizeof(CalculatedBins)/sizeof(Tag_t); i++){
+			char binTag[20];
+			char strIndex[3] = "";
+			sprintf(strIndex, "%d", i);
+			strcpy(binTag, "CalculatedBins[");
+			strcat(binTag, strIndex);
+			strcat(binTag,"]");
+			memcpy(CalculatedBins+i, getTag(binTag), sizeof(Tag_t));
+		}
+}
 
 /* RX Functions */
 void rxMsgProcessStrokesData(SerialProto_t *pSerialObj){
 	uint8_t *data = pSerialObj->rxData + 1;
-	memcpy(&pSerialObj->mcu->strokes, data,sizeof(pSerialObj->mcu->strokes));
+	setValue(Strokes, data);
 }
 
 void rxMsgProcessRunTimeData(SerialProto_t *pSerialObj){
 	uint8_t *data = pSerialObj->rxData + 1;
-	memcpy(&pSerialObj->mcu->runTime, data,sizeof(pSerialObj->mcu->runTime));
+	setValue(RunTime, data);
 }
 
 void rxMsgProcessBinsData(SerialProto_t *pSerialObj){
 	uint8_t *data = pSerialObj->rxData + 1;
-	memcpy(&pSerialObj->mcu->bins, data,sizeof(pSerialObj->mcu->bins));
-	calculateBins(pSerialObj->mcu);
+	for(int i = 0; i < 20; i++)
+		setValue(&Bins[i], (uint8_t*)(((uint32_t*)data)+i));
+
+	uint32_t calc1 = *(uint32_t*)getValue(&Bins[0]) + *(uint32_t*)getValue(&Bins[1]) + *(uint32_t*)getValue(&Bins[2]) + *(uint32_t*)getValue(&Bins[3]);
+	uint32_t calc2 = *(uint32_t*)getValue(&Bins[4]) + *(uint32_t*)getValue(&Bins[5]) + *(uint32_t*)getValue(&Bins[6]) + *(uint32_t*)getValue(&Bins[7]);
+	uint32_t calc3 = *(uint32_t*)getValue(&Bins[8]) + *(uint32_t*)getValue(&Bins[9]) + *(uint32_t*)getValue(&Bins[10]) + *(uint32_t*)getValue(&Bins[11]);
+	uint32_t calc4 = *(uint32_t*)getValue(&Bins[12]) + *(uint32_t*)getValue(&Bins[13]) + *(uint32_t*)getValue(&Bins[14]) + *(uint32_t*)getValue(&Bins[15]);
+	uint32_t calc5 = *(uint32_t*)getValue(&Bins[16]) + *(uint32_t*)getValue(&Bins[17]) + *(uint32_t*)getValue(&Bins[18]) + *(uint32_t*)getValue(&Bins[19]);
+	setValue(&CalculatedBins[0], (uint8_t*)&calc1);
+	setValue(&CalculatedBins[1], (uint8_t*)&calc2);
+	setValue(&CalculatedBins[2], (uint8_t*)&calc3);
+	setValue(&CalculatedBins[3], (uint8_t*)&calc4);
+	setValue(&CalculatedBins[4], (uint8_t*)&calc5);
 }
 
 void rxMsgProcessPSIData(SerialProto_t *pSerialObj){
 	uint8_t *data = pSerialObj->rxData + 1;
-	memcpy(&pSerialObj->mcu->psiData, data, sizeof(pSerialObj->mcu->psiData));
+	setValue(PSIData, data);
 }
 
 void rxMsgProcessAccelerometerData(SerialProto_t *pSerialObj){
 	uint8_t *data = pSerialObj->rxData + 1;
-	memcpy(&pSerialObj->mcu->accelerometerData, data,sizeof(pSerialObj->mcu->accelerometerData));
 }
 
 void rxMsgProcessGPSData(SerialProto_t *pSerialObj){
 	uint8_t *data = pSerialObj->rxData + 1;
-	memcpy(&pSerialObj->mcu->gpsData, data,sizeof(pSerialObj->mcu->gpsData));
 }
 
 void rxMsgProcessFirmwareControl(SerialProto_t *pSerialObj){
@@ -78,7 +118,8 @@ void rxMsgProcessFirmwareControl(SerialProto_t *pSerialObj){
 
 void rxMsgProcessFirmwareInfo(SerialProto_t *pSerialObj){
 	uint8_t *data = pSerialObj->rxData + 1;
-	memcpy(&pSerialObj->mcu->firmwareVersions, data,sizeof(pSerialObj->mcu->firmwareVersions));
+	setValue(SystemInformation, data);
+//	memcpy(&pSerialObj->mcu->firmwareVersions, data,sizeof(pSerialObj->mcu->firmwareVersions));
 }
 
 
@@ -98,9 +139,9 @@ int txMsgSendFlashFirmware(SerialProto_t *pSerialObj){
 int txMsgSendPSIScaling(SerialProto_t *pSerialObj){
 
 	float psiScaling[3];
-	memcpy(&psiScaling[0], &pSerialObj->mcu->newPsiScaling[0], sizeof(float));
-	memcpy(&psiScaling[1], &pSerialObj->mcu->newPsiScaling[1], sizeof(float));
-	memcpy(&psiScaling[2], &pSerialObj->mcu->newPsiScaling[2], sizeof(float));
+//	memcpy(&psiScaling[0], &pSerialObj->mcu->newPsiScaling[0], sizeof(float));
+//	memcpy(&psiScaling[1], &pSerialObj->mcu->newPsiScaling[1], sizeof(float));
+//	memcpy(&psiScaling[2], &pSerialObj->mcu->newPsiScaling[2], sizeof(float));
 
 	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_PSI_SCALING,sizeof(psiScaling),(uint8_t *)psiScaling);
 }

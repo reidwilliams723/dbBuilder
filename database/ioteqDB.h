@@ -12,7 +12,7 @@
                 * Programmed By: 	Reid Williams
                 * 					Inaki Zuloaga
                 *
-                * Date: July 26, 2019
+                * Date: July 31, 2019
                 * Contact: izi@iot-eq.com
                 *
                 *

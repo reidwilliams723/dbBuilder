@@ -44,50 +44,21 @@
 /* Print boot message */
 static void bootMessage(struct gecko_msg_system_boot_evt_t *bootevt);
 
-
 /* Flag for indicating DFU Reset must be performed */
 static uint8_t boot_to_dfu = 0;
-
 
 /* Current number of connections */
 uint8_t active_connections_num;
 
-
-char controlInput; // Byte for control input. 0x01 = Reset, 0x02 = Zero Out
-char mcuControlOTA;
-uint16_t packetIncrement = 0;
-uint32_t mcuControlData[5];
-
 /* Simulating Variables */
-bool simulate = true; // Boolean for either simulating data or reading data from MCU
+bool simulate = false; // Boolean for either simulating data or reading data from MCU
 uint32_t increment = 0;
 
 /* Initialize Serial Port struct */
 SerialProto_t serialPort;
 MCU_Characteristics_t mcuChars;
 
-
-void initDatabase(){
-	Strokes = getTag("Strokes");
-	RunTime = getTag("RunTime");
-	PSIData = getTag("PSIData");
-	PSIRawValue = getTag("PSIData.PSIRawValue");
-	ScaledPSIValue = getTag("PSIData.ScaledPSIValue");
-	GPSData = getTag("GPSData");
-	SystemInformation = getTag("SystemInformation");
-	AccelerometerData = getTag("AccelerometerData");
-
-	for (int i = 0; i < sizeof(CalculatedBins)/sizeof(Tag_t); i++){
-			char binTag[20];
-			char strIndex[3] = "";
-			sprintf(strIndex, "%d", i);
-			strcpy(binTag, "CalculatedBins[");
-			strcat(binTag, strIndex);
-			strcat(binTag,"]");
-			memcpy(CalculatedBins+i, getTag(binTag), sizeof(Tag_t));
-		}
-}
-
+/* Simulation function */
 void simulation(){
 	increment++;
 	if (increment > 100000)
@@ -143,9 +114,9 @@ void appMain(gecko_configuration_t *pconfig)
 /* Initialize Serial Port */
  serialPort.mcu = &mcuChars;
  initSerialProtocol(&serialPort, USART0);
- initDatabase();
- /* Initialize PSI Scaling if simulating */
 
+ /* Initialize database */
+ initDatabase();
 
   /* Initialize stack */
   gecko_init(pconfig);
@@ -158,14 +129,6 @@ void appMain(gecko_configuration_t *pconfig)
     /* Read serial port when simulation is not taking place */
     if(!simulate)
     {
-//      processSerial(&serialPort);
-//
-//	  if (serialPort.rxDone)
-//	  {
-//		serialPort.rxDone = 0;
-//		unPackData(serialPort.rxData);
-//		serialPort.rxData[0] = serialPort.rxData[0];
-//	  }
     	serialProtocolProcessMessages(&serialPort);
     }
 
@@ -235,97 +198,74 @@ void appMain(gecko_configuration_t *pconfig)
       /* Check if the user-type OTA Control Characteristic was written.
        * If ota_control was written, boot the device into Device Firmware Upgrade (DFU) mode. */
       case gecko_evt_gatt_server_user_write_request_id:
+    	  switch (evt->data.evt_gatt_server_user_write_request.characteristic) {
+    	  	  case gattdb_ota_control:
+    	          /* Set flag to enter to OTA mode */
+    	          boot_to_dfu = 1;
+    	          /* Send response to Write Request */
+    	          gecko_cmd_gatt_server_send_user_write_response(
+    	            evt->data.evt_gatt_server_user_write_request.connection,
+    	            gattdb_ota_control,
+    	            bg_err_success);
 
-        if (evt->data.evt_gatt_server_user_write_request.characteristic == gattdb_ota_control) {
+    	          /* Close connection to enter to DFU OTA mode */
+    	          gecko_cmd_le_connection_close(evt->data.evt_gatt_server_user_write_request.connection);
+    	          break;
 
-          /* Set flag to enter to OTA mode */
-          boot_to_dfu = 1;
-          /* Send response to Write Request */
-          gecko_cmd_gatt_server_send_user_write_response(
-            evt->data.evt_gatt_server_user_write_request.connection,
-            gattdb_ota_control,
-            bg_err_success);
+    	  	  case gattdb_PSI:
+    	        	setValue(PSIData, (uint8_t*)&evt->data.evt_gatt_server_user_write_request.value.data);
+    				gecko_cmd_gatt_server_send_user_write_response(
+    						evt->data.evt_gatt_server_user_write_request.connection,
+    						evt->data.evt_gatt_server_user_write_request.characteristic,
+    						bg_err_success);
+    				txMsgSendPSIScaling(&serialPort);
+    				break;
 
-          /* Close connection to enter to DFU OTA mode */
-          gecko_cmd_le_connection_close(evt->data.evt_gatt_server_user_write_request.connection);
-        }
+    	  	  case gattdb_Erase_Firmware:
+      			memcpy(&mcuChars.eraseFirmwarePacket + evt->data.evt_gatt_server_user_write_request.offset,
+      					&evt->data.evt_gatt_server_user_write_request.value.data,
+      					evt->data.evt_gatt_server_user_write_request.value.len);
 
-        if (evt->data.evt_gatt_server_user_write_request.characteristic == gattdb_PSI) {
-        	setValue(PSIData, (uint8_t*)&evt->data.evt_gatt_server_user_write_request.value.data);
-//			memcpy(&mcuChars.newPsiScaling + evt->data.evt_gatt_server_user_write_request.offset,
-//					&evt->data.evt_gatt_server_user_write_request.value.data,
-//					evt->data.evt_gatt_server_user_write_request.value.len);
+      			gecko_cmd_gatt_server_send_user_write_response(
+      					evt->data.evt_gatt_server_user_write_request.connection,
+      					evt->data.evt_gatt_server_user_write_request.characteristic,
+      					bg_err_success);
 
-			gecko_cmd_gatt_server_send_user_write_response(
-					evt->data.evt_gatt_server_user_write_request.connection,
-					evt->data.evt_gatt_server_user_write_request.characteristic,
-					bg_err_success);
+      			if (mcuChars.eraseFirmwarePacket == 3){
+      				txMsgSendEraseFirmware(&serialPort);
+      				mcuChars.eraseFirmwarePacket = 0;
+      				mcuChars.packetCounter = 0;
+      			}
+      			break;
 
-//			txMsgSendPSIScaling(&serialPort);
+    	  	  case gattdb_device_name_mask: {
+          		/* Clear the flash memory */
+          		clearBLEDeviceId();
 
-         }
+          		char tmp[evt->data.evt_gatt_server_attribute_value.value.len+1];
+  				memcpy(tmp, evt->data.evt_gatt_server_attribute_value.value.data, evt->data.evt_gatt_server_attribute_value.value.len);
+  				tmp[evt->data.evt_gatt_server_attribute_value.value.len] = 0; // add null terminator
 
-        if (evt->data.evt_gatt_server_user_write_request.characteristic == gattdb_Erase_Firmware) {
-        			memcpy(&mcuChars.eraseFirmwarePacket + evt->data.evt_gatt_server_user_write_request.offset,
-        					&evt->data.evt_gatt_server_user_write_request.value.data,
-        					evt->data.evt_gatt_server_user_write_request.value.len);
-
-        			gecko_cmd_gatt_server_send_user_write_response(
-        					evt->data.evt_gatt_server_user_write_request.connection,
-        					evt->data.evt_gatt_server_user_write_request.characteristic,
-        					bg_err_success);
-
-        			if (mcuChars.eraseFirmwarePacket == 3){
-        				txMsgSendEraseFirmware(&serialPort);
-        				mcuChars.eraseFirmwarePacket = 0;
-        				mcuChars.packetCounter = 0;
-        			}
-
-                 }
-        if (evt->data.evt_gatt_server_user_write_request.characteristic == gattdb_Flash_Firmware) {
-				memcpy(&mcuChars.flashFirmwarePacket + evt->data.evt_gatt_server_user_write_request.offset,
-						&evt->data.evt_gatt_server_user_write_request.value.data,
-						evt->data.evt_gatt_server_user_write_request.value.len);
-
-				gecko_cmd_gatt_server_send_user_write_response(
-						evt->data.evt_gatt_server_user_write_request.connection,
-						evt->data.evt_gatt_server_user_write_request.characteristic,
-						bg_err_success);
-
-				if (mcuChars.flashFirmwarePacket == 5){
-					txMsgSendFlashFirmware(&serialPort);
-					mcuChars.flashFirmwarePacket = 0;
-				}
-
-			 }
-        if (evt->data.evt_gatt_server_user_write_request.characteristic == gattdb_device_name_mask) {
-
-        		/* Clear the flash memory */
-        		clearBLEDeviceId();
-
-        		char tmp[evt->data.evt_gatt_server_attribute_value.value.len+1];
-				memcpy(tmp, evt->data.evt_gatt_server_attribute_value.value.data, evt->data.evt_gatt_server_attribute_value.value.len);
-				tmp[evt->data.evt_gatt_server_attribute_value.value.len] = 0; // add null terminator
-
-        		/* Write incoming value to flash */
-        		saveBLEDeviceId(tmp,
-        				evt->data.evt_gatt_server_user_write_request.value.len+1);
+          		/* Write incoming value to flash */
+          		saveBLEDeviceId(tmp,
+          				evt->data.evt_gatt_server_user_write_request.value.len+1);
 
 
-        		/* Write new name to device name characteristic */
-        		gecko_cmd_gatt_server_write_attribute_value(
-        				gattdb_device_name,
-        				0,
-        				evt->data.evt_gatt_server_user_write_request.value.len,
-        				(uint8_t *)evt->data.evt_gatt_server_user_write_request.value.data);
+          		/* Write new name to device name characteristic */
+          		gecko_cmd_gatt_server_write_attribute_value(
+          				gattdb_device_name,
+          				0,
+          				evt->data.evt_gatt_server_user_write_request.value.len,
+          				(uint8_t *)evt->data.evt_gatt_server_user_write_request.value.data);
 
-				gecko_cmd_gatt_server_send_user_write_response(
-						evt->data.evt_gatt_server_user_write_request.connection,
-						evt->data.evt_gatt_server_user_write_request.characteristic,
-						bg_err_success);
+  				gecko_cmd_gatt_server_send_user_write_response(
+  						evt->data.evt_gatt_server_user_write_request.connection,
+  						evt->data.evt_gatt_server_user_write_request.characteristic,
+  						bg_err_success);
+  				break;
+    	  	  }
 
-			 }
-        if (evt->data.evt_gatt_server_user_write_request.characteristic == gattdb_Firmware_Data) {
+    	  	  case gattdb_Firmware_Data:
 					memcpy(&mcuChars.firmwareDataBuffer + evt->data.evt_gatt_server_user_write_request.offset,
 							&evt->data.evt_gatt_server_user_write_request.value.data,
 							evt->data.evt_gatt_server_user_write_request.value.len);
@@ -335,162 +275,143 @@ void appMain(gecko_configuration_t *pconfig)
 						mcuChars.packetCounter++;
 					}
 					txMsgSendFirmwareData(&serialPort);
-//					gecko_cmd_gatt_server_send_user_write_response(
-//											evt->data.evt_gatt_server_user_write_request.connection,
-//											evt->data.evt_gatt_server_user_write_request.characteristic,
-//											bg_err_success);
-//					packetIncrement = (mcuChars.firmwareDataBuffer[1] << 8) | (mcuChars.firmwareDataBuffer[0] & 0xff);
-//					if (mcuChars.packetCounter != packetIncrement){
-//						gecko_cmd_gatt_server_send_characteristic_notification(
-//								evt->data.evt_gatt_server_user_write_request.connection,
-//								gattdb_Firmware_Control,
-//								sizeof(mcuChars.packetCounter),
-//								(uint8 *)&mcuChars.packetCounter);
-//					}
-//					else {
-//						txMsgSendFirmwareData(&serialPort);
-//						mcuChars.packetCounter++;
-//					}
+					break;
 
-//					packetIncrement = (mcuChars.firmwareDataBuffer[1] << 8) | (mcuChars.firmwareDataBuffer[0] & 0xff);
-//					if (mcuChars.packetCounter != packetIncrement){
-//						gecko_cmd_gatt_server_send_user_write_response(
-//								evt->data.evt_gatt_server_user_write_request.connection,
-//								evt->data.evt_gatt_server_user_write_request.characteristic,
-//								bg_err_unspecified);
-//					}
-//					else {
-//						txMsgSendFirmwareData(&serialPort);
-//						mcuChars.packetCounter++;
-//					}
+    	  	  case gattdb_Control_Input:
+					memcpy(&mcuChars.control + evt->data.evt_gatt_server_user_write_request.offset,
+							evt->data.evt_gatt_server_user_write_request.value.data,
+							evt->data.evt_gatt_server_user_write_request.value.len);
 
-        }
+					gecko_cmd_gatt_server_send_user_write_response(
+							evt->data.evt_gatt_server_user_write_request.connection,
+							evt->data.evt_gatt_server_user_write_request.characteristic,
+							bg_err_success);
 
-        if (evt->data.evt_gatt_server_user_write_request.characteristic == gattdb_Control_Input) {
-        			memcpy(&mcuChars.control + evt->data.evt_gatt_server_user_write_request.offset,
-        					evt->data.evt_gatt_server_user_write_request.value.data,
-        					evt->data.evt_gatt_server_user_write_request.value.len);
+					// If controlInput = 01 (Data Reset)
+					if (mcuChars.control == 1){
+						increment = 0;
+						txMsgSendResetData(&serialPort);
+						mcuChars.control = 0;
+						}
+					// If controlInput = 10 (Zero Raw value)
+					else if (mcuChars.control == 2){
+						if(simulate)
+							setValue(RawZero, getValue(PSIRawValue));
+						txMsgSendZeroRawValue(&serialPort);
 
-        			gecko_cmd_gatt_server_send_user_write_response(
-        					evt->data.evt_gatt_server_user_write_request.connection,
-        					evt->data.evt_gatt_server_user_write_request.characteristic,
-        					bg_err_success);
-
-        			// If controlInput = 01 (Data Reset)
-        			if (mcuChars.control == 1){
-        				increment = 0;
-        				txMsgSendResetData(&serialPort);
-        				mcuChars.control = 0;
-        				}
-        			// If controlInput = 10 (Zero Raw value)
-        			else if (mcuChars.control == 2){
-        				if(simulate)
-        					mcuChars.psiData[0] = mcuChars.psiData[3];
-        				txMsgSendZeroRawValue(&serialPort);
-
-        				mcuChars.control = 0;
-        			}
-        			// If controlInput = 3, (Toggle LED)
-        			else if (mcuChars.control == 3){
-        				txMsgSendToggleLED(&serialPort);
-        				mcuChars.control = 0;
-
-        			}
-
-					else if (mcuChars.control == 4){
-						clearBLEDeviceId();
-						gecko_cmd_system_reset(0);
+						mcuChars.control = 0;
 					}
-        }
+					// If controlInput = 3, (Toggle LED)
+					else if (mcuChars.control == 3){
+						txMsgSendToggleLED(&serialPort);
+						mcuChars.control = 0;
 
-        break;
+					}
 
-        /* Add additional event handlers as your application requires */
-             case gecko_evt_gatt_server_user_read_request_id:
-           	  if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_Strokes) {
-       			gecko_cmd_gatt_server_send_user_read_response(
-       			  evt->data.evt_gatt_server_user_read_request.connection,
-				  gattdb_Strokes,
-       			  bg_err_success,
-				  getTagSize(Strokes, 0),
-				  (uint8 *)getValue(Strokes));
-           	  }
+						else if (mcuChars.control == 4){
+							clearBLEDeviceId();
+							gecko_cmd_system_reset(0);
+						}
+      			break;
+    	  }
 
-           	  else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_Run_hours) {
-         			gecko_cmd_gatt_server_send_user_read_response(
-         			  evt->data.evt_gatt_server_user_read_request.connection,
-					  gattdb_Run_hours,
-         			  bg_err_success,
-					  getTagSize(RunTime, 0),
-					  (uint8 *)getValue(RunTime));
-             	  }
-           	else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_Bins) {
-           		uint32_t binsData[5];
-           		for (int i = 0; i < 5; i++){
-           			binsData[i] = *(uint32_t*)getValue(&CalculatedBins[i]);
-           		}
-					gecko_cmd_gatt_server_send_user_read_response(
-					  evt->data.evt_gatt_server_user_read_request.connection,
-					  gattdb_Bins,
-					  bg_err_success,
-					  sizeof(binsData),
-					  (uint8 *)binsData);
-				  }
-           	else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_PSI) {
-				gecko_cmd_gatt_server_send_user_read_response(
-				  evt->data.evt_gatt_server_user_read_request.connection,
-				  gattdb_PSI,
-				  bg_err_success,
-				  getTagSize(PSIData, 0),
-				  (uint8 *)getValue(PSIData));
-			  }
-           	else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_Accelerometer) {
-				gecko_cmd_gatt_server_send_user_read_response(
-				  evt->data.evt_gatt_server_user_read_request.connection,
-				  gattdb_PSI,
-				  bg_err_success,
-				  getTagSize(AccelerometerData, 0),
-				  (uint8 *)getValue(AccelerometerData));
-           	}
-			else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_location_and_speed) {
-				gecko_cmd_gatt_server_send_user_read_response(
-				  evt->data.evt_gatt_server_user_read_request.connection,
-				  gattdb_location_and_speed,
-				  bg_err_success,
-				  getTagSize(GPSData, 0),
-				  (uint8 *)getValue(GPSData));
-			  }
- 			else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_Firmware_Control) {
- 				gecko_cmd_gatt_server_send_user_read_response(
- 				  evt->data.evt_gatt_server_user_read_request.connection,
-				  gattdb_Firmware_Control,
- 				  bg_err_success,
- 				  sizeof(mcuChars.packetCounter),
- 				  (uint8 *)&mcuChars.packetCounter);
+    	  break;
 
- 				mcuChars.packetCounter = 0;
+	/* Add additional event handlers as your application requires */
+		 case gecko_evt_gatt_server_user_read_request_id:
+			 switch (evt->data.evt_gatt_server_user_read_request.characteristic) {
+				 case gattdb_Strokes:
+						gecko_cmd_gatt_server_send_user_read_response(
+						  evt->data.evt_gatt_server_user_read_request.connection,
+						  gattdb_Strokes,
+						  bg_err_success,
+						  getTagSize(Strokes, 0),
+						  (uint8 *)getValue(Strokes));
+						break;
 
- 			  }
- 			else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_firmware_version) {
- 				gecko_cmd_gatt_server_send_user_read_response(
- 				  evt->data.evt_gatt_server_user_read_request.connection,
-				  gattdb_firmware_version,
- 				  bg_err_success,
-				  getTagSize(SystemInformation, 0),
-				  (uint8 *)getValue(SystemInformation));
- 			  }
+				 case gattdb_Run_hours:
+						gecko_cmd_gatt_server_send_user_read_response(
+						  evt->data.evt_gatt_server_user_read_request.connection,
+						  gattdb_Run_hours,
+						  bg_err_success,
+						  getTagSize(RunTime, 0),
+						  (uint8 *)getValue(RunTime));
+						break;
 
- 			else if (evt->data.evt_gatt_server_user_read_request.characteristic == gattdb_device_name_mask) {
- 				/* Get device name from flash */
- 				char* deviceName = getBLEDeviceDataPtr();
- 				gecko_cmd_gatt_server_send_user_read_response(
- 						evt->data.evt_gatt_server_user_read_request.connection,
-						gattdb_device_name_mask,
-						bg_err_success,
-						strlen(deviceName),
-						(uint8 *)deviceName);
- 				}
-           	 break;
+				 case gattdb_Bins:{
+						uint32_t binsData[5];
+						for (int i = 0; i < 5; i++){
+							binsData[i] = *(uint32_t*)getValue(&CalculatedBins[i]);
+						}
+
+						gecko_cmd_gatt_server_send_user_read_response(
+						  evt->data.evt_gatt_server_user_read_request.connection,
+						  gattdb_Bins,
+						  bg_err_success,
+						  sizeof(binsData),
+						  (uint8 *)binsData);
+						break;
+				 }
+				 case gattdb_PSI:
+						gecko_cmd_gatt_server_send_user_read_response(
+						  evt->data.evt_gatt_server_user_read_request.connection,
+						  gattdb_PSI,
+						  bg_err_success,
+						  getTagSize(PSIData, 0),
+						  (uint8 *)getValue(PSIData));
+						break;
+
+				 case gattdb_Accelerometer:
+						gecko_cmd_gatt_server_send_user_read_response(
+						  evt->data.evt_gatt_server_user_read_request.connection,
+						  gattdb_PSI,
+						  bg_err_success,
+						  getTagSize(AccelerometerData, 0),
+						  (uint8 *)getValue(AccelerometerData));
+						break;
+
+				 case gattdb_location_and_speed:
+						gecko_cmd_gatt_server_send_user_read_response(
+						  evt->data.evt_gatt_server_user_read_request.connection,
+						  gattdb_location_and_speed,
+						  bg_err_success,
+						  getTagSize(GPSData, 0),
+						  (uint8 *)getValue(GPSData));
+						break;
+
+				 case gattdb_Firmware_Control:
+						gecko_cmd_gatt_server_send_user_read_response(
+						  evt->data.evt_gatt_server_user_read_request.connection,
+						  gattdb_Firmware_Control,
+						  bg_err_success,
+						  sizeof(mcuChars.packetCounter),
+						  (uint8 *)&mcuChars.packetCounter);
+
+						mcuChars.packetCounter = 0;
+						break;
+
+				 case gattdb_firmware_version:
+						gecko_cmd_gatt_server_send_user_read_response(
+						  evt->data.evt_gatt_server_user_read_request.connection,
+						  gattdb_firmware_version,
+						  bg_err_success,
+						  getTagSize(SystemInformation, 0),
+						  (uint8 *)getValue(SystemInformation));
+						break;
+
+				 case gattdb_device_name_mask: {
+						/* Get device name from flash */
+						char* deviceName = getBLEDeviceDataPtr();
+						gecko_cmd_gatt_server_send_user_read_response(
+							evt->data.evt_gatt_server_user_read_request.connection,
+							gattdb_device_name_mask,
+							bg_err_success,
+							strlen(deviceName),
+							(uint8 *)deviceName);
+						break;
+				 }
+			 }
+		 break;
 
       default:
         break;

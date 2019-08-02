@@ -92,6 +92,9 @@ void rxMsgProcessGPSData(SerialProto_t *pSerialObj);
 void rxMsgProcessFirmwareControl(SerialProto_t *pSerialObj);
 void rxMsgProcessFirmwareInfo(SerialProto_t *pSerialObj);
 
+
+void initDatabase();
+
 /* Tags */
 const Tag_t* Strokes;
 const Tag_t* RunTime;
@@ -99,8 +102,10 @@ const Tag_t* PSIData;
 const Tag_t* GPSData;
 const Tag_t* SystemInformation;
 const Tag_t* PSIRawValue;
+const Tag_t* RawZero;
 const Tag_t* ScaledPSIValue;
 const Tag_t CalculatedBins[5];
+const Tag_t Bins[20];
 const Tag_t* AccelerometerData;
 
 #endif /* SRC_SERIALPROTOCOLFUNCTIONS_H_ */
