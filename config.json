@@ -16,7 +16,7 @@
         "Bins": {
           "datatype": "Number",
           "arraydim": 20,
-          "value": 0,
+          "value": 6,
           "config": {}
         },
         "CalculatedBins": {
@@ -25,7 +25,21 @@
             "value": 0,
             "config": {}
         },
-        "PSIData": {
+        "Temperature": {
+          "datatype": "Number",
+          "arraydim": 4,
+          "value": 0,
+          "config": {}
+        },
+        "AccelerometerData": {
+          "arraydim": 1,
+          "datatype": "Number",
+          "value": 0,
+          "config": {
+              "numtype": "float"
+            }
+        },
+        "DischargePressure": {
             "datatype": "Folder",
             "arraydim": 1,
             "children":{
@@ -71,6 +85,52 @@
                 }
             }
         },
+        "SuctionPressure": {
+          "datatype": "Folder",
+          "arraydim": 1,
+          "children":{
+              "RawZero": {
+                  "arraydim": 1,
+                  "datatype": "Number",
+                  "value": 4,
+                  "config": {
+                      "numtype": "float"
+                  }
+              },
+              "RawScale": {
+                  "arraydim": 1,
+                  "datatype": "Number",
+                  "value": 20,
+                  "config": {
+                      "numtype": "float"
+                  }
+              },
+              "UnitsScale": {
+                  "arraydim": 1,
+                  "datatype": "Number",
+                  "value": 20000,
+                  "config": {
+                      "numtype": "float"
+                  }
+              },
+              "PSIRawValue": {
+                  "arraydim": 1,
+                  "datatype": "Number",
+                  "value": 0,
+                  "config": {
+                      "numtype": "float"
+                  }
+              },
+              "ScaledPSIValue": {
+                  "arraydim": 1,
+                  "datatype": "Number",
+                  "value": 0,
+                  "config": {
+                      "numtype": "float"
+                  }
+              }
+          }
+        },
         "GPSData": {
           "arraydim": 1,
           "datatype": "Folder",
@@ -78,56 +138,42 @@
               "Longitude": {
                   "arraydim": 1,
                   "datatype": "Number",
-                  "value": 0,
-                  "config": {}
+                  "value": 32.987,
+                  "config": {
+                    "numtype": "float"
+                  }
               },
               "Latitude": {
                   "arraydim": 1,
                   "datatype": "Number",
-                  "value": 0,
-                  "config": {}
+                  "value": 14.98,
+                  "config": {
+                    "numtype": "float"
+                  }
               },
               "Satellites": {
                   "arraydim": 1,
                   "datatype": "Number",
-                  "value": 0,
-                  "config": {}
+                  "value": 4,
+                  "config": {
+                    "numtype": "float"
+                  }
               },
               "MinSNR": {
                   "arraydim": 1,
                   "datatype": "Number",
-                  "value": 0,
-                  "config": {}
+                  "value": 16.41,
+                  "config": {
+                      "numtype": "float"
+                  }
               },
               "MaxSNR": {
                   "arraydim": 1,
                   "datatype": "Number",
-                  "value": 0,
-                  "config": {}
-              }
-          }
-        },
-        "AccelerometerData": {
-          "arraydim": 1,
-          "datatype": "Folder",
-          "children": {
-              "PeakX": {
-                  "arraydim": 1,
-                  "datatype": "Number",
-                  "value": 0,
-                  "config": {}
-              },
-              "PeakY": {
-                  "arraydim": 1,
-                  "datatype": "Number",
-                  "value": 0,
-                  "config": {}
-              },
-              "PeakZ": {
-                  "arraydim": 1,
-                  "datatype": "Number",
-                  "value": 0,
-                  "config": {}
+                  "value": 20.89,
+                  "config": {
+                    "numtype": "float"
+                  }
               }
           }
         },

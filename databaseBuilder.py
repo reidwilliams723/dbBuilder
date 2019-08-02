@@ -89,12 +89,15 @@ class IOTeqDBBuilder():
                     
 
                 # Adding tag to tree and tag list
-                self.tree.create_node(tagName, tagName, parent, newTag)
+                if (type(parent) != str):
+                    newTag.nodeId = self.tree.create_node(tag=tagName, parent=parent.nodeId, data=newTag).identifier
+                else:
+                    newTag.nodeId = self.tree.create_node(tag=tagName, parent=parent, data=newTag).identifier
                 self.tagList.append(newTag)
 
                 # Recursion for tags that have children
                 if (tags[tag]["datatype"] == "Folder"):
-                    self.createTree(tags[tag]["children"], tagName)
+                    self.createTree(tags[tag]["children"], newTag)
 
     def setTagAddresses(self):
         for level in range(self.tree.depth()+1):
@@ -151,6 +154,7 @@ class IOTeqTag(object):
         self.childPtr = 0
         self.numOfChildren = 0
         self.tagName = tagName
+        self.nodeId = 0
         self.address = address
         self.parentTag = None
     
