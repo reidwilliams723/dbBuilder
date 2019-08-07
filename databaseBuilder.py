@@ -11,7 +11,7 @@ class IOTeqDBBuilder():
             jsonOutput = json.load(f)
             self.databaseTags = jsonOutput["database"]["tags"]
 
-        self.IOTEQ_TAG_BYTE_SIZE = 28
+        self.IOTEQ_TAG_BYTE_SIZE = 36
         self.tree = Tree()
         self.constPtrChar = []
         self.constPtrTree = []
@@ -130,6 +130,17 @@ class IOTeqDBBuilder():
                         self.tagList[tagIndex].childPtr = childrenNodes[0].data.address
                         self.tagList[tagIndex].numOfChildren = len(childrenNodes)
 
+                        if (tag.tagName != "tags"):
+                            for i in range(0, len(childrenNodes)):
+                                tagIndex = self.tagList.index(childrenNodes[i].data)
+                                if (i == 0):
+                                    self.tagList[tagIndex].nextSibling = childrenNodes[i+1].data.address
+                                elif (i == len(childrenNodes)-1):
+                                    self.tagList[tagIndex].prevSibling = childrenNodes[i-1].data.address
+                                else:
+                                    self.tagList[tagIndex].nextSibling = childrenNodes[i+1].data.address
+                                    self.tagList[tagIndex].prevSibling = childrenNodes[i-1].data.address
+
     def createConstPtrTree(self):
         sortedTags = sorted(self.tagList, key=lambda x: x.address, reverse=False)
         for tag in sortedTags:
@@ -154,10 +165,12 @@ class IOTeqTag(object):
         self.tagName = tagName
         self.address = address
         self.parentTag = None
+        self.prevSibling = 0
+        self.nextSibling = 0
     
     def getStruct(self):
         return [self.valuePtr, self.valueSize, self.namePtr,
-                self.nameSize, self.parentPtr, self.childPtr, self.numOfChildren]
+                self.nameSize, self.parentPtr, self.childPtr, self.prevSibling, self.nextSibling, self.numOfChildren]
 
     def getFullName(self, currentName=None):
         if (currentName == None):
@@ -227,6 +240,8 @@ class IOTeqFileBuilder():
                     uint32_t nameSize;
                     uint32_t parentPtr;
                     uint32_t childPtr;
+                    uint32_t prevSibling;
+                    uint32_t nextSibling;
                     uint32_t numOfChildren;
                 }} Tag_t;\n
         """)
