@@ -64,7 +64,8 @@
                         "datatype": "Number",
                         "value": 20,
                         "config": {
-                            "numtype": "float"
+                            "numtype": "float",
+                            "persistent": true
                         }
                     },
                     "DischargeUnitsScale": {

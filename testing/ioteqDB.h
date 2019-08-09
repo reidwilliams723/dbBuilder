@@ -12,7 +12,7 @@
                 * Programmed By: 	Reid Williams
                 * 					Inaki Zuloaga
                 *
-                * Date: August 07, 2019
+                * Date: August 09, 2019
                 * Contact: izi@iot-eq.com
                 *
                 *
@@ -37,14 +37,17 @@
                     uint32_t nameSize;
                     uint32_t parentPtr;
                     uint32_t childPtr;
-                    uint32_t prevSiblingPtr;
-                    uint32_t nextSiblingPtr;
+                    uint32_t prevSibling;
+                    uint32_t nextSibling;
                     uint32_t numOfChildren;
+                    uint32_t isPersistent;
                 } Tag_t;
 
         extern const char str[];
 extern const Tag_t tree[TOTAL_NUMBER_OF_TAGS];
 extern uint8_t data[];
+
+volatile uint32_t* persistentData;
 
 void initDB();
 
