@@ -80,10 +80,11 @@ uint8_t* iterateChildrenValues(const Tag_t* tag, uint8_t* dataArray, uint8_t ind
         return dataArray;
     }
 }
+
 uint8_t* getValue(const Tag_t* tag){
     if (tag->numOfChildren != 0){
         uint8_t index = 0;
-        uint8_t dataArray[24];
+        uint8_t dataArray[getTagSize(tag,0)];
 
         const Tag_t* currentChild = tree + ((tag->childPtr/sizeof(Tag_t)));
         memcpy(dataArray, getValue(currentChild), currentChild->valueSize);
@@ -96,9 +97,9 @@ uint8_t* getValue(const Tag_t* tag){
         return data + currentChild->valuePtr;
     }
     else{
-        if (tag->isPersistent){
+        if (tag->isPersistent && *persistentData == 0x00A5005A){
 
-            return (uint8_t*)persistentData + tag->valuePtr;
+            return (uint8_t*)(persistentData + 1 + (tag->persistentPtr/sizeof(uint32_t)));
         }
         else {
             return data + tag->valuePtr;
@@ -106,15 +107,16 @@ uint8_t* getValue(const Tag_t* tag){
     }
 }
 
-void setValue(const Tag_t* tag, uint8_t* value){
+void setValue(const Tag_t* tag, char* value){
 
     if (tag->numOfChildren != 0){
         const Tag_t* child = tree + (tag->childPtr/sizeof(Tag_t));
         memcpy(data + child->valuePtr, value, getTagSize(tag, 0));
     }
     else{
-        if (tag->isPersistent){
-            memcpy(((uint8_t*)persistentData + tag->valuePtr), value, tag->valueSize);
+        if (tag->isPersistent && *persistentData == 0x00A5005A){
+
+        	*(persistentData + 1 + (tag->persistentPtr/sizeof(uint32_t))) = *(uint32_t*)value;
         }
         else {
         memcpy((data + tag->valuePtr), value, tag->valueSize);

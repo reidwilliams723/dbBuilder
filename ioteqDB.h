@@ -12,7 +12,7 @@
                 * Programmed By: 	Reid Williams
                 * 					Inaki Zuloaga
                 *
-                * Date: August 09, 2019
+                * Date: August 12, 2019
                 * Contact: izi@iot-eq.com
                 *
                 *
@@ -29,10 +29,11 @@
                 #include <string.h>
 
                 #define TOTAL_NUMBER_OF_TAGS          59
-
+                #define CHECK_SUM                     0x00A5005A
                 typedef struct Tag {
                     uint32_t valuePtr;
                     uint32_t valueSize;
+                    uint32_t persistentPtr;
                     uint32_t namePtr;
                     uint32_t nameSize;
                     uint32_t parentPtr;

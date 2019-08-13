@@ -6,6 +6,7 @@
                 "datatype": "Number",
                 "value": 0,
                 "config": {
+                    "persistent": true
                 }
             },
             "RunTime": {
