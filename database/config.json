@@ -25,11 +25,25 @@
             "value": 0,
             "config": {}
         },
-        "PSIData": {
+        "Temperature": {
+          "datatype": "Number",
+          "arraydim": 4,
+          "value": 0,
+          "config": {}
+        },
+        "AccelerometerData": {
+          "arraydim": 1,
+          "datatype": "Number",
+          "value": 0,
+          "config": {
+              "numtype": "float"
+            }
+        },
+        "DischargePressure": {
             "datatype": "Folder",
             "arraydim": 1,
             "children":{
-                "RawZero": {
+                "DischargeRawZero": {
                     "arraydim": 1,
                     "datatype": "Number",
                     "value": 4,
@@ -37,7 +51,7 @@
                         "numtype": "float"
                     }
                 },
-                "RawScale": {
+                "DischargeRawScale": {
                     "arraydim": 1,
                     "datatype": "Number",
                     "value": 20,
@@ -45,7 +59,7 @@
                         "numtype": "float"
                     }
                 },
-                "UnitsScale": {
+                "DischargeUnitsScale": {
                     "arraydim": 1,
                     "datatype": "Number",
                     "value": 20000,
@@ -53,7 +67,7 @@
                         "numtype": "float"
                     }
                 },
-                "PSIRawValue": {
+                "DischargeRawValue": {
                     "arraydim": 1,
                     "datatype": "Number",
                     "value": 0,
@@ -61,7 +75,7 @@
                         "numtype": "float"
                     }
                 },
-                "ScaledPSIValue": {
+                "DischargePSIValue": {
                     "arraydim": 1,
                     "datatype": "Number",
                     "value": 0,
@@ -70,6 +84,52 @@
                     }
                 }
             }
+        },
+        "SuctionPressure": {
+          "datatype": "Folder",
+          "arraydim": 1,
+          "children":{
+              "SuctionRawZero": {
+                  "arraydim": 1,
+                  "datatype": "Number",
+                  "value": 4,
+                  "config": {
+                      "numtype": "float"
+                  }
+              },
+              "SuctionRawScale": {
+                  "arraydim": 1,
+                  "datatype": "Number",
+                  "value": 20,
+                  "config": {
+                      "numtype": "float"
+                  }
+              },
+              "UnitsScale": {
+                  "arraydim": 1,
+                  "datatype": "Number",
+                  "value": 20000,
+                  "config": {
+                      "numtype": "float"
+                  }
+              },
+              "SuctionRawValue": {
+                  "arraydim": 1,
+                  "datatype": "Number",
+                  "value": 0,
+                  "config": {
+                      "numtype": "float"
+                  }
+              },
+              "SuctionPSIValue": {
+                  "arraydim": 1,
+                  "datatype": "Number",
+                  "value": 0,
+                  "config": {
+                      "numtype": "float"
+                  }
+              }
+          }
         },
         "GPSData": {
           "arraydim": 1,
@@ -111,36 +171,6 @@
                   "arraydim": 1,
                   "datatype": "Number",
                   "value": 20.89,
-                  "config": {
-                    "numtype": "float"
-                  }
-              }
-          }
-        },
-        "AccelerometerData": {
-          "arraydim": 1,
-          "datatype": "Folder",
-          "children": {
-              "PeakX": {
-                  "arraydim": 1,
-                  "datatype": "Number",
-                  "value": 30,
-                  "config": {
-                    "numtype": "float"
-                  }
-              },
-              "PeakY": {
-                  "arraydim": 1,
-                  "datatype": "Number",
-                  "value": 40,
-                  "config": {
-                    "numtype": "float"
-                  }
-              },
-              "PeakZ": {
-                  "arraydim": 1,
-                  "datatype": "Number",
-                  "value": 50,
                   "config": {
                     "numtype": "float"
                   }

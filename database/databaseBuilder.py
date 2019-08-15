@@ -3,6 +3,7 @@ import json
 import struct
 from datetime import date
 from treelib import Node, Tree
+from itertools import groupby 
 
 class IOTeqDBBuilder():
     def __init__(self, configFile):
@@ -233,7 +234,18 @@ class IOTeqFileBuilder():
         # Initialize Pointers (str, tree, data)
         self.writeDBHeader("extern const char str[];\n")
         self.writeDBHeader("extern const Tag_t tree[TOTAL_NUMBER_OF_TAGS];\n")
-        self.writeDBHeader("extern uint8_t data[];\n")
+        self.writeDBHeader("extern uint8_t data[];\n\n")
+
+        self.writeDBHeader("void initDB();\n\n")
+
+        for tag in self.dbBuilder.tagList:
+            tagName=tag.tagName
+            if "[" not in tagName and tagName != "tags":
+                self.writeDBHeader(f"const Tag_t* {tagName};\n")
+
+        for tagName, group in groupby(list(filter(lambda elem: "[" in elem.tagName, self.dbBuilder.tagList)), lambda elem: elem.tagName.split('[')[0]):
+            self.writeDBHeader(f"const Tag_t {tagName}[{len(list(group))}];\n") 
+        
         self.writeDBHeader("""#endif""")
         self.dbHeader.close()
 
@@ -243,6 +255,7 @@ class IOTeqFileBuilder():
                 #include <stdlib.h>
                 #include <string.h>
                 #include "ioteqDB.h"
+                #include "ioteqDBFunctions.h"
         \n""")
 
         # Initialize Pointers (str, tree, data)
@@ -255,7 +268,25 @@ class IOTeqFileBuilder():
         dataBytes = ', '.join(x for x in ioteqDBBuilder.dataPtr)
         self.writeDBSource("uint8_t data[] = {" + dataBytes + "};\n\n")
 
-        self.dbSource.close()
+        self.writeDBSource("void initDB(){")
+
+        for tag in self.dbBuilder.tagList:
+            tagName=tag.tagName
+            if "[" not in tagName and tagName != "tags":
+                self.writeDBSource(f"{tagName} = getTag(\"{tag.getFullName()}\");\n")
+
+        for tagName, group in groupby(list(filter(lambda elem: "[" in elem.tagName, self.dbBuilder.tagList)), lambda elem: elem.tagName.split('[')[0]):
+            self.writeDBSource(f"""for(int i = 0; i < sizeof({tagName})/sizeof(Tag_t); i++){{
+                    			char {tagName}Tag[{len(tagName) + 4}];
+                                char strIndex[4] = "";
+                                sprintf(strIndex, "%d", i);
+                                strcpy({tagName}Tag, "{tagName}[");
+                                strcat({tagName}Tag, strIndex);
+                                strcat({tagName}Tag,"]");
+                                memcpy({tagName}+i, getTag({tagName}Tag), sizeof(Tag_t));
+            }}""")
+                
+        self.writeDBSource("}")
 
     def build(self):
         self.buildDBHeaderFile()
