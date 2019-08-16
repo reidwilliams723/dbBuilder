@@ -98,10 +98,10 @@
       <properties notify="true" notify_requirement="optional" read="true" read_requirement="optional"/>
     </characteristic>
     
-    <!--PSI-->
-    <characteristic id="PSI" name="PSI" sourceId="com.characteristic.psi" uuid="00002A1C-0000-4358-9ad6-a241984cff67">
+    <!--Suction PSI-->
+    <characteristic id="Suction_PSI" name="Suction PSI" sourceId="com.characteristic.suction_psi" uuid="00002A1C-0000-4358-9ad6-a241984cff67">
       <informativeText>Custom characteristic</informativeText>
-      <value length="20" type="user" variable_length="false"/>
+      <value length="24" type="user" variable_length="false"/>
       <properties notify="true" notify_requirement="optional" read="true" read_requirement="optional" write="true" write_requirement="optional"/>
     </characteristic>
     
@@ -122,7 +122,8 @@
     <!--Accelerometer-->
     <characteristic id="Accelerometer" name="Accelerometer" sourceId="com.characteristic.accelerometer" uuid="00002A20-0000-4358-9ad6-a241984cff67">
       <informativeText>Custom characteristic</informativeText>
-      <value length="12" type="user" variable_length="false"/>
+      <value length="4" type="user" variable_length="false"/>
+      <properties notify="true" notify_requirement="optional" read="true" read_requirement="optional"/>
     </characteristic>
     
     <!--Firmware Version-->
@@ -137,6 +138,20 @@
       <informativeText>Custom characteristic</informativeText>
       <value length="30" type="user" variable_length="true">Weir UNNAMED        </value>
       <properties read="true" read_requirement="optional" write="true" write_requirement="optional"/>
+    </characteristic>
+    
+    <!--Discharge PSI-->
+    <characteristic id="Discharge_PSI" name="Discharge PSI" sourceId="com.characteristic.Discharge_psi" uuid="00002A23-0000-4358-9ad6-a241984cff67">
+      <informativeText>Custom characteristic</informativeText>
+      <value length="24" type="user" variable_length="false"/>
+      <properties notify="true" notify_requirement="optional" read="true" read_requirement="optional" write="true" write_requirement="optional"/>
+    </characteristic>
+    
+    <!--Temperature-->
+    <characteristic id="Temperature" name="Temperature" sourceId="com.characteristic.temperature" uuid="00002A24-0000-4358-9ad6-a241984cff67">
+      <informativeText>Custom characteristic</informativeText>
+      <value length="16" type="user" variable_length="false"/>
+      <properties read="true" read_requirement="optional"/>
     </characteristic>
   </service>
   
@@ -188,6 +203,32 @@
       <informativeText>Custom characteristic</informativeText>
       <value length="4" type="user" variable_length="false"/>
       <properties notify="true" notify_requirement="optional" read="true" read_requirement="optional"/>
+    </characteristic>
+  </service>
+  
+  <!--WiFi Settings-->
+  <service advertise="false" name="WiFi Settings" requirement="mandatory" sourceId="com.service.wifi_settings" type="primary" uuid="0e42b73d-0a80-4afe-ab20-361b8d906057">
+    <informativeText>Custom service</informativeText>
+    
+    <!--SSID-->
+    <characteristic id="SSID" name="SSID" sourceId="com.characteristic.ssid" uuid="d93f69ef-3220-4d11-a2af-cb4bd256f9a1">
+      <informativeText>Custom characteristic</informativeText>
+      <value length="1" type="user" variable_length="true">0x00</value>
+      <properties read="true" read_requirement="optional" write="true" write_requirement="optional"/>
+    </characteristic>
+    
+    <!--Password-->
+    <characteristic id="Password" name="Password" sourceId="com.characteristic.password" uuid="d93f69f0-3220-4d11-a2af-cb4bd256f9a1">
+      <informativeText>Custom characteristic</informativeText>
+      <value length="1" type="user" variable_length="true">0x00</value>
+      <properties read="true" read_requirement="optional" write="true" write_requirement="optional"/>
+    </characteristic>
+    
+    <!--IP Address-->
+    <characteristic id="IP_Address" name="IP Address" sourceId="com.characteristic.ip_address" uuid="d93f69f1-3220-4d11-a2af-cb4bd256f9a1">
+      <informativeText>Custom characteristic</informativeText>
+      <value length="1" type="user" variable_length="true">0x00</value>
+      <properties read="true" read_requirement="optional" write="true" write_requirement="optional"/>
     </characteristic>
   </service>
 </gatt>

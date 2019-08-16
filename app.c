@@ -53,7 +53,7 @@ uint8_t active_connections_num;
 /* Simulating Variables */
 bool simulate = false; // Boolean for either simulating data or reading data from MCU
 uint32_t increment = 0;
-
+float test123[5] = {1.0,2.0,3.0,4.0, 5.0};
 /* Initialize Serial Port struct */
 SerialProto_t serialPort;
 MCU_Characteristics_t mcuChars;
@@ -99,8 +99,10 @@ void sendNotifications(){
 	}
 	gecko_cmd_gatt_server_send_characteristic_notification(0xFF, gattdb_Strokes, getTagSize(Strokes,0), (uint8 *)getValue(Strokes));
 	gecko_cmd_gatt_server_send_characteristic_notification(0xFF, gattdb_Run_hours, getTagSize(RunTime,0), (uint8 *)getValue(RunTime));
-	gecko_cmd_gatt_server_send_characteristic_notification(0xFF, gattdb_PSI, getTagSize(PSIData,0), (uint8 *)getValue(PSIData));
+	gecko_cmd_gatt_server_send_characteristic_notification(0xFF, gattdb_Suction_PSI, getTagSize(SuctionPressure,0), (uint8 *)getValue(SuctionPressure));
+	gecko_cmd_gatt_server_send_characteristic_notification(0xFF, gattdb_Discharge_PSI, getTagSize(DischargePressure,0), (uint8 *)getValue(DischargePressure));
 	gecko_cmd_gatt_server_send_characteristic_notification(0xFF, gattdb_Bins, sizeof(binsData), (uint8 *)binsData);
+//	gecko_cmd_gatt_server_send_characteristic_notification(0xFF, gattdb_Bins, getTagSize(Bins,0), (uint8 *)getValue(DischargePressure));
 	gecko_cmd_gatt_server_send_characteristic_notification(0xFF, gattdb_Accelerometer, getTagSize(AccelerometerData,0), (uint8 *)getValue(AccelerometerData));
 }
 /* Main application */
@@ -116,7 +118,8 @@ void appMain(gecko_configuration_t *pconfig)
  initSerialProtocol(&serialPort, USART0);
 
  /* Initialize database */
- initDatabase();
+ initDB(0);
+
 
   /* Initialize stack */
   gecko_init(pconfig);
@@ -129,7 +132,7 @@ void appMain(gecko_configuration_t *pconfig)
     /* Read serial port when simulation is not taking place */
     if(!simulate)
     {
-    	serialProtocolProcessMessages(&serialPort);
+//    	serialProtocolProcessMessages(&serialPort);
     }
 
     evt = gecko_peek_event();
@@ -169,6 +172,7 @@ void appMain(gecko_configuration_t *pconfig)
       }
       case gecko_evt_hardware_soft_timer_id:
     	  sendNotifications();
+//    	  test123 = (float*)getValue(GPSData);
     	break;
 
       case gecko_evt_le_connection_opened_id:
@@ -212,14 +216,14 @@ void appMain(gecko_configuration_t *pconfig)
     	          gecko_cmd_le_connection_close(evt->data.evt_gatt_server_user_write_request.connection);
     	          break;
 
-    	  	  case gattdb_PSI:
-    	        	setValue(PSIData, (uint8_t*)&evt->data.evt_gatt_server_user_write_request.value.data);
-    				gecko_cmd_gatt_server_send_user_write_response(
-    						evt->data.evt_gatt_server_user_write_request.connection,
-    						evt->data.evt_gatt_server_user_write_request.characteristic,
-    						bg_err_success);
-    				txMsgSendPSIScaling(&serialPort);
-    				break;
+//    	  	  case gattdb_PSI:
+//    	        	setValue(PSIData, (uint8_t*)&evt->data.evt_gatt_server_user_write_request.value.data);
+//    				gecko_cmd_gatt_server_send_user_write_response(
+//    						evt->data.evt_gatt_server_user_write_request.connection,
+//    						evt->data.evt_gatt_server_user_write_request.characteristic,
+//    						bg_err_success);
+//    				txMsgSendPSIScaling(&serialPort);
+//    				break;
 
     	  	  case gattdb_Erase_Firmware:
       			memcpy(&mcuChars.eraseFirmwarePacket + evt->data.evt_gatt_server_user_write_request.offset,
@@ -352,23 +356,44 @@ void appMain(gecko_configuration_t *pconfig)
 						  (uint8 *)binsData);
 						break;
 				 }
-				 case gattdb_PSI:
+				 case gattdb_Suction_PSI:
 						gecko_cmd_gatt_server_send_user_read_response(
 						  evt->data.evt_gatt_server_user_read_request.connection,
-						  gattdb_PSI,
+						  gattdb_Suction_PSI,
 						  bg_err_success,
-						  getTagSize(PSIData, 0),
-						  (uint8 *)getValue(PSIData));
+						  getTagSize(SuctionPressure, 0),
+						  (uint8 *)getValue(SuctionPressure));
+						break;
+				 case gattdb_Discharge_PSI:
+						gecko_cmd_gatt_server_send_user_read_response(
+						  evt->data.evt_gatt_server_user_read_request.connection,
+						  gattdb_Discharge_PSI,
+						  bg_err_success,
+						  getTagSize(DischargePressure, 0),
+						  (uint8 *)getValue(DischargePressure));
 						break;
 
 				 case gattdb_Accelerometer:
 						gecko_cmd_gatt_server_send_user_read_response(
 						  evt->data.evt_gatt_server_user_read_request.connection,
-						  gattdb_PSI,
+						  gattdb_Accelerometer,
 						  bg_err_success,
 						  getTagSize(AccelerometerData, 0),
 						  (uint8 *)getValue(AccelerometerData));
 						break;
+				 case gattdb_Temperature:{
+						uint32_t temperaturedata[5];
+						for (int i = 0; i < 5; i++){
+							temperaturedata[i] = *(uint32_t*)getValue(&Temperature[i]);
+						}
+						gecko_cmd_gatt_server_send_user_read_response(
+						  evt->data.evt_gatt_server_user_read_request.connection,
+						  gattdb_Temperature,
+						  bg_err_success,
+						  sizeof(temperaturedata),
+						  (uint8 *)temperaturedata);
+						break;
+				 }
 
 				 case gattdb_location_and_speed:
 						gecko_cmd_gatt_server_send_user_read_response(
@@ -408,6 +433,30 @@ void appMain(gecko_configuration_t *pconfig)
 							bg_err_success,
 							strlen(deviceName),
 							(uint8 *)deviceName);
+						break;
+				 case gattdb_SSID:
+						gecko_cmd_gatt_server_send_user_read_response(
+						  evt->data.evt_gatt_server_user_read_request.connection,
+						  gattdb_SSID,
+						  bg_err_success,
+						  getTagSize(SSID, 0),
+						  (uint8 *)getValue(SSID));
+						break;
+				 case gattdb_Password:
+						gecko_cmd_gatt_server_send_user_read_response(
+						  evt->data.evt_gatt_server_user_read_request.connection,
+						  gattdb_Password,
+						  bg_err_success,
+						  getTagSize(Password, 0),
+						  (uint8 *)getValue(Password));
+						break;
+				 case gattdb_IP_Address:
+						gecko_cmd_gatt_server_send_user_read_response(
+						  evt->data.evt_gatt_server_user_read_request.connection,
+						  gattdb_IP_Address,
+						  bg_err_success,
+						  getTagSize(IPAddress, 0),
+						  (uint8 *)getValue(IPAddress));
 						break;
 				 }
 			 }

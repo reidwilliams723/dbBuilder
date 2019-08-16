@@ -23,16 +23,21 @@ extern const struct bg_gattdb_def bg_gattdb_data;
 #define gattdb_ota_mcu_data                    30
 #define gattdb_Strokes                         33
 #define gattdb_Run_hours                       36
-#define gattdb_PSI                             39
+#define gattdb_Suction_PSI                     39
 #define gattdb_Bins                            42
 #define gattdb_Control_Input                   45
 #define gattdb_Accelerometer                   47
-#define gattdb_firmware_version                49
-#define gattdb_device_name_mask                51
-#define gattdb_location_and_speed              54
-#define gattdb_Erase_Firmware                  58
-#define gattdb_Flash_Firmware                  60
-#define gattdb_Firmware_Data                   62
-#define gattdb_Firmware_Control                64
+#define gattdb_firmware_version                50
+#define gattdb_device_name_mask                52
+#define gattdb_Discharge_PSI                   54
+#define gattdb_Temperature                     57
+#define gattdb_location_and_speed              60
+#define gattdb_Erase_Firmware                  64
+#define gattdb_Flash_Firmware                  66
+#define gattdb_Firmware_Data                   68
+#define gattdb_Firmware_Control                70
+#define gattdb_SSID                            74
+#define gattdb_Password                        76
+#define gattdb_IP_Address                      78
 
 #endif

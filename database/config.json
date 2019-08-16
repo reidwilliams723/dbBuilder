@@ -1,201 +1,262 @@
 {
     "database": {
-      "tags": {
-        "Strokes": {
-          "arraydim": 1,
-          "datatype": "Number",
-          "value": 0,
-          "config": {}
-        },
-        "RunTime": {
-          "arraydim": 1,
-          "datatype": "Number",
-          "value": 0,
-          "config": {}
-        },
-        "Bins": {
-          "datatype": "Number",
-          "arraydim": 20,
-          "value": 6,
-          "config": {}
-        },
-        "CalculatedBins": {
-            "datatype": "Number",
-            "arraydim": 5,
-            "value": 0,
-            "config": {}
-        },
-        "Temperature": {
-          "datatype": "Number",
-          "arraydim": 4,
-          "value": 0,
-          "config": {}
-        },
-        "AccelerometerData": {
-          "arraydim": 1,
-          "datatype": "Number",
-          "value": 0,
-          "config": {
-              "numtype": "float"
-            }
-        },
-        "DischargePressure": {
-            "datatype": "Folder",
-            "arraydim": 1,
-            "children":{
-                "DischargeRawZero": {
-                    "arraydim": 1,
-                    "datatype": "Number",
-                    "value": 4,
-                    "config": {
-                        "numtype": "float"
-                    }
-                },
-                "DischargeRawScale": {
-                    "arraydim": 1,
-                    "datatype": "Number",
-                    "value": 20,
-                    "config": {
-                        "numtype": "float"
-                    }
-                },
-                "DischargeUnitsScale": {
-                    "arraydim": 1,
-                    "datatype": "Number",
-                    "value": 20000,
-                    "config": {
-                        "numtype": "float"
-                    }
-                },
-                "DischargeRawValue": {
-                    "arraydim": 1,
-                    "datatype": "Number",
-                    "value": 0,
-                    "config": {
-                        "numtype": "float"
-                    }
-                },
-                "DischargePSIValue": {
-                    "arraydim": 1,
-                    "datatype": "Number",
-                    "value": 0,
-                    "config": {
-                        "numtype": "float"
+        "tags": {
+            "Strokes": {
+                "arraydim": 1,
+                "datatype": "Number",
+                "value": 0,
+                "config": {
+                    "persistent": true
+                }
+            },
+            "RunTime": {
+                "arraydim": 1,
+                "datatype": "Number",
+                "value": 0,
+                "config": {
+                }
+            },
+            "Bins": {
+                "datatype": "Number",
+                "arraydim": 20,
+                "value": 6,
+                "config": {}
+            },
+            "CalculatedBins": {
+                "datatype": "Number",
+                "arraydim": 5,
+                "value": 0,
+                "config": {}
+            },
+            "Temperature": {
+                "datatype": "Number",
+                "arraydim": 4,
+                "value": 7390,
+                "config": {}
+            },
+            "AccelerometerData": {
+                "arraydim": 1,
+                "datatype": "Number",
+                "value": 1337,
+                "config": {
+                    "numtype": "float"
+                }
+            },
+            "AccelerometerFaultFlag": {
+                "arraydim": 1,
+                "datatype": "Number",
+                "value": 0,
+                "config": {}
+            },
+            "DischargePressure": {
+                "datatype": "Folder",
+                "arraydim": 1,
+                "children": {
+                    "DischargeRawZero": {
+                        "arraydim": 1,
+                        "datatype": "Number",
+                        "value": 4,
+                        "config": {
+                            "numtype": "float"
+                        }
+                    },
+                    "DischargeRawScale": {
+                        "arraydim": 1,
+                        "datatype": "Number",
+                        "value": 20,
+                        "config": {
+                            "numtype": "float",
+                            "persistent": true
+                        }
+                    },
+                    "DischargeUnitsScale": {
+                        "arraydim": 1,
+                        "datatype": "Number",
+                        "value": 20000,
+                        "config": {
+                            "numtype": "float"
+                        }
+                    },
+                    "DischargeRawValue": {
+                        "arraydim": 1,
+                        "datatype": "Number",
+                        "value": 78,
+                        "config": {
+                            "numtype": "float"
+                        }
+                    },
+                    "DischargePSIValue": {
+                        "arraydim": 1,
+                        "datatype": "Number",
+                        "value": 385,
+                        "config": {
+                            "numtype": "float"
+                        }
+                    },
+                    "DischargeRMS": {
+                        "arraydim": 1,
+                        "datatype": "Number",
+                        "value": 9526,
+                        "config": {
+                            "numtype": "float"
+                        }
                     }
                 }
-            }
-        },
-        "SuctionPressure": {
-          "datatype": "Folder",
-          "arraydim": 1,
-          "children":{
-              "SuctionRawZero": {
-                  "arraydim": 1,
-                  "datatype": "Number",
-                  "value": 4,
-                  "config": {
-                      "numtype": "float"
-                  }
-              },
-              "SuctionRawScale": {
-                  "arraydim": 1,
-                  "datatype": "Number",
-                  "value": 20,
-                  "config": {
-                      "numtype": "float"
-                  }
-              },
-              "UnitsScale": {
-                  "arraydim": 1,
-                  "datatype": "Number",
-                  "value": 20000,
-                  "config": {
-                      "numtype": "float"
-                  }
-              },
-              "SuctionRawValue": {
-                  "arraydim": 1,
-                  "datatype": "Number",
-                  "value": 0,
-                  "config": {
-                      "numtype": "float"
-                  }
-              },
-              "SuctionPSIValue": {
-                  "arraydim": 1,
-                  "datatype": "Number",
-                  "value": 0,
-                  "config": {
-                      "numtype": "float"
-                  }
-              }
-          }
-        },
-        "GPSData": {
-          "arraydim": 1,
-          "datatype": "Folder",
-          "children": {
-              "Longitude": {
-                  "arraydim": 1,
-                  "datatype": "Number",
-                  "value": 32.987,
-                  "config": {
-                    "numtype": "float"
-                  }
-              },
-              "Latitude": {
-                  "arraydim": 1,
-                  "datatype": "Number",
-                  "value": 14.98,
-                  "config": {
-                    "numtype": "float"
-                  }
-              },
-              "Satellites": {
-                  "arraydim": 1,
-                  "datatype": "Number",
-                  "value": 4,
-                  "config": {
-                    "numtype": "float"
-                  }
-              },
-              "MinSNR": {
-                  "arraydim": 1,
-                  "datatype": "Number",
-                  "value": 16.41,
-                  "config": {
-                      "numtype": "float"
-                  }
-              },
-              "MaxSNR": {
-                  "arraydim": 1,
-                  "datatype": "Number",
-                  "value": 20.89,
-                  "config": {
-                    "numtype": "float"
-                  }
-              }
-          }
-        },
-        "SystemInformation": {
-            "datatype": "Folder",
-            "arraydim": 1,
-            "children":{
-                "Bootloader": {
-                    "arraydim": 1,
-                    "datatype": "Number",
-                    "value": 0,
-                    "config": {}
-                },
-                "Firmware": {
-                    "arraydim": 1,
-                    "datatype": "Number",
-                    "value": 0,
-                    "config": {}
+            },
+            "SuctionPressure": {
+                "datatype": "Folder",
+                "arraydim": 1,
+                "children": {
+                    "SuctionRawZero": {
+                        "arraydim": 1,
+                        "datatype": "Number",
+                        "value": 4,
+                        "config": {
+                            "numtype": "float"
+                        }
+                    },
+                    "SuctionRawScale": {
+                        "arraydim": 1,
+                        "datatype": "Number",
+                        "value": 20,
+                        "config": {
+                            "numtype": "float"
+                        }
+                    },
+                    "SuctionUnitsScale": {
+                        "arraydim": 1,
+                        "datatype": "Number",
+                        "value": 200,
+                        "config": {
+                            "numtype": "float"
+                        }
+                    },
+                    "SuctionRawValue": {
+                        "arraydim": 1,
+                        "datatype": "Number",
+                        "value": 246,
+                        "config": {
+                            "numtype": "float"
+                        }
+                    },
+                    "SuctionPSIValue": {
+                        "arraydim": 1,
+                        "datatype": "Number",
+                        "value": 825,
+                        "config": {
+                            "numtype": "float"
+                        }
+                    },
+                    "SuctionRMS": {
+                        "arraydim": 1,
+                        "datatype": "Number",
+                        "value": 258,
+                        "config": {
+                            "numtype": "float"
+                        }
+                    }
+                }
+            },
+            "SuctionFaultFlag": {
+                "arraydim": 1,
+                "datatype": "Number",
+                "value": 0,
+                "config": {}
+            },
+            "DischargeFaultFlag": {
+                "arraydim": 1,
+                "datatype": "Number",
+                "value": 0,
+                "config": {}
+            },
+            "GPSData": {
+                "arraydim": 1,
+                "datatype": "Folder",
+                "children": {
+                    "Longitude": {
+                        "arraydim": 1,
+                        "datatype": "Number",
+                        "value": 32.987,
+                        "config": {
+                            "numtype": "float"
+                        }
+                    },
+                    "Latitude": {
+                        "arraydim": 1,
+                        "datatype": "Number",
+                        "value": 14.98,
+                        "config": {
+                            "numtype": "float"
+                        }
+                    },
+                    "Satellites": {
+                        "arraydim": 1,
+                        "datatype": "Number",
+                        "value": 4,
+                        "config": {
+                            "numtype": "float"
+                        }
+                    },
+                    "MinSNR": {
+                        "arraydim": 1,
+                        "datatype": "Number",
+                        "value": 16.41,
+                        "config": {
+                            "numtype": "float"
+                        }
+                    },
+                    "MaxSNR": {
+                        "arraydim": 1,
+                        "datatype": "Number",
+                        "value": 20.89,
+                        "config": {
+                            "numtype": "float"
+                        }
+                    }
+                }
+            },
+            "SystemInformation": {
+                "datatype": "Folder",
+                "arraydim": 1,
+                "children": {
+                    "Bootloader": {
+                        "arraydim": 1,
+                        "datatype": "Number",
+                        "value": 4375,
+                        "config": {}
+                    },
+                    "Firmware": {
+                        "arraydim": 1,
+                        "datatype": "Number",
+                        "value": 1234,
+                        "config": {}
+                    }
+                }
+            },
+            "WiFiSettings":{
+                "datatype": "Folder",
+                "arraydim": 1,
+                "children": {
+                    "SSID": {
+                        "arraydim": 1,
+                        "datatype": "Text",
+                        "value": "ioteq2.4",
+                        "config": {}
+                    },
+                    "Password": {
+                        "arraydim": 1,
+                        "datatype": "Text",
+                        "value": "ioteq2017",
+                        "config": {}
+                    },
+                    "IPAddress": {
+                        "arraydim": 1,
+                        "datatype": "Text",
+                        "value": "127.0.0.1",
+                        "config": {}
+                    }
                 }
             }
         }
-      }
     }
-  }
-  
+}

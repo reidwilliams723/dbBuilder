@@ -100,7 +100,7 @@ void rxMsgProcessBinsData(SerialProto_t *pSerialObj){
 
 void rxMsgProcessPSIData(SerialProto_t *pSerialObj){
 	uint8_t *data = pSerialObj->rxData + 1;
-	setValue(PSIData, data);
+//	setValue(PSIData, data);
 }
 
 void rxMsgProcessAccelerometerData(SerialProto_t *pSerialObj){
