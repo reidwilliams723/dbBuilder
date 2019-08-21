@@ -1,5 +1,5 @@
 #ISD afv6
-# Simplicity Studio version: 5.10.2.201907251123-1514
+# Simplicity Studio version: 5.10.3.201908091250-1519
 
 # Application configuration
 stackId: com.silabs.sdk.stack.super
@@ -85,7 +85,7 @@ appPlugin: stack_bridge=false
       <properties write_no_response="true" write_no_response_requirement="optional"/>
     </characteristic>
   </service>
-  <service advertise="false" name="GENERIC_EQUIPMENT_SERVICE" requirement="mandatory" sourceId="com.service.generic_equipment_service" type="primary" uuid="00001A00-0000-4358-9ad6-a241984cff67">
+  <service advertise="true" name="GENERIC_EQUIPMENT_SERVICE" requirement="mandatory" sourceId="com.service.generic_equipment_service" type="primary" uuid="00001A00-0000-4358-9ad6-a241984cff67">
     <informativeText>Custom service</informativeText>
     <characteristic id="Strokes" name="Strokes" sourceId="com.characteristic.strokes" uuid="00002A1B-0000-4358-9ad6-a241984cff67">
       <informativeText>Custom characteristic</informativeText>
