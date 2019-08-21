@@ -543,7 +543,7 @@ GATT_DATA(const uint16_t bg_gattdb_data_attributes_dynamic_mapping_map[])={
 };
 
 GATT_DATA(const uint8_t bg_gattdb_data_adv_uuid16_map[])={0x0};
-GATT_DATA(const uint8_t bg_gattdb_data_adv_uuid128_map[])={0x0};
+GATT_DATA(const uint8_t bg_gattdb_data_adv_uuid128_map[])={0x67, 0xff, 0x4c, 0x98, 0x41, 0xa2, 0xd6, 0x9a, 0x58, 0x43, 0x00, 0x00, 0x00, 0x1a, 0x00, 0x00, };
 GATT_HEADER(const struct bg_gattdb_def bg_gattdb_data)={
     .attributes=bg_gattdb_data_attributes_map,
     .attributes_max=78,
@@ -556,7 +556,7 @@ GATT_HEADER(const struct bg_gattdb_def bg_gattdb_data)={
     .adv_uuid16=bg_gattdb_data_adv_uuid16_map,
     .adv_uuid16_num=0,
     .adv_uuid128=bg_gattdb_data_adv_uuid128_map,
-    .adv_uuid128_num=0,
+    .adv_uuid128_num=1,
     .caps_mask=0xffff,
     .enabled_caps=0xffff,
 };

@@ -81,7 +81,7 @@
   </service>
   
   <!--GENERIC_EQUIPMENT_SERVICE-->
-  <service advertise="false" name="GENERIC_EQUIPMENT_SERVICE" requirement="mandatory" sourceId="com.service.generic_equipment_service" type="primary" uuid="00001A00-0000-4358-9ad6-a241984cff67">
+  <service advertise="true" name="GENERIC_EQUIPMENT_SERVICE" requirement="mandatory" sourceId="com.service.generic_equipment_service" type="primary" uuid="00001A00-0000-4358-9ad6-a241984cff67">
     <informativeText>Custom service</informativeText>
     
     <!--Strokes-->
