@@ -367,3 +367,5 @@ ioteqDBBuilder.build()
 
 ioteqFileBuilder = IOTeqFileBuilder(os.getcwd(), ioteqDBBuilder)
 ioteqFileBuilder.build()
+
+ioteqDBBuilder.tree.show(data_property='valuePtr',idhidden=False)

@@ -132,7 +132,7 @@ void appMain(gecko_configuration_t *pconfig)
     /* Read serial port when simulation is not taking place */
     if(!simulate)
     {
-//    	serialProtocolProcessMessages(&serialPort);
+    	serialProtocolProcessMessages(&serialPort);
     }
 
     evt = gecko_peek_event();
@@ -172,7 +172,6 @@ void appMain(gecko_configuration_t *pconfig)
       }
       case gecko_evt_hardware_soft_timer_id:
     	  sendNotifications();
-//    	  test123 = (float*)getValue(GPSData);
     	break;
 
       case gecko_evt_le_connection_opened_id:

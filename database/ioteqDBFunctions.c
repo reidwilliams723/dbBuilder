@@ -66,8 +66,6 @@ uint8_t getTagSize(const Tag_t* tag, uint8_t size){
 
 uint8_t* iterateChildrenValues(const Tag_t* tag, uint8_t* dataArray, uint8_t index){
     memcpy(dataArray + index, getValue(tag), tag->valueSize);
-     float* test = (float*)(dataArray + index);
-     float* test2 = (float*)getValue(tag);
     index+=4;
     if (tag->nextSibling != 0){
         const Tag_t* nextSibling = tree + (tag->nextSibling/sizeof(Tag_t));

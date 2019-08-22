@@ -98,17 +98,24 @@ void rxMsgProcessBinsData(SerialProto_t *pSerialObj){
 	setValue(&CalculatedBins[4], (uint8_t*)&calc5);
 }
 
-void rxMsgProcessPSIData(SerialProto_t *pSerialObj){
+void rxMsgProcessDischargePSIData(SerialProto_t *pSerialObj){
 	uint8_t *data = pSerialObj->rxData + 1;
-//	setValue(PSIData, data);
+	setValue(DischargePressure, data);
+}
+
+void rxMsgProcessSuctionPSIData(SerialProto_t *pSerialObj){
+	uint8_t *data = pSerialObj->rxData + 1;
+	setValue(SuctionPressure, data);
 }
 
 void rxMsgProcessAccelerometerData(SerialProto_t *pSerialObj){
 	uint8_t *data = pSerialObj->rxData + 1;
+	setValue(AccelerometerData, data);
 }
 
 void rxMsgProcessGPSData(SerialProto_t *pSerialObj){
 	uint8_t *data = pSerialObj->rxData + 1;
+	setValue(GPSData, data);
 }
 
 void rxMsgProcessFirmwareControl(SerialProto_t *pSerialObj){
@@ -119,8 +126,14 @@ void rxMsgProcessFirmwareControl(SerialProto_t *pSerialObj){
 void rxMsgProcessFirmwareInfo(SerialProto_t *pSerialObj){
 	uint8_t *data = pSerialObj->rxData + 1;
 	setValue(SystemInformation, data);
-//	memcpy(&pSerialObj->mcu->firmwareVersions, data,sizeof(pSerialObj->mcu->firmwareVersions));
 }
+
+void rxMsgProcessTemperatureData(SerialProto_t *pSerialObj){
+	uint8_t *data = pSerialObj->rxData + 1;
+		for(int i = 0; i < 4; i++)
+			setValue(&Temperature[i], (uint8_t*)(((uint32_t*)data)+i));
+}
+
 
 
 /* TX Functions */
@@ -143,19 +156,19 @@ int txMsgSendPSIScaling(SerialProto_t *pSerialObj){
 //	memcpy(&psiScaling[1], &pSerialObj->mcu->newPsiScaling[1], sizeof(float));
 //	memcpy(&psiScaling[2], &pSerialObj->mcu->newPsiScaling[2], sizeof(float));
 
-	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_PSI_SCALING,sizeof(psiScaling),(uint8_t *)psiScaling);
+//	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_PSI_SCALING,sizeof(psiScaling),(uint8_t *)psiScaling);
 }
 
 int txMsgSendResetData(SerialProto_t *pSerialObj){
-	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_RESET_DATA,sizeof(pSerialObj->mcu->control),(uint8_t *)&pSerialObj->mcu->control);
+//	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_RESET_DATA,sizeof(pSerialObj->mcu->control),(uint8_t *)&pSerialObj->mcu->control);
 }
 
 int txMsgSendZeroRawValue(SerialProto_t *pSerialObj){
-	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_ZERO_RAW_VALUE,sizeof(pSerialObj->mcu->control),(uint8_t *)&pSerialObj->mcu->control);
+//	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_ZERO_RAW_VALUE,sizeof(pSerialObj->mcu->control),(uint8_t *)&pSerialObj->mcu->control);
 }
 
 int txMsgSendToggleLED(SerialProto_t *pSerialObj){
-	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_TOGGLE_LED,sizeof(pSerialObj->mcu->control),(uint8_t *)&pSerialObj->mcu->control);
+//	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_TOGGLE_LED,sizeof(pSerialObj->mcu->control),(uint8_t *)&pSerialObj->mcu->control);
 }
 
 
@@ -200,11 +213,17 @@ void serialProtocolProcessMessages(SerialProto_t *pSerialObj) {
 		case SERIAL_PROTO_MSG_REPORT_BINS:
 			rxMsgProcessBinsData(pSerialObj);
 			break;
-		case SERIAL_PROTO_MSG_REPORT_PSI:
-			rxMsgProcessPSIData(pSerialObj);
+		case SERIAL_PROTO_MSG_REPORT_DISCHARGE_PSI:
+			rxMsgProcessDischargePSIData(pSerialObj);
+			break;
+		case SERIAL_PROTO_MSG_REPORT_SUCTION_PSI:
+			rxMsgProcessSuctionPSIData(pSerialObj);
 			break;
 		case SERIAL_PROTO_MSG_REPORT_ACCELEROMETER:
 			rxMsgProcessAccelerometerData(pSerialObj);
+			break;
+		case SERIAL_PROTO_MSG_REPORT_TEMPERATURE:
+			rxMsgProcessTemperatureData(pSerialObj);
 			break;
 		case SERIAL_PROTO_MSG_REPORT_GPS:
 			rxMsgProcessGPSData(pSerialObj);
