@@ -67,6 +67,8 @@
 #define SERIAL_PROTO_MSG_REPORT_TEMPERATURE					22
 #define SERIAL_PROTO_MSG_WIFI_SETTINGS						23
 #define SERIAL_PROTO_MSG_REPORT_LOST_BLOCK					24
+#define SERIAL_PROTO_MSG_WIFI_COMMAND						25
+#define SERIAL_PROTO_MSG_WIFI_RESPONSE						26
 
 
 void serialProtocolProcessMessages(SerialProto_t *pSerialObj);
@@ -79,15 +81,14 @@ void serialProtocolProcessMessages(SerialProto_t *pSerialObj);
 int txMsgSendEraseFirmware(SerialProto_t *pSerialObj);
 int txMsgSendFirmwareData(SerialProto_t *pSerialObj);
 int txMsgSendFlashFirmware(SerialProto_t *pSerialObj);
-int txMsgSendPSIScaling(SerialProto_t *pSerialObj);
 int txMsgSendResetData(SerialProto_t *pSerialObj);
-int txMsgSendZeroRawValue(SerialProto_t *pSerialObj);
 int txMsgSendToggleLED(SerialProto_t *pSerialObj);
+int txMsgSendDischargeZeroRawValue(SerialProto_t *pSerialObj);
+int txMsgSendSuctionPSIScaling(SerialProto_t *pSerialObj);
+int txMsgSendDischargePSIScaling(SerialProto_t *pSerialObj);
 int txMsgSendMessage(SerialProto_t *pSerialObj,uint8_t msgType,uint8_t dataLength, uint8_t *pBuffer);
-
-
-
-
+int txMsgSendSuctionZeroRawValue(SerialProto_t *pSerialObj);
+int txMsgSendSDischargeZeroRawValue(SerialProto_t *pSerialObj);
 
 /* RX Functions */
 void rxMsgProcessStrokesData(SerialProto_t *pSerialObj);
@@ -100,19 +101,5 @@ void rxMsgProcessFirmwareControl(SerialProto_t *pSerialObj);
 void rxMsgProcessFirmwareInfo(SerialProto_t *pSerialObj);
 
 
-void initDatabase();
-
-/* Tags */
-const Tag_t* Strokes;
-const Tag_t* RunTime;
-const Tag_t* PSIData;
-const Tag_t* GPSData;
-const Tag_t* SystemInformation;
-const Tag_t* PSIRawValue;
-const Tag_t* RawZero;
-const Tag_t* ScaledPSIValue;
-const Tag_t CalculatedBins[5];
-const Tag_t Bins[20];
-const Tag_t* AccelerometerData;
 
 #endif /* SRC_SERIALPROTOCOLFUNCTIONS_H_ */

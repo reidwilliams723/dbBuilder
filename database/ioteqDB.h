@@ -12,7 +12,7 @@
                 * Programmed By: 	Reid Williams
                 * 					Inaki Zuloaga
                 *
-                * Date: August 22, 2019
+                * Date: August 23, 2019
                 * Contact: izi@iot-eq.com
                 *
                 *
@@ -28,7 +28,7 @@
                 #include <stdlib.h>
                 #include <string.h>
 
-                #define TOTAL_NUMBER_OF_TAGS          61
+                #define TOTAL_NUMBER_OF_TAGS          57
                 #define CHECK_SUM                     0x00A5005A
                 typedef struct Tag {
                     uint32_t valuePtr;
@@ -79,10 +79,6 @@ const Tag_t* MaxSNR;
 const Tag_t* SystemInformation;
 const Tag_t* Bootloader;
 const Tag_t* Firmware;
-const Tag_t* WiFiSettings;
-const Tag_t* SSID;
-const Tag_t* Password;
-const Tag_t* IPAddress;
 const Tag_t Bins[20];
 const Tag_t CalculatedBins[5];
 const Tag_t Temperature[4];

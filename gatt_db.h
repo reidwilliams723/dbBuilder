@@ -39,5 +39,7 @@ extern const struct bg_gattdb_def bg_gattdb_data;
 #define gattdb_SSID                            74
 #define gattdb_Password                        76
 #define gattdb_IP_Address                      78
+#define gattdb_Wifi_Command                    80
+#define gattdb_WiFi_Response                   82
 
 #endif

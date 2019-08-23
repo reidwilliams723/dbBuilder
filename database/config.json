@@ -4,7 +4,7 @@
             "Strokes": {
                 "arraydim": 1,
                 "datatype": "Number",
-                "value": 0,
+                "value": 1234,
                 "config": {
                     "persistent": true
                 }
@@ -12,13 +12,15 @@
             "RunTime": {
                 "arraydim": 1,
                 "datatype": "Number",
-                "value": 0,
-                "config": {}
+                "value": 4567,
+                "config": {
+                    "persistent": true
+                }
             },
             "Bins": {
                 "datatype": "Number",
                 "arraydim": 20,
-                "value": 0,
+                "value": 5,
                 "config": {}
             },
             "CalculatedBins": {
@@ -30,13 +32,15 @@
             "Temperature": {
                 "datatype": "Number",
                 "arraydim": 4,
-                "value": 0,
-                "config": {}
+                "value": 69,
+                "config": {
+                    "numtype": "float"
+                }
             },
             "AccelerometerData": {
                 "arraydim": 1,
                 "datatype": "Number",
-                "value": 0,
+                "value": 98,
                 "config": {
                     "numtype": "float"
                 }
@@ -48,15 +52,16 @@
                     "DischargeRawZero": {
                         "arraydim": 1,
                         "datatype": "Number",
-                        "value": 0,
+                        "value": 4,
                         "config": {
-                            "numtype": "float"
+                            "numtype": "float",
+                            "persistent": true
                         }
                     },
                     "DischargeRawScale": {
                         "arraydim": 1,
                         "datatype": "Number",
-                        "value": 0,
+                        "value": 20,
                         "config": {
                             "numtype": "float",
                             "persistent": true
@@ -65,15 +70,16 @@
                     "DischargeUnitsScale": {
                         "arraydim": 1,
                         "datatype": "Number",
-                        "value": 0,
+                        "value": 20000,
                         "config": {
-                            "numtype": "float"
+                            "numtype": "float",
+                            "persistent": true
                         }
                     },
                     "DischargeRawValue": {
                         "arraydim": 1,
                         "datatype": "Number",
-                        "value": 0,
+                        "value": 3.2,
                         "config": {
                             "numtype": "float"
                         }
@@ -81,7 +87,7 @@
                     "DischargePSIValue": {
                         "arraydim": 1,
                         "datatype": "Number",
-                        "value": 0,
+                        "value": 5.8,
                         "config": {
                             "numtype": "float"
                         }
@@ -89,7 +95,7 @@
                     "DischargeRMS": {
                         "arraydim": 1,
                         "datatype": "Number",
-                        "value": 0,
+                        "value": 69.8,
                         "config": {
                             "numtype": "float"
                         }
@@ -103,31 +109,34 @@
                     "SuctionRawZero": {
                         "arraydim": 1,
                         "datatype": "Number",
-                        "value": 0,
+                        "value": 4,
                         "config": {
-                            "numtype": "float"
+                            "numtype": "float",
+                            "persistent": true
                         }
                     },
                     "SuctionRawScale": {
                         "arraydim": 1,
                         "datatype": "Number",
-                        "value": 0,
+                        "value": 20,
                         "config": {
-                            "numtype": "float"
+                            "numtype": "float",
+                            "persistent": true
                         }
                     },
                     "SuctionUnitsScale": {
                         "arraydim": 1,
                         "datatype": "Number",
-                        "value": 0,
+                        "value": 20000,
                         "config": {
-                            "numtype": "float"
+                            "numtype": "float",
+                            "persistent": true
                         }
                     },
                     "SuctionRawValue": {
                         "arraydim": 1,
                         "datatype": "Number",
-                        "value": 0,
+                        "value": 65,
                         "config": {
                             "numtype": "float"
                         }
@@ -135,7 +144,7 @@
                     "SuctionPSIValue": {
                         "arraydim": 1,
                         "datatype": "Number",
-                        "value": 0,
+                        "value": 91,
                         "config": {
                             "numtype": "float"
                         }
@@ -143,7 +152,7 @@
                     "SuctionRMS": {
                         "arraydim": 1,
                         "datatype": "Number",
-                        "value": 0,
+                        "value": 867,
                         "config": {
                             "numtype": "float"
                         }
@@ -163,7 +172,7 @@
                     "Longitude": {
                         "arraydim": 1,
                         "datatype": "Number",
-                        "value": 0,
+                        "value": 579.4,
                         "config": {
                             "numtype": "float"
                         }
@@ -171,7 +180,7 @@
                     "Latitude": {
                         "arraydim": 1,
                         "datatype": "Number",
-                        "value": 0,
+                        "value": 6971.1,
                         "config": {
                             "numtype": "float"
                         }
@@ -179,7 +188,7 @@
                     "Satellites": {
                         "arraydim": 1,
                         "datatype": "Number",
-                        "value": 0,
+                        "value": 2,
                         "config": {
                             "numtype": "float"
                         }
@@ -187,7 +196,7 @@
                     "MinSNR": {
                         "arraydim": 1,
                         "datatype": "Number",
-                        "value": 0,
+                        "value": 6.7,
                         "config": {
                             "numtype": "float"
                         }
@@ -195,7 +204,7 @@
                     "MaxSNR": {
                         "arraydim": 1,
                         "datatype": "Number",
-                        "value": 0,
+                        "value": 4.2,
                         "config": {
                             "numtype": "float"
                         }
@@ -216,30 +225,6 @@
                         "arraydim": 1,
                         "datatype": "Number",
                         "value": 0,
-                        "config": {}
-                    }
-                }
-            },
-            "WiFiSettings": {
-                "datatype": "Folder",
-                "arraydim": 1,
-                "children": {
-                    "SSID": {
-                        "arraydim": 1,
-                        "datatype": "Text",
-                        "value": "ioteq2.4",
-                        "config": {}
-                    },
-                    "Password": {
-                        "arraydim": 1,
-                        "datatype": "Text",
-                        "value": "ioteq2017",
-                        "config": {}
-                    },
-                    "IPAddress": {
-                        "arraydim": 1,
-                        "datatype": "Text",
-                        "value": "127.0.0.1",
                         "config": {}
                     }
                 }

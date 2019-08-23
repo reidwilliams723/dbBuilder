@@ -190,6 +190,16 @@ appPlugin: stack_bridge=false
       <value length="1" type="user" variable_length="true">0x00</value>
       <properties read="true" read_requirement="optional" write="true" write_requirement="optional"/>
     </characteristic>
+    <characteristic id="Wifi_Command" name="Wifi Command" sourceId="com.characteristic.wifi_command" uuid="6583f02b-a78e-46e5-9bee-37aac4922cef">
+      <informativeText>Custom characteristic</informativeText>
+      <value length="30" type="user" variable_length="true">0x00</value>
+      <properties write="true" write_requirement="optional"/>
+    </characteristic>
+    <characteristic id="WiFi_Response" name="Wifi Response" sourceId="com.characteristic.wifi_response" uuid="6583f02a-a78e-46e5-9bee-37aac4922cef">
+      <informativeText>Custom characteristic</informativeText>
+      <value length="30" type="user" variable_length="true">0x00</value>
+      <properties read="true" read_requirement="optional"/>
+    </characteristic>
   </service>
 </gatt>
 }

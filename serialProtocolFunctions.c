@@ -39,37 +39,6 @@
 uint8_t messageFlags[SERIAL_PROTO_MSG_MAX];
 
 
-void initDatabase(){
-	Strokes = getTag("Strokes");
-	RunTime = getTag("RunTime");
-	PSIData = getTag("PSIData");
-	RawZero = getTag("PSIData.RawZero");
-	PSIRawValue = getTag("PSIData.PSIRawValue");
-	ScaledPSIValue = getTag("PSIData.ScaledPSIValue");
-	GPSData = getTag("GPSData");
-	SystemInformation = getTag("SystemInformation");
-	AccelerometerData = getTag("AccelerometerData");
-
-	for (int i = 0; i < sizeof(Bins)/sizeof(Tag_t); i++){
-			char binTag[20];
-			char strIndex[3] = "";
-			sprintf(strIndex, "%d", i);
-			strcpy(binTag, "Bins[");
-			strcat(binTag, strIndex);
-			strcat(binTag,"]");
-			memcpy(Bins+i, getTag(binTag), sizeof(Tag_t));
-		}
-	for (int i = 0; i < sizeof(CalculatedBins)/sizeof(Tag_t); i++){
-			char binTag[20];
-			char strIndex[3] = "";
-			sprintf(strIndex, "%d", i);
-			strcpy(binTag, "CalculatedBins[");
-			strcat(binTag, strIndex);
-			strcat(binTag,"]");
-			memcpy(CalculatedBins+i, getTag(binTag), sizeof(Tag_t));
-		}
-}
-
 /* RX Functions */
 void rxMsgProcessStrokesData(SerialProto_t *pSerialObj){
 	uint8_t *data = pSerialObj->rxData + 1;
@@ -131,8 +100,14 @@ void rxMsgProcessFirmwareInfo(SerialProto_t *pSerialObj){
 void rxMsgProcessTemperatureData(SerialProto_t *pSerialObj){
 	uint8_t *data = pSerialObj->rxData + 1;
 		for(int i = 0; i < 4; i++)
-			setValue(&Temperature[i], (uint8_t*)(((uint32_t*)data)+i));
+			setValue(&Temperature[i], (uint8_t*)(((float*)data)+i));
 }
+
+//void rxMsgProcessWiFiResponse(SerialProto_t *pSerialObj){
+//	uint8_t *data = pSerialObj->rxData + 1;
+//	setValue(WiFiResponse, data);
+//}
+
 
 
 
@@ -149,26 +124,42 @@ int txMsgSendFlashFirmware(SerialProto_t *pSerialObj){
 	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_FIRMWARE_FLASH,sizeof(uint8_t),(uint8_t *)&pSerialObj->mcu->flashFirmwarePacket);
 }
 
-int txMsgSendPSIScaling(SerialProto_t *pSerialObj){
+int txMsgSendSuctionPSIScaling(SerialProto_t *pSerialObj){
+	float data[6];
+	data[0] = *(float*)getValue(SuctionRawZero);
+	data[1] = *(float*)getValue(SuctionRawScale);
+	data[2] = *(float*)getValue(SuctionUnitsScale);
+	data[3] = *(float*)getValue(SuctionRawValue);
+	data[4] = *(float*)getValue(SuctionPSIValue);
+	data[5] = *(float*)getValue(SuctionRMS);
+	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_PSI_SUCTION_SCALING,sizeof(data),(uint8_t *)data);
+}
 
-	float psiScaling[3];
-//	memcpy(&psiScaling[0], &pSerialObj->mcu->newPsiScaling[0], sizeof(float));
-//	memcpy(&psiScaling[1], &pSerialObj->mcu->newPsiScaling[1], sizeof(float));
-//	memcpy(&psiScaling[2], &pSerialObj->mcu->newPsiScaling[2], sizeof(float));
-
-//	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_PSI_SCALING,sizeof(psiScaling),(uint8_t *)psiScaling);
+int txMsgSendDischargePSIScaling(SerialProto_t *pSerialObj){
+	float data[6];
+	data[0] = *(float*)getValue(DischargeRawZero);
+	data[1] = *(float*)getValue(DischargeRawScale);
+	data[2] = *(float*)getValue(DischargeUnitsScale);
+	data[3] = *(float*)getValue(DischargeRawValue);
+	data[4] = *(float*)getValue(DischargePSIValue);
+	data[5] = *(float*)getValue(DischargeRMS);
+	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_PSI_DISCHARGE_SCALING,sizeof(data),(uint8_t *)data);
 }
 
 int txMsgSendResetData(SerialProto_t *pSerialObj){
-//	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_RESET_DATA,sizeof(pSerialObj->mcu->control),(uint8_t *)&pSerialObj->mcu->control);
+	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_RESET_DATA,sizeof(pSerialObj->mcu->control),(uint8_t *)&pSerialObj->mcu->control);
 }
 
-int txMsgSendZeroRawValue(SerialProto_t *pSerialObj){
-//	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_ZERO_RAW_VALUE,sizeof(pSerialObj->mcu->control),(uint8_t *)&pSerialObj->mcu->control);
+int txMsgSendDischargeZeroRawValue(SerialProto_t *pSerialObj){
+	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_ZERO_RAW_DISCHARGE_VALUE,sizeof(pSerialObj->mcu->control),(uint8_t *)&pSerialObj->mcu->control);
+}
+
+int txMsgSendSuctionZeroRawValue(SerialProto_t *pSerialObj){
+	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_ZERO_RAW_SUCTION_VALUE,sizeof(pSerialObj->mcu->control),(uint8_t *)&pSerialObj->mcu->control);
 }
 
 int txMsgSendToggleLED(SerialProto_t *pSerialObj){
-//	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_TOGGLE_LED,sizeof(pSerialObj->mcu->control),(uint8_t *)&pSerialObj->mcu->control);
+	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_TOGGLE_LED,sizeof(pSerialObj->mcu->control),(uint8_t *)&pSerialObj->mcu->control);
 }
 
 
@@ -233,6 +224,10 @@ void serialProtocolProcessMessages(SerialProto_t *pSerialObj) {
 			break;
 		case SERIAL_PROTO_MSG_FIRMWARE_INFO:
 			rxMsgProcessFirmwareInfo(pSerialObj);
+			break;
+//		case SERIAL_PROTO_MSG_WIFI_RESPONSE:
+//			rxMsgProcessWiFiResponse(pSerialObj);
+//			break;
 		}
 		pSerialObj->rxDone = 0; // Signal Msg Processed
 		//*********************** TESTING ONLY *************************
