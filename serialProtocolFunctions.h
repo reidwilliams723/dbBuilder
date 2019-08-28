@@ -107,22 +107,4 @@ void rxMsgProcessFirmwareInfo(SerialProto_t *pSerialObj);
 
 
 
-<<<<<<< HEAD
-
-
-/* Declare Tags */
-const Tag_t* Strokes;
-const Tag_t* RunTime;
-const Tag_t Bins[20];
-const Tag_t CalculatedBins[5];
-const Tag_t* PSIData;
-const Tag_t* AccelerometerData;
-const Tag_t* GPSData;
-const Tag_t* SystemInformation;
-
-void initTags();
-
-
-=======
->>>>>>> database
 #endif /* SRC_SERIALPROTOCOLFUNCTIONS_H_ */

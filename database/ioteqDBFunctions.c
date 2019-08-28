@@ -39,15 +39,6 @@ const Tag_t* getTag(char * tagName){
     }
 }
 
-<<<<<<< HEAD
-uint8_t getTagSize(const Tag_t* tag, uint8_t size){
-
-    if (tag->numOfChildren !=0){
-        for (int i = 0; i < tag->numOfChildren; i++){
-            const Tag_t* currentChild = tree + ((tag->childPtr/sizeof(Tag_t)) + i);
-            size += getTagSize(currentChild, size);
-        }
-=======
 uint8_t iterateChildren(const Tag_t* tag, uint8_t size){
     size+= tag->valueSize;
     const char* tempName = tag->namePtr + str;
@@ -66,7 +57,6 @@ uint8_t getTagSize(const Tag_t* tag, uint8_t size){
         const Tag_t* currentChild = tree + (tag->childPtr/sizeof(Tag_t));
         const char* tempName = currentChild->namePtr + str;
         size = iterateChildren(currentChild, 0);
->>>>>>> database
     }
     else {
         size = tag->valueSize;
@@ -74,28 +64,6 @@ uint8_t getTagSize(const Tag_t* tag, uint8_t size){
     return size;
 }
 
-<<<<<<< HEAD
-uint8_t* getValue(const Tag_t* tag){
-    if (tag->numOfChildren != 0){
-
-        for (int i = 0; i < tag->numOfChildren; i++){
-        	const Tag_t* child = tree + ((tag->childPtr/sizeof(Tag_t)) + i);
-        	if (child->persistent && *(persistentData-1) == 0x00A5005A){
-//        		memcpy((data + child->valuePtr), persistentData + (sizeof(uint32_t)/child->valuePtr), (sizeof(uint32_t)/child->valueSize));
-        	}
-        }
-        const Tag_t* child = tree + (tag->childPtr/sizeof(Tag_t));
-        return data + child->valuePtr;
-    }
-    else{
-        if (tag->persistent)
-        	if (*(persistentData-1) != 0x00A5005A)
-        		return data + tag->valuePtr;
-        	else
-        		return (uint8_t*)(persistentData + (sizeof(uint32_t)/tag->valuePtr));
-        else
-            return data + tag->valuePtr;
-=======
 uint8_t* iterateChildrenValues(const Tag_t* tag, uint8_t* dataArray, uint8_t index){
     memcpy(dataArray + index, getValue(tag), tag->valueSize);
     index+=4;
@@ -134,7 +102,6 @@ uint8_t* getValue(const Tag_t* tag){
         else {
             return data + tag->valuePtr;
         }
->>>>>>> database
     }
 }
 
@@ -145,20 +112,6 @@ void setValue(const Tag_t* tag, uint8_t* value){
         memcpy(data + child->valuePtr, value, getTagSize(tag, 0));
     }
     else{
-<<<<<<< HEAD
-    	if (tag->persistent)
-    		*(persistentData + tag->valuePtr) = *(uint32_t*)value;
-
-    	memcpy((data + tag->valuePtr), value, tag->valueSize);
-    }
-}
-
-void initPersistentMemory(uint32_t volatile *address){
-	if (address[0] != 0x00A5005A)
-		address[0] = 0x00A5005A;
-	persistentData = address+1;
-}
-=======
         if (tag->isPersistent && *persistentData == 0x00A5005A){
 
         	*(persistentData + 1 + (tag->persistentPtr/sizeof(uint32_t))) = *(uint32_t*)value;
@@ -172,4 +125,3 @@ void initPersistentMemory(uint32_t volatile *address){
 uint8_t* getDefaultValue(const Tag_t* tag){
 	return data + tag->valuePtr;
 }
->>>>>>> database

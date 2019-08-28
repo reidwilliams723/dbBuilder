@@ -36,31 +36,9 @@
 #include "ioteqDB.h"
 #include "ioteqDBFunctions.h"
 
-<<<<<<< HEAD
-uint8_t messageFlags[SERIAL_PROTO_MSG_MAX];
-
-void initTags(){
-	Strokes = getTag("Strokes");
-	RunTime = getTag("RunTime");
-
-//	for(int i = 0; i < sizeof(Bins); i++){
-//
-//		memcpy(Bins + i, getTag("Bins[%d]",i), sizeof(Tag_t));
-//	}
-//
-//	for(int i = 0; i < sizeof(CalculatedBins); i++){
-//		memcpy(CalculatedBins + i, getTag("CalculatedBins[%d]",i), sizeof(Tag_t));
-//	}
-	PSIData = getTag("PSIData");
-	AccelerometerData = getTag("AccelerometerData");
-	GPSData = getTag("GPSData");
-	SystemInformation = getTag("SystemInformation");
-}
-=======
 #include "ioteqDBFunctions.h"
 
 uint8_t messageFlags[SERIAL_PROTO_MSG_MAX];
->>>>>>> database
 
 
 /* RX Functions */
@@ -116,11 +94,7 @@ void rxMsgProcessDischargePSIData(SerialProto_t *pSerialObj){
 
 void rxMsgProcessSuctionPSIData(SerialProto_t *pSerialObj){
 	uint8_t *data = pSerialObj->rxData + 1;
-<<<<<<< HEAD
-	setValue(PSIData, data);
-=======
 	setValue(SuctionPressure, data);
->>>>>>> database
 }
 
 void rxMsgProcessAccelerometerData(SerialProto_t *pSerialObj){
@@ -181,9 +155,6 @@ int txMsgSendSuctionPSIScaling(SerialProto_t *pSerialObj){
 	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_PSI_SUCTION_SCALING,sizeof(data)*3,(uint8_t *)data);
 }
 
-<<<<<<< HEAD
-	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_PSI_SCALING,getTagSize(PSIData,0),(uint8_t *)getValue(PSIData));
-=======
 int txMsgSendDischargePSIScaling(SerialProto_t *pSerialObj){
 	float data[6];
 	data[0] = *(float*)getValue(DischargeRawZero);
@@ -193,7 +164,6 @@ int txMsgSendDischargePSIScaling(SerialProto_t *pSerialObj){
 	data[4] = *(float*)getValue(DischargePSIValue);
 	data[5] = *(float*)getValue(DischargeRMS);
 	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_PSI_DISCHARGE_SCALING,sizeof(data),(uint8_t *)data);
->>>>>>> database
 }
 
 int txMsgSendResetData(SerialProto_t *pSerialObj){

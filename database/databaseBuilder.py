@@ -3,10 +3,7 @@ import json
 import struct
 from datetime import date
 from treelib import Node, Tree
-<<<<<<< HEAD
-=======
 from itertools import groupby 
->>>>>>> database
 
 class IOTeqDBBuilder():
     def __init__(self, configFile):
@@ -14,11 +11,7 @@ class IOTeqDBBuilder():
             jsonOutput = json.load(f)
             self.databaseTags = jsonOutput["database"]["tags"]
 
-<<<<<<< HEAD
-        self.IOTEQ_TAG_BYTE_SIZE = 28
-=======
         self.IOTEQ_TAG_BYTE_SIZE = 44
->>>>>>> database
         self.tree = Tree()
         self.constPtrChar = []
         self.constPtrTree = []
@@ -57,18 +50,8 @@ class IOTeqDBBuilder():
             else:
                 ba = bytearray(struct.pack("<L", value)) 
 
-<<<<<<< HEAD
-                if ("persistent" in tag["config"]):
-                    if (tag["config"]["persistent"] == True):
-                        for b in ba:
-                            self.persistentPtr.append(hex(b))
-                else:
-                    for b in ba:
-                        self.dataPtr.append(hex(b))
-=======
             for b in ba:
                 self.dataPtr.append(hex(b))
->>>>>>> database
 
         elif (datatype == "Text"):
             value = tag["value"]
@@ -77,8 +60,6 @@ class IOTeqDBBuilder():
             # for i in range(len(self.dataPtr), 40):
             self.dataPtr.append(hex(0))
 
-<<<<<<< HEAD
-=======
     def addValueToPersistentPtr(self, tag):
         datatype = tag["datatype"]
         if (datatype == "Number"):
@@ -100,7 +81,6 @@ class IOTeqDBBuilder():
             # for i in range(len(self.dataPtr), 40):
             self.persistentPtr.append(hex(0))
 
->>>>>>> database
     def createTree(self, tags, parent=None):
         for tag in tags:
             for i in range(tags[tag]["arraydim"]):
@@ -125,17 +105,6 @@ class IOTeqDBBuilder():
                         newTag.valueSize = 4
                     elif (tags[tag]["datatype"] == "Text"):
                         newTag.valueSize = len(tags[tag]["value"])
-<<<<<<< HEAD
-                    if ("persistent" in tags[tag]["config"]):
-                        if (tags[tag]["config"]["persistent"] == True):
-                            newTag.valuePtr = len(self.persistentPtr)
-                            newTag.persistent = 1
-                            self.addValueToDataPtr(tags[tag])
-                    else:       
-                        # Adding default value to dataPtr list
-                        newTag.valuePtr = len(self.dataPtr)
-                        self.addValueToDataPtr(tags[tag])
-=======
                     
                     if ("persistent" in tags[tag]["config"]):
                         if (tags[tag]["config"]["persistent"] == True):
@@ -146,7 +115,6 @@ class IOTeqDBBuilder():
                     # Adding default value to dataPtr list
                     newTag.valuePtr = len(self.dataPtr)
                     self.addValueToDataPtr(tags[tag])
->>>>>>> database
                     
 
                 # Adding tag to tree and tag list
@@ -190,8 +158,6 @@ class IOTeqDBBuilder():
                         self.tagList[tagIndex].childPtr = childrenNodes[0].data.address
                         self.tagList[tagIndex].numOfChildren = len(childrenNodes)
 
-<<<<<<< HEAD
-=======
                         if (tag.tagName != "tags"):
                             for i in range(0, len(childrenNodes)):
                                 tagIndex = self.tagList.index(childrenNodes[i].data)
@@ -203,7 +169,6 @@ class IOTeqDBBuilder():
                                     self.tagList[tagIndex].nextSibling = childrenNodes[i+1].data.address
                                     self.tagList[tagIndex].prevSibling = childrenNodes[i-1].data.address
 
->>>>>>> database
     def createConstPtrTree(self):
         sortedTags = sorted(self.tagList, key=lambda x: x.address, reverse=False)
         for tag in sortedTags:
@@ -228,13 +193,6 @@ class IOTeqTag(object):
         self.tagName = tagName
         self.address = address
         self.parentTag = None
-<<<<<<< HEAD
-        self.persistent = 0
-    
-    def getStruct(self):
-        return [self.valuePtr, self.valueSize, self.namePtr,
-                self.nameSize, self.parentPtr, self.childPtr, self.numOfChildren, self.persistent]
-=======
         self.prevSibling = 0
         self.nextSibling = 0
         self.isPersistent = 0
@@ -243,7 +201,6 @@ class IOTeqTag(object):
     def getStruct(self):
         return [self.valuePtr, self.valueSize, self.persistentValuePtr, self.namePtr,
                 self.nameSize, self.parentPtr, self.childPtr, self.prevSibling, self.nextSibling, self.numOfChildren, self.isPersistent]
->>>>>>> database
 
     def getFullName(self, currentName=None):
         if (currentName == None):
@@ -305,41 +262,25 @@ class IOTeqFileBuilder():
                 #include <string.h>
 
                 #define TOTAL_NUMBER_OF_TAGS          {self.dbBuilder.totalNumberOfTags()}
-<<<<<<< HEAD
-
-                typedef struct Tag {{
-                    uint32_t valuePtr;
-                    uint32_t valueSize;
-=======
                 #define CHECK_SUM                     0x00A5005A
                 typedef struct Tag {{
                     uint32_t valuePtr;
                     uint32_t valueSize;
                     uint32_t persistentPtr;
->>>>>>> database
                     uint32_t namePtr;
                     uint32_t nameSize;
                     uint32_t parentPtr;
                     uint32_t childPtr;
-<<<<<<< HEAD
-                    uint32_t numOfChildren;
-                    uint8_t persistent;
-=======
                     uint32_t prevSibling;
                     uint32_t nextSibling;
                     uint32_t numOfChildren;
                     uint32_t isPersistent;
->>>>>>> database
                 }} Tag_t;\n
         """)
 
         # Initialize Pointers (str, tree, data)
         self.writeDBHeader("extern const char str[];\n")
         self.writeDBHeader("extern const Tag_t tree[TOTAL_NUMBER_OF_TAGS];\n")
-<<<<<<< HEAD
-        self.writeDBHeader("extern uint8_t data[];\n")
-        self.writeDBHeader("volatile uint32_t* persistentData;\n")
-=======
         self.writeDBHeader("extern uint8_t data[];\n\n")
         self.writeDBHeader("volatile uint32_t* persistentData;\n\n")
         self.writeDBHeader("void initDB();\n\n")
@@ -353,7 +294,6 @@ class IOTeqFileBuilder():
         for tagName, group in groupby(list(filter(lambda elem: "[" in elem.tagName, self.dbBuilder.tagList)), lambda elem: elem.tagName.split('[')[0]):
             self.writeDBHeader(f"const Tag_t {tagName}[{len(list(group))}];\n") 
         
->>>>>>> database
         self.writeDBHeader("""#endif""")
         self.dbHeader.close()
 
@@ -363,10 +303,7 @@ class IOTeqFileBuilder():
                 #include <stdlib.h>
                 #include <string.h>
                 #include "ioteqDB.h"
-<<<<<<< HEAD
-=======
                 #include "ioteqDBFunctions.h"
->>>>>>> database
         \n""")
 
         # Initialize Pointers (str, tree, data)
@@ -379,9 +316,6 @@ class IOTeqFileBuilder():
         dataBytes = ', '.join(x for x in ioteqDBBuilder.dataPtr)
         self.writeDBSource("uint8_t data[] = {" + dataBytes + "};\n\n")
 
-<<<<<<< HEAD
-        self.dbSource.close()
-=======
         self.writeDBSource("""
         /**
             *
@@ -438,7 +372,6 @@ class IOTeqFileBuilder():
         for tag in list(filter(lambda elem: elem.isPersistent == 1, self.dbBuilder.tagList)):
             self.writeDBSource(f"setValue({tag.tagName}, (uint8_t*)getDefaultValue({tag.tagName}));\n")
         self.writeDBSource("}")
->>>>>>> database
 
     def build(self):
         self.buildDBHeaderFile()
@@ -451,8 +384,5 @@ ioteqDBBuilder.build()
 
 ioteqFileBuilder = IOTeqFileBuilder(os.getcwd(), ioteqDBBuilder)
 ioteqFileBuilder.build()
-<<<<<<< HEAD
-=======
 
 ioteqDBBuilder.tree.show(data_property='valuePtr',idhidden=False)
->>>>>>> database
