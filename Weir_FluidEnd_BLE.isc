@@ -114,7 +114,7 @@ appPlugin: stack_bridge=false
     </characteristic>
     <characteristic id="Accelerometer" name="Accelerometer" sourceId="com.characteristic.accelerometer" uuid="00002A20-0000-4358-9ad6-a241984cff67">
       <informativeText>Custom characteristic</informativeText>
-      <value length="4" type="user" variable_length="false"/>
+      <value length="8" type="user" variable_length="false"/>
       <properties notify="true" notify_requirement="optional" read="true" read_requirement="optional"/>
     </characteristic>
     <characteristic id="firmware_version" name="Firmware Version" sourceId="com.characteristic.firmware_version" uuid="c0b948bd-94d3-48dd-ab18-a5bb457d4344">

@@ -85,6 +85,8 @@ int txMsgSendResetData(SerialProto_t *pSerialObj);
 int txMsgSendToggleLED(SerialProto_t *pSerialObj);
 int txMsgSendDischargeZeroRawValue(SerialProto_t *pSerialObj);
 int txMsgSendSuctionPSIScaling(SerialProto_t *pSerialObj);
+//int txMsgSendSuctionPSIScaling(SerialProto_t *pSerialObj, float* data);
+//
 int txMsgSendDischargePSIScaling(SerialProto_t *pSerialObj);
 int txMsgSendMessage(SerialProto_t *pSerialObj,uint8_t msgType,uint8_t dataLength, uint8_t *pBuffer);
 int txMsgSendSuctionZeroRawValue(SerialProto_t *pSerialObj);

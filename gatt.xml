@@ -122,7 +122,7 @@
     <!--Accelerometer-->
     <characteristic id="Accelerometer" name="Accelerometer" sourceId="com.characteristic.accelerometer" uuid="00002A20-0000-4358-9ad6-a241984cff67">
       <informativeText>Custom characteristic</informativeText>
-      <value length="4" type="user" variable_length="false"/>
+      <value length="8" type="user" variable_length="false"/>
       <properties notify="true" notify_requirement="optional" read="true" read_requirement="optional"/>
     </characteristic>
     

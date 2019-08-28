@@ -284,6 +284,7 @@ class IOTeqFileBuilder():
         self.writeDBHeader("extern uint8_t data[];\n\n")
         self.writeDBHeader("volatile uint32_t* persistentData;\n\n")
         self.writeDBHeader("void initDB();\n\n")
+        self.writeDBHeader("void setToDefault();\n\n")
 
         for tag in self.dbBuilder.tagList:
             tagName=tag.tagName
@@ -354,6 +355,22 @@ class IOTeqFileBuilder():
         for tag in list(filter(lambda elem: elem.isPersistent == 1, self.dbBuilder.tagList)):
             self.writeDBSource(f"setValue({tag.tagName}, {tag.tagName}Default);\n")
         self.writeDBSource("}\n")
+        self.writeDBSource("}")
+
+
+        self.writeDBSource("""
+        /**
+            *
+            * setToDefault
+            *
+            *
+            * Sets all persistent tags back to default values.
+            *
+            **/
+            void setToDefault(){""")
+
+        for tag in list(filter(lambda elem: elem.isPersistent == 1, self.dbBuilder.tagList)):
+            self.writeDBSource(f"setValue({tag.tagName}, (uint8_t*)getDefaultValue({tag.tagName}));\n")
         self.writeDBSource("}")
 
     def build(self):

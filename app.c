@@ -86,7 +86,6 @@ void appMain(gecko_configuration_t *pconfig)
  /* Initialize database */
  initDB(0);
 
-
   /* Initialize stack */
   gecko_init(pconfig);
 
@@ -384,14 +383,18 @@ void appMain(gecko_configuration_t *pconfig)
 						  (uint8 *)data);
 						break;
 				 }
-				 case gattdb_Accelerometer:
+				 case gattdb_Accelerometer:{
+					 float data[2];
+					 data[0] = *(float*)getValue(Mems);
+					 data[1] = *(float*)getValue(MemsRMS);
 						gecko_cmd_gatt_server_send_user_read_response(
 						  evt->data.evt_gatt_server_user_read_request.connection,
 						  gattdb_Accelerometer,
 						  bg_err_success,
-						  getTagSize(AccelerometerData, 0),
-						  (uint8 *)getValue(AccelerometerData));
+						  sizeof(data),
+						  (uint8 *)data);
 						break;
+				 }
 				 case gattdb_Temperature:{
 						float temperaturedata[4];
 						for (int i = 0; i < 4; i++){

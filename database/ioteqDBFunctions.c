@@ -121,3 +121,7 @@ void setValue(const Tag_t* tag, uint8_t* value){
         }
     }
 }
+
+uint8_t* getDefaultValue(const Tag_t* tag){
+	return data + tag->valuePtr;
+}

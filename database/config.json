@@ -4,7 +4,7 @@
             "Strokes": {
                 "arraydim": 1,
                 "datatype": "Number",
-                "value": 1234,
+                "value": 0,
                 "config": {
                     "persistent": true
                 }
@@ -12,7 +12,7 @@
             "RunTime": {
                 "arraydim": 1,
                 "datatype": "Number",
-                "value": 4567,
+                "value": 0,
                 "config": {
                     "persistent": true
                 }
@@ -20,7 +20,7 @@
             "Bins": {
                 "datatype": "Number",
                 "arraydim": 20,
-                "value": 5,
+                "value": 0,
                 "config": {}
             },
             "CalculatedBins": {
@@ -32,17 +32,31 @@
             "Temperature": {
                 "datatype": "Number",
                 "arraydim": 4,
-                "value": 69,
+                "value": 0,
                 "config": {
                     "numtype": "float"
                 }
             },
             "AccelerometerData": {
+                "datatype": "Folder",
                 "arraydim": 1,
-                "datatype": "Number",
-                "value": 98,
-                "config": {
-                    "numtype": "float"
+                "children": {
+                    "Mems": {
+                        "arraydim": 1,
+                        "datatype": "Number",
+                        "value": 0,
+                        "config": {
+                            "numtype": "float"
+                        }
+                    },
+                    "MemsRMS": {
+                        "arraydim": 1,
+                        "datatype": "Number",
+                        "value": 0,
+                        "config": {
+                            "numtype": "float"
+                        }
+                    }
                 }
             },
             "DischargePressure": {
@@ -79,7 +93,7 @@
                     "DischargeRawValue": {
                         "arraydim": 1,
                         "datatype": "Number",
-                        "value": 3.2,
+                        "value": 0,
                         "config": {
                             "numtype": "float"
                         }
@@ -87,7 +101,7 @@
                     "DischargePSIValue": {
                         "arraydim": 1,
                         "datatype": "Number",
-                        "value": 5.8,
+                        "value": 0,
                         "config": {
                             "numtype": "float"
                         }
@@ -95,7 +109,7 @@
                     "DischargeRMS": {
                         "arraydim": 1,
                         "datatype": "Number",
-                        "value": 69.8,
+                        "value": 0,
                         "config": {
                             "numtype": "float"
                         }
@@ -136,7 +150,7 @@
                     "SuctionRawValue": {
                         "arraydim": 1,
                         "datatype": "Number",
-                        "value": 65,
+                        "value": 0,
                         "config": {
                             "numtype": "float"
                         }
@@ -144,7 +158,7 @@
                     "SuctionPSIValue": {
                         "arraydim": 1,
                         "datatype": "Number",
-                        "value": 91,
+                        "value": 0,
                         "config": {
                             "numtype": "float"
                         }
@@ -152,7 +166,7 @@
                     "SuctionRMS": {
                         "arraydim": 1,
                         "datatype": "Number",
-                        "value": 867,
+                        "value": 0,
                         "config": {
                             "numtype": "float"
                         }
@@ -172,7 +186,7 @@
                     "Longitude": {
                         "arraydim": 1,
                         "datatype": "Number",
-                        "value": 579.4,
+                        "value": 0,
                         "config": {
                             "numtype": "float"
                         }
@@ -180,7 +194,7 @@
                     "Latitude": {
                         "arraydim": 1,
                         "datatype": "Number",
-                        "value": 6971.1,
+                        "value": 0,
                         "config": {
                             "numtype": "float"
                         }
@@ -188,7 +202,7 @@
                     "Satellites": {
                         "arraydim": 1,
                         "datatype": "Number",
-                        "value": 2,
+                        "value": 0,
                         "config": {
                             "numtype": "float"
                         }
@@ -196,7 +210,7 @@
                     "MinSNR": {
                         "arraydim": 1,
                         "datatype": "Number",
-                        "value": 6.7,
+                        "value": 0,
                         "config": {
                             "numtype": "float"
                         }
@@ -204,7 +218,7 @@
                     "MaxSNR": {
                         "arraydim": 1,
                         "datatype": "Number",
-                        "value": 4.2,
+                        "value": 0,
                         "config": {
                             "numtype": "float"
                         }

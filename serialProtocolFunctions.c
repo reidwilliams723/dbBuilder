@@ -132,7 +132,7 @@ int txMsgSendSuctionPSIScaling(SerialProto_t *pSerialObj){
 	data[3] = *(float*)getValue(SuctionRawValue);
 	data[4] = *(float*)getValue(SuctionPSIValue);
 	data[5] = *(float*)getValue(SuctionRMS);
-	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_PSI_SUCTION_SCALING,sizeof(data),(uint8_t *)data);
+	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_PSI_SUCTION_SCALING,sizeof(data)*3,(uint8_t *)data);
 }
 
 int txMsgSendDischargePSIScaling(SerialProto_t *pSerialObj){
