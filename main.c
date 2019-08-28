@@ -147,13 +147,6 @@ int main(void)
 
   initGPIO();
 
-  //saveBLEDeviceId("HELLO WORLD",12);
-  //char *savedVal = getBLEDeviceDataPtr();
-
-  //volatile char values[20];
-  //memcpy(values,savedVal,20);
-
-
   /* Start application */
   appMain(&config);
 }

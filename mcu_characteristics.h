@@ -15,6 +15,7 @@
 #include <string.h>
 
 typedef struct MCU_Characteristics {
+<<<<<<< HEAD
 
 	float strokes;
 	float runTime;
@@ -25,6 +26,8 @@ typedef struct MCU_Characteristics {
 	float gpsData[5];
 	float newPsiScaling[5];
 
+=======
+>>>>>>> database
 	uint8_t eraseFirmwarePacket;
 	uint8_t flashFirmwarePacket;
 	uint8_t firmwareDataBuffer[18];
@@ -32,11 +35,12 @@ typedef struct MCU_Characteristics {
 
 	uint8_t control;
 
+<<<<<<< HEAD
 	float firmwareVersions[2];
 
 
+=======
+>>>>>>> database
 } MCU_Characteristics_t;
 
-void initMCUChars(MCU_Characteristics_t *mcuChars);
-void calculateBins(MCU_Characteristics_t *mcuChars);
 #endif /* MCU_CHARACTERISTICS_H_ */

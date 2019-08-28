@@ -1,5 +1,5 @@
 #ISD afv6
-# Simplicity Studio version: 5.8.5.201906251613-1497
+# Simplicity Studio version: 5.10.3.201908091250-1519
 
 # Application configuration
 stackId: com.silabs.sdk.stack.super
@@ -85,7 +85,7 @@ appPlugin: stack_bridge=false
       <properties write_no_response="true" write_no_response_requirement="optional"/>
     </characteristic>
   </service>
-  <service advertise="false" name="GENERIC_EQUIPMENT_SERVICE" requirement="mandatory" sourceId="com.service.generic_equipment_service" type="primary" uuid="00001A00-0000-4358-9ad6-a241984cff67">
+  <service advertise="true" name="GENERIC_EQUIPMENT_SERVICE" requirement="mandatory" sourceId="com.service.generic_equipment_service" type="primary" uuid="00001A00-0000-4358-9ad6-a241984cff67">
     <informativeText>Custom service</informativeText>
     <characteristic id="Strokes" name="Strokes" sourceId="com.characteristic.strokes" uuid="00002A1B-0000-4358-9ad6-a241984cff67">
       <informativeText>Custom characteristic</informativeText>
@@ -97,9 +97,9 @@ appPlugin: stack_bridge=false
       <value length="4" type="user" variable_length="false"/>
       <properties notify="true" notify_requirement="optional" read="true" read_requirement="optional"/>
     </characteristic>
-    <characteristic id="PSI" name="PSI" sourceId="com.characteristic.psi" uuid="00002A1C-0000-4358-9ad6-a241984cff67">
+    <characteristic id="Suction_PSI" name="Suction PSI" sourceId="com.characteristic.suction_psi" uuid="00002A1C-0000-4358-9ad6-a241984cff67">
       <informativeText>Custom characteristic</informativeText>
-      <value length="20" type="user" variable_length="false"/>
+      <value length="24" type="user" variable_length="false"/>
       <properties notify="true" notify_requirement="optional" read="true" read_requirement="optional" write="true" write_requirement="optional"/>
     </characteristic>
     <characteristic id="Bins" name="Bins" sourceId="com.characteristic.bins" uuid="00002A1E-0000-4358-9ad6-a241984cff67">
@@ -114,7 +114,8 @@ appPlugin: stack_bridge=false
     </characteristic>
     <characteristic id="Accelerometer" name="Accelerometer" sourceId="com.characteristic.accelerometer" uuid="00002A20-0000-4358-9ad6-a241984cff67">
       <informativeText>Custom characteristic</informativeText>
-      <value length="12" type="user" variable_length="false"/>
+      <value length="8" type="user" variable_length="false"/>
+      <properties notify="true" notify_requirement="optional" read="true" read_requirement="optional"/>
     </characteristic>
     <characteristic id="firmware_version" name="Firmware Version" sourceId="com.characteristic.firmware_version" uuid="c0b948bd-94d3-48dd-ab18-a5bb457d4344">
       <informativeText>Custom characteristic</informativeText>
@@ -125,6 +126,16 @@ appPlugin: stack_bridge=false
       <informativeText>Custom characteristic</informativeText>
       <value length="30" type="user" variable_length="true">Weir UNNAMED        </value>
       <properties read="true" read_requirement="optional" write="true" write_requirement="optional"/>
+    </characteristic>
+    <characteristic id="Discharge_PSI" name="Discharge PSI" sourceId="com.characteristic.Discharge_psi" uuid="00002A23-0000-4358-9ad6-a241984cff67">
+      <informativeText>Custom characteristic</informativeText>
+      <value length="24" type="user" variable_length="false"/>
+      <properties notify="true" notify_requirement="optional" read="true" read_requirement="optional" write="true" write_requirement="optional"/>
+    </characteristic>
+    <characteristic id="Temperature" name="Temperature" sourceId="com.characteristic.temperature" uuid="00002A24-0000-4358-9ad6-a241984cff67">
+      <informativeText>Custom characteristic</informativeText>
+      <value length="16" type="user" variable_length="false"/>
+      <properties read="true" read_requirement="optional"/>
     </characteristic>
   </service>
   <service advertise="false" id="location_and_navigation" name="Location and Navigation" requirement="mandatory" sourceId="org.bluetooth.service.location_and_navigation" type="primary" uuid="1819">
@@ -160,6 +171,34 @@ appPlugin: stack_bridge=false
       <informativeText>Custom characteristic</informativeText>
       <value length="4" type="user" variable_length="false"/>
       <properties notify="true" notify_requirement="optional" read="true" read_requirement="optional"/>
+    </characteristic>
+  </service>
+  <service advertise="false" name="WiFi Settings" requirement="mandatory" sourceId="com.service.wifi_settings" type="primary" uuid="0e42b73d-0a80-4afe-ab20-361b8d906057">
+    <informativeText>Custom service</informativeText>
+    <characteristic id="SSID" name="SSID" sourceId="com.characteristic.ssid" uuid="d93f69ef-3220-4d11-a2af-cb4bd256f9a1">
+      <informativeText>Custom characteristic</informativeText>
+      <value length="1" type="user" variable_length="true">0x00</value>
+      <properties read="true" read_requirement="optional" write="true" write_requirement="optional"/>
+    </characteristic>
+    <characteristic id="Password" name="Password" sourceId="com.characteristic.password" uuid="d93f69f0-3220-4d11-a2af-cb4bd256f9a1">
+      <informativeText>Custom characteristic</informativeText>
+      <value length="1" type="user" variable_length="true">0x00</value>
+      <properties read="true" read_requirement="optional" write="true" write_requirement="optional"/>
+    </characteristic>
+    <characteristic id="IP_Address" name="IP Address" sourceId="com.characteristic.ip_address" uuid="d93f69f1-3220-4d11-a2af-cb4bd256f9a1">
+      <informativeText>Custom characteristic</informativeText>
+      <value length="1" type="user" variable_length="true">0x00</value>
+      <properties read="true" read_requirement="optional" write="true" write_requirement="optional"/>
+    </characteristic>
+    <characteristic id="Wifi_Command" name="Wifi Command" sourceId="com.characteristic.wifi_command" uuid="6583f02b-a78e-46e5-9bee-37aac4922cef">
+      <informativeText>Custom characteristic</informativeText>
+      <value length="30" type="user" variable_length="true">0x00</value>
+      <properties write="true" write_requirement="optional"/>
+    </characteristic>
+    <characteristic id="WiFi_Response" name="Wifi Response" sourceId="com.characteristic.wifi_response" uuid="6583f02a-a78e-46e5-9bee-37aac4922cef">
+      <informativeText>Custom characteristic</informativeText>
+      <value length="30" type="user" variable_length="true">0x00</value>
+      <properties read="true" read_requirement="optional"/>
     </characteristic>
   </service>
 </gatt>

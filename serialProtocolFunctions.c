@@ -36,6 +36,7 @@
 #include "ioteqDB.h"
 #include "ioteqDBFunctions.h"
 
+<<<<<<< HEAD
 uint8_t messageFlags[SERIAL_PROTO_MSG_MAX];
 
 void initTags(){
@@ -55,6 +56,11 @@ void initTags(){
 	GPSData = getTag("GPSData");
 	SystemInformation = getTag("SystemInformation");
 }
+=======
+#include "ioteqDBFunctions.h"
+
+uint8_t messageFlags[SERIAL_PROTO_MSG_MAX];
+>>>>>>> database
 
 
 /* RX Functions */
@@ -88,13 +94,33 @@ void rxMsgProcessBinsData(SerialProto_t *pSerialObj){
 //	setValue(CalculatedBins[4],&(uint8_t)(*getValue("Bins[16]") + *getValue("Bins[17]") +*getValue("Bins[18]") +
 //			*getValue("Bins[19]")));
 	uint8_t *data = pSerialObj->rxData + 1;
-	memcpy(&pSerialObj->mcu->bins, data,sizeof(pSerialObj->mcu->bins));
-	calculateBins(pSerialObj->mcu);
+	for(int i = 0; i < 20; i++)
+		setValue(&Bins[i], (uint8_t*)(((uint32_t*)data)+i));
+
+	uint32_t calc1 = *(uint32_t*)getValue(&Bins[0]) + *(uint32_t*)getValue(&Bins[1]) + *(uint32_t*)getValue(&Bins[2]) + *(uint32_t*)getValue(&Bins[3]);
+	uint32_t calc2 = *(uint32_t*)getValue(&Bins[4]) + *(uint32_t*)getValue(&Bins[5]) + *(uint32_t*)getValue(&Bins[6]) + *(uint32_t*)getValue(&Bins[7]);
+	uint32_t calc3 = *(uint32_t*)getValue(&Bins[8]) + *(uint32_t*)getValue(&Bins[9]) + *(uint32_t*)getValue(&Bins[10]) + *(uint32_t*)getValue(&Bins[11]);
+	uint32_t calc4 = *(uint32_t*)getValue(&Bins[12]) + *(uint32_t*)getValue(&Bins[13]) + *(uint32_t*)getValue(&Bins[14]) + *(uint32_t*)getValue(&Bins[15]);
+	uint32_t calc5 = *(uint32_t*)getValue(&Bins[16]) + *(uint32_t*)getValue(&Bins[17]) + *(uint32_t*)getValue(&Bins[18]) + *(uint32_t*)getValue(&Bins[19]);
+	setValue(&CalculatedBins[0], (uint8_t*)&calc1);
+	setValue(&CalculatedBins[1], (uint8_t*)&calc2);
+	setValue(&CalculatedBins[2], (uint8_t*)&calc3);
+	setValue(&CalculatedBins[3], (uint8_t*)&calc4);
+	setValue(&CalculatedBins[4], (uint8_t*)&calc5);
 }
 
-void rxMsgProcessPSIData(SerialProto_t *pSerialObj){
+void rxMsgProcessDischargePSIData(SerialProto_t *pSerialObj){
 	uint8_t *data = pSerialObj->rxData + 1;
+	setValue(DischargePressure, data);
+}
+
+void rxMsgProcessSuctionPSIData(SerialProto_t *pSerialObj){
+	uint8_t *data = pSerialObj->rxData + 1;
+<<<<<<< HEAD
 	setValue(PSIData, data);
+=======
+	setValue(SuctionPressure, data);
+>>>>>>> database
 }
 
 void rxMsgProcessAccelerometerData(SerialProto_t *pSerialObj){
@@ -117,6 +143,19 @@ void rxMsgProcessFirmwareInfo(SerialProto_t *pSerialObj){
 	setValue(SystemInformation, data);
 }
 
+void rxMsgProcessTemperatureData(SerialProto_t *pSerialObj){
+	uint8_t *data = pSerialObj->rxData + 1;
+		for(int i = 0; i < 4; i++)
+			setValue(&Temperature[i], (uint8_t*)(((float*)data)+i));
+}
+
+//void rxMsgProcessWiFiResponse(SerialProto_t *pSerialObj){
+//	uint8_t *data = pSerialObj->rxData + 1;
+//	setValue(WiFiResponse, data);
+//}
+
+
+
 
 /* TX Functions */
 int txMsgSendEraseFirmware(SerialProto_t *pSerialObj) {
@@ -131,22 +170,42 @@ int txMsgSendFlashFirmware(SerialProto_t *pSerialObj){
 	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_FIRMWARE_FLASH,sizeof(uint8_t),(uint8_t *)&pSerialObj->mcu->flashFirmwarePacket);
 }
 
-int txMsgSendPSIScaling(SerialProto_t *pSerialObj){
+int txMsgSendSuctionPSIScaling(SerialProto_t *pSerialObj){
+	float data[6];
+	data[0] = *(float*)getValue(SuctionRawZero);
+	data[1] = *(float*)getValue(SuctionRawScale);
+	data[2] = *(float*)getValue(SuctionUnitsScale);
+	data[3] = *(float*)getValue(SuctionRawValue);
+	data[4] = *(float*)getValue(SuctionPSIValue);
+	data[5] = *(float*)getValue(SuctionRMS);
+	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_PSI_SUCTION_SCALING,sizeof(data)*3,(uint8_t *)data);
+}
 
-	float psiScaling[3];
-	memcpy(&psiScaling[0], &pSerialObj->mcu->newPsiScaling[0], sizeof(float));
-	memcpy(&psiScaling[1], &pSerialObj->mcu->newPsiScaling[1], sizeof(float));
-	memcpy(&psiScaling[2], &pSerialObj->mcu->newPsiScaling[2], sizeof(float));
-
+<<<<<<< HEAD
 	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_PSI_SCALING,getTagSize(PSIData,0),(uint8_t *)getValue(PSIData));
+=======
+int txMsgSendDischargePSIScaling(SerialProto_t *pSerialObj){
+	float data[6];
+	data[0] = *(float*)getValue(DischargeRawZero);
+	data[1] = *(float*)getValue(DischargeRawScale);
+	data[2] = *(float*)getValue(DischargeUnitsScale);
+	data[3] = *(float*)getValue(DischargeRawValue);
+	data[4] = *(float*)getValue(DischargePSIValue);
+	data[5] = *(float*)getValue(DischargeRMS);
+	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_PSI_DISCHARGE_SCALING,sizeof(data),(uint8_t *)data);
+>>>>>>> database
 }
 
 int txMsgSendResetData(SerialProto_t *pSerialObj){
 	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_RESET_DATA,sizeof(pSerialObj->mcu->control),(uint8_t *)&pSerialObj->mcu->control);
 }
 
-int txMsgSendZeroRawValue(SerialProto_t *pSerialObj){
-	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_ZERO_RAW_VALUE,sizeof(pSerialObj->mcu->control),(uint8_t *)&pSerialObj->mcu->control);
+int txMsgSendDischargeZeroRawValue(SerialProto_t *pSerialObj){
+	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_ZERO_RAW_DISCHARGE_VALUE,sizeof(pSerialObj->mcu->control),(uint8_t *)&pSerialObj->mcu->control);
+}
+
+int txMsgSendSuctionZeroRawValue(SerialProto_t *pSerialObj){
+	return txMsgSendMessage(pSerialObj,SERIAL_PROTO_MSG_ZERO_RAW_SUCTION_VALUE,sizeof(pSerialObj->mcu->control),(uint8_t *)&pSerialObj->mcu->control);
 }
 
 int txMsgSendToggleLED(SerialProto_t *pSerialObj){
@@ -195,11 +254,17 @@ void serialProtocolProcessMessages(SerialProto_t *pSerialObj) {
 		case SERIAL_PROTO_MSG_REPORT_BINS:
 			rxMsgProcessBinsData(pSerialObj);
 			break;
-		case SERIAL_PROTO_MSG_REPORT_PSI:
-			rxMsgProcessPSIData(pSerialObj);
+		case SERIAL_PROTO_MSG_REPORT_DISCHARGE_PSI:
+			rxMsgProcessDischargePSIData(pSerialObj);
+			break;
+		case SERIAL_PROTO_MSG_REPORT_SUCTION_PSI:
+			rxMsgProcessSuctionPSIData(pSerialObj);
 			break;
 		case SERIAL_PROTO_MSG_REPORT_ACCELEROMETER:
 			rxMsgProcessAccelerometerData(pSerialObj);
+			break;
+		case SERIAL_PROTO_MSG_REPORT_TEMPERATURE:
+			rxMsgProcessTemperatureData(pSerialObj);
 			break;
 		case SERIAL_PROTO_MSG_REPORT_GPS:
 			rxMsgProcessGPSData(pSerialObj);
@@ -209,6 +274,10 @@ void serialProtocolProcessMessages(SerialProto_t *pSerialObj) {
 			break;
 		case SERIAL_PROTO_MSG_FIRMWARE_INFO:
 			rxMsgProcessFirmwareInfo(pSerialObj);
+			break;
+//		case SERIAL_PROTO_MSG_WIFI_RESPONSE:
+//			rxMsgProcessWiFiResponse(pSerialObj);
+//			break;
 		}
 		pSerialObj->rxDone = 0; // Signal Msg Processed
 		//*********************** TESTING ONLY *************************
