@@ -12,7 +12,7 @@
                 * Programmed By: 	Reid Williams
                 * 					Inaki Zuloaga
                 *
-                * Date: August 12, 2019
+                * Date: August 28, 2019
                 * Contact: izi@iot-eq.com
                 *
                 *
@@ -28,7 +28,7 @@
                 #include <stdlib.h>
                 #include <string.h>
 
-                #define TOTAL_NUMBER_OF_TAGS          59
+                #define TOTAL_NUMBER_OF_TAGS          57
                 #define CHECK_SUM                     0x00A5005A
                 typedef struct Tag {
                     uint32_t valuePtr;
@@ -52,10 +52,11 @@ volatile uint32_t* persistentData;
 
 void initDB();
 
+void setToDefault();
+
 const Tag_t* Strokes;
 const Tag_t* RunTime;
 const Tag_t* AccelerometerData;
-const Tag_t* AccelerometerFaultFlag;
 const Tag_t* DischargePressure;
 const Tag_t* DischargeRawZero;
 const Tag_t* DischargeRawScale;
@@ -70,8 +71,7 @@ const Tag_t* SuctionUnitsScale;
 const Tag_t* SuctionRawValue;
 const Tag_t* SuctionPSIValue;
 const Tag_t* SuctionRMS;
-const Tag_t* SuctionFaultFlag;
-const Tag_t* DischargeFaultFlag;
+const Tag_t* FaultFlag;
 const Tag_t* GPSData;
 const Tag_t* Longitude;
 const Tag_t* Latitude;

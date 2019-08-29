@@ -284,6 +284,7 @@ class IOTeqFileBuilder():
         self.writeDBHeader("extern uint8_t data[];\n\n")
         self.writeDBHeader("volatile uint32_t* persistentData;\n\n")
         self.writeDBHeader("void initDB();\n\n")
+        self.writeDBHeader("void setToDefault();\n\n")
 
         for tag in self.dbBuilder.tagList:
             tagName=tag.tagName
@@ -347,13 +348,32 @@ class IOTeqFileBuilder():
         self.writeDBSource("""persistentData = address;
         /* If memory CHECK_SUM does not match, set persistent tags to default values */
         if(*persistentData != CHECK_SUM){\n""")
-        for tag in list(filter(lambda elem: elem.isPersistent == 1, self.dbBuilder.tagList)):
-            self.writeDBSource(f"uint8_t* {tag.tagName}Default = getValue({tag.tagName});\n")
-        self.writeDBSource("/* Set CHECK_SUM to memory address */\n*persistentData = CHECK_SUM;\n")
+        # for tag in list(filter(lambda elem: elem.isPersistent == 1, self.dbBuilder.tagList)):
+        #     self.writeDBSource(f"uint8_t* {tag.tagName}Default = getValue({tag.tagName});\n")
+        # self.writeDBSource("/* Set CHECK_SUM to memory address */\n*persistentData = CHECK_SUM;\n")
+
+        # for tag in list(filter(lambda elem: elem.isPersistent == 1, self.dbBuilder.tagList)):
+        #     self.writeDBSource(f"setValue({tag.tagName}, {tag.tagName}Default);\n")
+        self.writeDBSource("setToDefault();\n*persistentData = CHECK_SUM;}\n")
+        self.writeDBSource("}")
+
+
+        self.writeDBSource("""
+        /**
+            *
+            * setToDefault
+            *
+            *
+            * Sets all persistent tags back to default values.
+            *
+            **/
+            void setToDefault(){""")
 
         for tag in list(filter(lambda elem: elem.isPersistent == 1, self.dbBuilder.tagList)):
-            self.writeDBSource(f"setValue({tag.tagName}, {tag.tagName}Default);\n")
-        self.writeDBSource("}\n")
+            if ("[" in tag.tagName):
+                self.writeDBSource(f"setValue(&{tag.tagName}, (uint8_t*)getDefaultValue(&{tag.tagName}));\n")
+            else:
+                self.writeDBSource(f"setValue({tag.tagName}, (uint8_t*)getDefaultValue({tag.tagName}));\n")
         self.writeDBSource("}")
 
     def build(self):
@@ -367,3 +387,5 @@ ioteqDBBuilder.build()
 
 ioteqFileBuilder = IOTeqFileBuilder(os.getcwd(), ioteqDBBuilder)
 ioteqFileBuilder.build()
+
+ioteqDBBuilder.tree.show(data_property='valuePtr',idhidden=False)

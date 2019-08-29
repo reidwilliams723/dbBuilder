@@ -66,8 +66,6 @@ uint8_t getTagSize(const Tag_t* tag, uint8_t size){
 
 uint8_t* iterateChildrenValues(const Tag_t* tag, uint8_t* dataArray, uint8_t index){
     memcpy(dataArray + index, getValue(tag), tag->valueSize);
-     float* test = (float*)(dataArray + index);
-     float* test2 = (float*)getValue(tag);
     index+=4;
     if (tag->nextSibling != 0){
         const Tag_t* nextSibling = tree + (tag->nextSibling/sizeof(Tag_t));
@@ -107,7 +105,7 @@ uint8_t* getValue(const Tag_t* tag){
     }
 }
 
-void setValue(const Tag_t* tag, char* value){
+void setValue(const Tag_t* tag, uint8_t* value){
 
     if (tag->numOfChildren != 0){
         const Tag_t* child = tree + (tag->childPtr/sizeof(Tag_t));
@@ -122,4 +120,8 @@ void setValue(const Tag_t* tag, char* value){
         memcpy((data + tag->valuePtr), value, tag->valueSize);
         }
     }
+}
+
+uint8_t* getDefaultValue(const Tag_t* tag){
+	return data + tag->valuePtr;
 }

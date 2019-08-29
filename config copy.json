@@ -13,17 +13,13 @@
                 "arraydim": 1,
                 "datatype": "Number",
                 "value": 0,
-                "config": {
-                    "persistent": true
-                }
+                "config": {}
             },
             "Bins": {
                 "datatype": "Number",
                 "arraydim": 20,
                 "value": 0,
-                "config": {
-                    "persistent": true
-                }
+                "config": {}
             },
             "CalculatedBins": {
                 "datatype": "Number",
@@ -35,30 +31,14 @@
                 "datatype": "Number",
                 "arraydim": 4,
                 "value": 0,
-                "config": {
-                    "numtype": "float"
-                }
+                "config": {}
             },
             "AccelerometerData": {
-                "datatype": "Folder",
                 "arraydim": 1,
-                "children": {
-                    "Mems": {
-                        "arraydim": 1,
-                        "datatype": "Number",
-                        "value": 0,
-                        "config": {
-                            "numtype": "float"
-                        }
-                    },
-                    "MemsRMS": {
-                        "arraydim": 1,
-                        "datatype": "Number",
-                        "value": 0,
-                        "config": {
-                            "numtype": "float"
-                        }
-                    }
+                "datatype": "Number",
+                "value": 0,
+                "config": {
+                    "numtype": "float"
                 }
             },
             "DischargePressure": {
@@ -70,8 +50,7 @@
                         "datatype": "Number",
                         "value": 4,
                         "config": {
-                            "numtype": "float",
-                            "persistent": true
+                            "numtype": "float"
                         }
                     },
                     "DischargeRawScale": {
@@ -88,8 +67,7 @@
                         "datatype": "Number",
                         "value": 20000,
                         "config": {
-                            "numtype": "float",
-                            "persistent": true
+                            "numtype": "float"
                         }
                     },
                     "DischargeRawValue": {
@@ -127,8 +105,7 @@
                         "datatype": "Number",
                         "value": 4,
                         "config": {
-                            "numtype": "float",
-                            "persistent": true
+                            "numtype": "float"
                         }
                     },
                     "SuctionRawScale": {
@@ -136,8 +113,7 @@
                         "datatype": "Number",
                         "value": 20,
                         "config": {
-                            "numtype": "float",
-                            "persistent": true
+                            "numtype": "float"
                         }
                     },
                     "SuctionUnitsScale": {
@@ -145,8 +121,7 @@
                         "datatype": "Number",
                         "value": 20000,
                         "config": {
-                            "numtype": "float",
-                            "persistent": true
+                            "numtype": "float"
                         }
                     },
                     "SuctionRawValue": {
@@ -241,6 +216,42 @@
                         "arraydim": 1,
                         "datatype": "Number",
                         "value": 0,
+                        "config": {}
+                    }
+                }
+            },
+            "WiFiCommand":{
+                "arraydim": 1,
+                "datatype": "Text",
+                "value": "                              ",
+                "config": {}
+            },
+            "WiFiResponse":{
+                "arraydim": 1,
+                "datatype": "Text",
+                "value": "                              ",
+                "config": {}
+            },
+            "WiFiSettings": {
+                "datatype": "Folder",
+                "arraydim": 1,
+                "children": {
+                    "SSID": {
+                        "arraydim": 1,
+                        "datatype": "Text",
+                        "value": "ioteq2.4",
+                        "config": {}
+                    },
+                    "Password": {
+                        "arraydim": 1,
+                        "datatype": "Text",
+                        "value": "ioteq2017",
+                        "config": {}
+                    },
+                    "IPAddress": {
+                        "arraydim": 1,
+                        "datatype": "Text",
+                        "value": "127.0.0.1",
                         "config": {}
                     }
                 }
