@@ -61,25 +61,25 @@ class IOTeqDBBuilder():
             self.dataPtr.append(hex(0))
 
     def addValueToPersistentPtr(self, tag):
-        datatype = tag["datatype"]
-        if (datatype == "Number"):
-            value = tag["value"]
+            datatype = tag["datatype"]
+            if (datatype == "Number"):
+                value = tag["value"]
 
-            if ("numtype" in tag["config"]):
-                if (tag["config"]["numtype"] == "float"):
-                    ba = bytearray(struct.pack("<f", value))
-            else:
-                ba = bytearray(struct.pack("<L", value)) 
+                if ("numtype" in tag["config"]):
+                    if (tag["config"]["numtype"] == "float"):
+                        ba = bytearray(struct.pack("<f", value))
+                else:
+                    ba = bytearray(struct.pack("<L", value)) 
 
-            for b in ba:
-                self.persistentPtr.append(hex(b))
+                for b in ba:
+                    self.persistentPtr.append(hex(b))
 
-        elif (datatype == "Text"):
-            value = tag["value"]
-            for char in value:
-                self.persistentPtr.append(hex(ord(char)))
-            # for i in range(len(self.dataPtr), 40):
-            self.persistentPtr.append(hex(0))
+            elif (datatype == "Text"):
+                value = tag["value"]
+                for char in value:
+                    self.persistentPtr.append(hex(ord(char)))
+                # for i in range(len(self.dataPtr), 40):
+                self.persistentPtr.append(hex(0))
 
     def createTree(self, tags, parent=None):
         for tag in tags:
@@ -95,7 +95,7 @@ class IOTeqDBBuilder():
                 charIndex = len(self.constPtrChar)
                 self.addNameToCharPtr(tagName)
 
-                # Create tag an add to tagList
+                # Create tag and     add to tagList
                 newTag = IOTeqTag(tagName, charIndex, len(tagName)+1) # plus 1 for \0
 
                 # Set the tags valueSize based on datatype
@@ -115,6 +115,13 @@ class IOTeqDBBuilder():
                     # Adding default value to dataPtr list
                     newTag.valuePtr = len(self.dataPtr)
                     self.addValueToDataPtr(tags[tag])
+                    if ("numtype" in tags[tag]["config"]):
+                        if (tags[tag]["config"]["numtype"] == "float"):
+                            newTag.numType = "float"
+                    else:
+                        newTag.numType = "integer"
+
+                    newTag.value = tags[tag]['value']
                     
 
                 # Adding tag to tree and tag list
@@ -185,6 +192,7 @@ class IOTeqTag(object):
     def __init__(self, tagName, namePtr, nameSize, address=None):
         self.valuePtr = 0
         self.valueSize = 0
+        self.value = 0
         self.namePtr = namePtr
         self.nameSize = nameSize
         self.parentPtr = 0
@@ -197,6 +205,7 @@ class IOTeqTag(object):
         self.nextSibling = 0
         self.isPersistent = 0
         self.persistentValuePtr = 0
+        self.numType = None
     
     def getStruct(self):
         return [self.valuePtr, self.valueSize, self.persistentValuePtr, self.namePtr,
@@ -262,7 +271,7 @@ class IOTeqFileBuilder():
                 #include <string.h>
 
                 #define TOTAL_NUMBER_OF_TAGS          {self.dbBuilder.totalNumberOfTags()}
-                #define CHECK_SUM                     0x00A5005A
+
                 typedef struct Tag {{
                     uint32_t valuePtr;
                     uint32_t valueSize;
@@ -278,11 +287,12 @@ class IOTeqFileBuilder():
                 }} Tag_t;\n
         """)
 
+        if(len(ioteqDBBuilder.persistentPtr) != 0):
+            self.writeDBHeader("#define PERSISTENCE_ENABLED\n\n")
         # Initialize Pointers (str, tree, data)
         self.writeDBHeader("extern const char str[];\n")
         self.writeDBHeader("extern const Tag_t tree[TOTAL_NUMBER_OF_TAGS];\n")
         self.writeDBHeader("extern uint8_t data[];\n\n")
-        self.writeDBHeader("volatile uint32_t* persistentData;\n\n")
         self.writeDBHeader("void initDB();\n\n")
         self.writeDBHeader("void setToDefault();\n\n")
 
@@ -304,6 +314,7 @@ class IOTeqFileBuilder():
                 #include <string.h>
                 #include "ioteqDB.h"
                 #include "ioteqDBFunctions.h"
+                #include "ioteqDBConfig.h"
         \n""")
 
         # Initialize Pointers (str, tree, data)
@@ -316,18 +327,21 @@ class IOTeqFileBuilder():
         dataBytes = ', '.join(x for x in ioteqDBBuilder.dataPtr)
         self.writeDBSource("uint8_t data[] = {" + dataBytes + "};\n\n")
 
+
+
+
         self.writeDBSource("""
         /**
             *
             * initDB
             *
-            * @param address	Persistent Memory Address
             *
-            * Initializes all database tags and sets the persistent data address to use
-            * in memory.
+            * Initializes all database tags and sets the persistent memory
             *
             **/
-            void initDB(volatile uint32_t* address){""")
+            void initDB(){
+                uint32_t integerValue;
+                float floatValue;""")
         for tag in self.dbBuilder.tagList:
             tagName=tag.tagName
             if "[" not in tagName and tagName != "tags":
@@ -345,17 +359,45 @@ class IOTeqFileBuilder():
             }}""")
         
 
-        self.writeDBSource("""persistentData = address;
-        /* If memory CHECK_SUM does not match, set persistent tags to default values */
-        if(*persistentData != CHECK_SUM){\n""")
-        # for tag in list(filter(lambda elem: elem.isPersistent == 1, self.dbBuilder.tagList)):
-        #     self.writeDBSource(f"uint8_t* {tag.tagName}Default = getValue({tag.tagName});\n")
-        # self.writeDBSource("/* Set CHECK_SUM to memory address */\n*persistentData = CHECK_SUM;\n")
+        for tag in list(filter(lambda elem: elem.isPersistent == 0, self.dbBuilder.tagList)):
+            if ("[" in tag.tagName):
+                if(tag.numType == "float"):
+                    self.writeDBSource(f"floatValue={tag.value}; ")
+                    self.writeDBSource(f"setValue(&{tag.tagName}, (uint8_t*)&floatValue);\n")
+                elif(tag.numType == "integer"):
+                    self.writeDBSource(f"integerValue={tag.value}; ")
+                    self.writeDBSource(f"setValue(&{tag.tagName}, (uint8_t*)&integerValue);\n")
+            else:
+                if(tag.numType == "float"):
+                    self.writeDBSource(f"floatValue={tag.value}; ")
+                    self.writeDBSource(f"setValue({tag.tagName}, (uint8_t*)&floatValue);\n")
+                elif(tag.numType == "integer"):
+                    self.writeDBSource(f"integerValue={tag.value}; ")
+                    self.writeDBSource(f"setValue({tag.tagName}, (uint8_t*)&integerValue);\n")
 
-        # for tag in list(filter(lambda elem: elem.isPersistent == 1, self.dbBuilder.tagList)):
-        #     self.writeDBSource(f"setValue({tag.tagName}, {tag.tagName}Default);\n")
-        self.writeDBSource("setToDefault();\n*persistentData = CHECK_SUM;}\n")
-        self.writeDBSource("}")
+        self.writeDBSource("""
+        #ifdef PERSISTENCE_ENABLED
+            /* If memory has not been verified, set persistent tags to default values */
+                if (!verifyMemory()){\n
+            """)
+
+        for tag in list(filter(lambda elem: elem.isPersistent == 1, self.dbBuilder.tagList)):
+            if ("[" in tag.tagName):
+                if(tag.numType == "float"):
+                    self.writeDBSource(f"floatValue={tag.value}; ")
+                    self.writeDBSource(f"setValue(&{tag.tagName}, (uint8_t*)&floatValue);\n")
+                elif(tag.numType == "integer"):
+                    self.writeDBSource(f"integerValue={tag.value}; ")
+                    self.writeDBSource(f"setValue(&{tag.tagName}, (uint8_t*)&integerValue);\n")
+            else:
+                if(tag.numType == "float"):
+                    self.writeDBSource(f"floatValue={tag.value}; ")
+                    self.writeDBSource(f"setValue({tag.tagName}, (uint8_t*)&floatValue);\n")
+                elif(tag.numType == "integer"):
+                    self.writeDBSource(f"integerValue={tag.value}; ")
+                    self.writeDBSource(f"setValue({tag.tagName}, (uint8_t*)&integerValue);\n")
+        self.writeDBSource("""markVerifiedMemory();\n}\n#endif\n}\n\n""")
+
 
 
         self.writeDBSource("""
@@ -364,17 +406,38 @@ class IOTeqFileBuilder():
             * setToDefault
             *
             *
-            * Sets all persistent tags back to default values.
+            * Sets a tag to it's default value
+            * @param tag  
             *
             **/
-            void setToDefault(){""")
+            void setToDefault(Tag_t* tag){
+                uint32_t integerValue;
+                float floatValue;
+                """)
 
-        for tag in list(filter(lambda elem: elem.isPersistent == 1, self.dbBuilder.tagList)):
+        for tag in list(filter(lambda elem: elem.tagName != "tags" and elem.numOfChildren == 0, self.dbBuilder.tagList)):
+           
             if ("[" in tag.tagName):
-                self.writeDBSource(f"setValue(&{tag.tagName}, (uint8_t*)getDefaultValue(&{tag.tagName}));\n")
+                self.writeDBSource(f"if(tag == &{tag.tagName})"+ "{")
+                if(tag.numType == "float"):
+                    self.writeDBSource(f"floatValue={tag.value}; ")
+                    self.writeDBSource(f"setValue(&{tag.tagName}, (uint8_t*)&floatValue);\n")
+                elif(tag.numType == "integer"):
+                    self.writeDBSource(f"integerValue={tag.value}; ")
+                    self.writeDBSource(f"setValue(&{tag.tagName}, (uint8_t*)&integerValue);\n")
             else:
-                self.writeDBSource(f"setValue({tag.tagName}, (uint8_t*)getDefaultValue({tag.tagName}));\n")
-        self.writeDBSource("}")
+                self.writeDBSource(f"if(tag == {tag.tagName})"+ "{")
+                if(tag.numType == "float"):
+                    self.writeDBSource(f"floatValue={tag.value}; ")
+                    self.writeDBSource(f"setValue({tag.tagName}, (uint8_t*)&floatValue);\n")
+                elif(tag.numType == "integer"):
+                    self.writeDBSource(f"integerValue={tag.value}; ")
+                    self.writeDBSource(f"setValue({tag.tagName}, (uint8_t*)&integerValue);\n")
+            self.writeDBSource("}")
+        
+
+
+        self.writeDBSource("""}""")
 
     def build(self):
         self.buildDBHeaderFile()

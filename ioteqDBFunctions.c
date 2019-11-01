@@ -3,6 +3,7 @@
 #include <string.h>
 #include "ioteqDB.h"
 #include "ioteqDBFunctions.h"
+#include "ioteqDBConfig.h"
 
 const Tag_t* parseTag(char* strTest, char delim[], const Tag_t* currentTag){
 
@@ -95,13 +96,18 @@ uint8_t* getValue(const Tag_t* tag){
         return data + currentChild->valuePtr;
     }
     else{
-        if (tag->isPersistent && *persistentData == 0x00A5005A){
-
-            return (uint8_t*)(persistentData + 1 + (tag->persistentPtr/sizeof(uint32_t)));
+	#ifdef PERSISTENCE_ENABLED
+        if (tag->isPersistent){
+            getPersistentTag(tag->persistentPtr, data + tag->valuePtr);
+            return data + tag->valuePtr;
         }
         else {
             return data + tag->valuePtr;
         }
+
+#else
+    return data + tag->valuePtr;
+#endif
     }
 }
 
@@ -112,16 +118,16 @@ void setValue(const Tag_t* tag, uint8_t* value){
         memcpy(data + child->valuePtr, value, getTagSize(tag, 0));
     }
     else{
-        if (tag->isPersistent && *persistentData == 0x00A5005A){
-
-        	*(persistentData + 1 + (tag->persistentPtr/sizeof(uint32_t))) = *(uint32_t*)value;
+#ifdef PERSISTENCE_ENABLED
+        if (tag->isPersistent){
+            setPersistentTag(tag->persistentPtr, value);
         }
         else {
         memcpy((data + tag->valuePtr), value, tag->valueSize);
         }
-    }
-}
+#else
+        memcpy((data + tag->valuePtr), value, tag->valueSize);
+#endif
 
-uint8_t* getDefaultValue(const Tag_t* tag){
-	return data + tag->valuePtr;
+    }
 }
