@@ -18,7 +18,7 @@ class IOTeqDBBuilder():
         self.tagList = []
         self.dataPtr = []
         self.persistentPtr = []
-
+        self.privatePtr = []
         self.currentTagAddress = 0
 
     def totalNumberOfTags(self):
@@ -108,9 +108,15 @@ class IOTeqDBBuilder():
                     
                     if ("persistent" in tags[tag]["config"]):
                         if (tags[tag]["config"]["persistent"] == True):
-                            newTag.persistentValuePtr = len(self.persistentPtr)
-                            self.addValueToPersistentPtr(tags[tag])
-                            newTag.isPersistent = 1
+                            if ("private" in tags[tag]["config"]):
+                                if (tags[tag]["config"]["private"] == True):
+                                    newTag.isPrivate = 1
+                                    newTag.persistentValuePtr = len(self.privatePtr)
+                                    self.privatePtr.append(0)
+                            else:
+                                newTag.persistentValuePtr = len(self.persistentPtr)
+                                self.addValueToPersistentPtr(tags[tag])
+                                newTag.isPersistent = 1
                    
                     # Adding default value to dataPtr list
                     newTag.valuePtr = len(self.dataPtr)
@@ -206,10 +212,11 @@ class IOTeqTag(object):
         self.isPersistent = 0
         self.persistentValuePtr = 0
         self.numType = None
+        self.isPrivate = 0
     
     def getStruct(self):
         return [self.valuePtr, self.valueSize, self.persistentValuePtr, self.namePtr,
-                self.nameSize, self.parentPtr, self.childPtr, self.prevSibling, self.nextSibling, self.numOfChildren, self.isPersistent]
+                self.nameSize, self.parentPtr, self.childPtr, self.prevSibling, self.nextSibling, self.numOfChildren, self.isPersistent, self.isPrivate]
 
     def getFullName(self, currentName=None):
         if (currentName == None):
@@ -284,6 +291,7 @@ class IOTeqFileBuilder():
                     uint32_t nextSibling;
                     uint32_t numOfChildren;
                     uint32_t isPersistent;
+                    uint32_t isPrivate;
                 }} Tag_t;\n
         """)
 
@@ -359,7 +367,7 @@ class IOTeqFileBuilder():
             }}""")
         
 
-        for tag in list(filter(lambda elem: elem.isPersistent == 0, self.dbBuilder.tagList)):
+        for tag in list(filter(lambda elem: elem.isPersistent == 0 and elem.isPrivate == 0, self.dbBuilder.tagList)):
             if ("[" in tag.tagName):
                 if(tag.numType == "float"):
                     self.writeDBSource(f"floatValue={tag.value}; ")
@@ -415,7 +423,7 @@ class IOTeqFileBuilder():
                 float floatValue;
                 """)
 
-        for tag in list(filter(lambda elem: elem.tagName != "tags" and elem.numOfChildren == 0, self.dbBuilder.tagList)):
+        for tag in list(filter(lambda elem: elem.tagName != "tags" and elem.numOfChildren == 0 and elem.isPrivate == 0, self.dbBuilder.tagList)):
            
             if ("[" in tag.tagName):
                 self.writeDBSource(f"if(tag == &{tag.tagName})"+ "{")

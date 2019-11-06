@@ -6,7 +6,8 @@
                 "datatype": "Number",
                 "value": 0,
                 "config": {
-                    "persistent": true
+                    "persistent": true,
+                    "offsetAddr": 0
                 }
             },
             "RunTime": {
@@ -14,7 +15,8 @@
                 "datatype": "Number",
                 "value": 0,
                 "config": {
-                    "persistent": true
+                    "persistent": true,
+                    "offsetAddr": 4
                 }
             },
             "Bins": {
@@ -243,6 +245,15 @@
                         "value": 0,
                         "config": {}
                     }
+                }
+            },
+            "SerialNumber": {
+                "arraydim": 1,
+                "datatype": "Number",
+                "value": 0,
+                "config": {
+                    "persistent": true,
+                    "private": true
                 }
             }
         }

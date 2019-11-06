@@ -12,7 +12,7 @@
                 * Programmed By: 	Reid Williams
                 * 					Inaki Zuloaga
                 *
-                * Date: October 31, 2019
+                * Date: November 06, 2019
                 * Contact: izi@iot-eq.com
                 *
                 *
@@ -28,7 +28,8 @@
                 #include <stdlib.h>
                 #include <string.h>
 
-                #define TOTAL_NUMBER_OF_TAGS          59
+                #define TOTAL_NUMBER_OF_TAGS          60
+
                 typedef struct Tag {
                     uint32_t valuePtr;
                     uint32_t valueSize;
@@ -41,9 +42,12 @@
                     uint32_t nextSibling;
                     uint32_t numOfChildren;
                     uint32_t isPersistent;
+                    uint32_t isPrivate;
                 } Tag_t;
 
-        extern const char str[];
+        #define PERSISTENCE_ENABLED
+
+extern const char str[];
 extern const Tag_t tree[TOTAL_NUMBER_OF_TAGS];
 extern uint8_t data[];
 
@@ -80,6 +84,7 @@ const Tag_t* MaxSNR;
 const Tag_t* SystemInformation;
 const Tag_t* Bootloader;
 const Tag_t* Firmware;
+const Tag_t* SerialNumber;
 const Tag_t Bins[20];
 const Tag_t CalculatedBins[5];
 const Tag_t Temperature[4];
