@@ -18,7 +18,7 @@ class IOTeqDBBuilder():
         self.tagList = []
         self.dataPtr = []
         self.persistentPtr = []
-        self.privatePtr = []
+
         self.currentTagAddress = 0
 
     def totalNumberOfTags(self):
@@ -61,25 +61,25 @@ class IOTeqDBBuilder():
             self.dataPtr.append(hex(0))
 
     def addValueToPersistentPtr(self, tag):
-            datatype = tag["datatype"]
-            if (datatype == "Number"):
-                value = tag["value"]
+        datatype = tag["datatype"]
+        if (datatype == "Number"):
+            value = tag["value"]
 
-                if ("numtype" in tag["config"]):
-                    if (tag["config"]["numtype"] == "float"):
-                        ba = bytearray(struct.pack("<f", value))
-                else:
-                    ba = bytearray(struct.pack("<L", value)) 
+            if ("numtype" in tag["config"]):
+                if (tag["config"]["numtype"] == "float"):
+                    ba = bytearray(struct.pack("<f", value))
+            else:
+                ba = bytearray(struct.pack("<L", value)) 
 
-                for b in ba:
-                    self.persistentPtr.append(hex(b))
+            for b in ba:
+                self.persistentPtr.append(hex(b))
 
-            elif (datatype == "Text"):
-                value = tag["value"]
-                for char in value:
-                    self.persistentPtr.append(hex(ord(char)))
-                # for i in range(len(self.dataPtr), 40):
-                self.persistentPtr.append(hex(0))
+        elif (datatype == "Text"):
+            value = tag["value"]
+            for char in value:
+                self.persistentPtr.append(hex(ord(char)))
+            # for i in range(len(self.dataPtr), 40):
+            self.persistentPtr.append(hex(0))
 
     def createTree(self, tags, parent=None):
         for tag in tags:
@@ -95,7 +95,7 @@ class IOTeqDBBuilder():
                 charIndex = len(self.constPtrChar)
                 self.addNameToCharPtr(tagName)
 
-                # Create tag and     add to tagList
+                # Create tag an add to tagList
                 newTag = IOTeqTag(tagName, charIndex, len(tagName)+1) # plus 1 for \0
 
                 # Set the tags valueSize based on datatype
@@ -108,25 +108,22 @@ class IOTeqDBBuilder():
                     
                     if ("persistent" in tags[tag]["config"]):
                         if (tags[tag]["config"]["persistent"] == True):
-                            if ("private" in tags[tag]["config"]):
-                                if (tags[tag]["config"]["private"] == True):
-                                    newTag.isPrivate = 1
-                                    newTag.persistentValuePtr = len(self.privatePtr)
-                                    self.privatePtr.append(0)
-                            else:
-                                newTag.persistentValuePtr = len(self.persistentPtr)
-                                self.addValueToPersistentPtr(tags[tag])
-                                newTag.isPersistent = 1
+                            newTag.persistentValuePtr = len(self.persistentPtr)
+                            self.addValueToPersistentPtr(tags[tag])
+                            newTag.isPersistent = 1
                    
                     # Adding default value to dataPtr list
                     newTag.valuePtr = len(self.dataPtr)
                     self.addValueToDataPtr(tags[tag])
+
+                    # Add num type to tag object
                     if ("numtype" in tags[tag]["config"]):
                         if (tags[tag]["config"]["numtype"] == "float"):
                             newTag.numType = "float"
                     else:
                         newTag.numType = "integer"
-
+                    
+                    # Set default value of tag
                     newTag.value = tags[tag]['value']
                     
 
@@ -212,11 +209,10 @@ class IOTeqTag(object):
         self.isPersistent = 0
         self.persistentValuePtr = 0
         self.numType = None
-        self.isPrivate = 0
     
     def getStruct(self):
         return [self.valuePtr, self.valueSize, self.persistentValuePtr, self.namePtr,
-                self.nameSize, self.parentPtr, self.childPtr, self.prevSibling, self.nextSibling, self.numOfChildren, self.isPersistent, self.isPrivate]
+                self.nameSize, self.parentPtr, self.childPtr, self.prevSibling, self.nextSibling, self.numOfChildren, self.isPersistent]
 
     def getFullName(self, currentName=None):
         if (currentName == None):
@@ -278,7 +274,7 @@ class IOTeqFileBuilder():
                 #include <string.h>
 
                 #define TOTAL_NUMBER_OF_TAGS          {self.dbBuilder.totalNumberOfTags()}
-
+                #define CHECK_SUM                     0x00A5005A
                 typedef struct Tag {{
                     uint32_t valuePtr;
                     uint32_t valueSize;
@@ -291,16 +287,19 @@ class IOTeqFileBuilder():
                     uint32_t nextSibling;
                     uint32_t numOfChildren;
                     uint32_t isPersistent;
-                    uint32_t isPrivate;
                 }} Tag_t;\n
         """)
 
         if(len(ioteqDBBuilder.persistentPtr) != 0):
             self.writeDBHeader("#define PERSISTENCE_ENABLED\n\n")
+
         # Initialize Pointers (str, tree, data)
         self.writeDBHeader("extern const char str[];\n")
         self.writeDBHeader("extern const Tag_t tree[TOTAL_NUMBER_OF_TAGS];\n")
         self.writeDBHeader("extern uint8_t data[];\n\n")
+        self.writeDBHeader("extern uint8_t persistData[];\n\n")
+        self.writeDBHeader(f"uint8_t persistDataTemp[{len(self.dbBuilder.persistentPtr)}];\n\n")
+        self.writeDBHeader(f"uint8_t persistDataPrevious[{len(self.dbBuilder.persistentPtr)}];\n\n")
         self.writeDBHeader("void initDB();\n\n")
         self.writeDBHeader("void setToDefault();\n\n")
 
@@ -334,17 +333,19 @@ class IOTeqFileBuilder():
 
         dataBytes = ', '.join(x for x in ioteqDBBuilder.dataPtr)
         self.writeDBSource("uint8_t data[] = {" + dataBytes + "};\n\n")
-
-
-
+        
+        persistBytes = ', '.join(x for x in ioteqDBBuilder.persistentPtr)
+        self.writeDBSource("uint8_t persistData[] = {" + persistBytes + "};\n\n")
 
         self.writeDBSource("""
         /**
             *
             * initDB
             *
+            * @param address	Persistent Memory Address
             *
-            * Initializes all database tags and sets the persistent memory
+            * Initializes all database tags and sets the persistent data address to use
+            * in memory.
             *
             **/
             void initDB(){
@@ -366,27 +367,10 @@ class IOTeqFileBuilder():
                                 memcpy({tagName}+i, getTag({tagName}Tag), sizeof(Tag_t));
             }}""")
         
-
-        for tag in list(filter(lambda elem: elem.isPersistent == 0 and elem.isPrivate == 0, self.dbBuilder.tagList)):
-            if ("[" in tag.tagName):
-                if(tag.numType == "float"):
-                    self.writeDBSource(f"floatValue={tag.value}; ")
-                    self.writeDBSource(f"setValue(&{tag.tagName}, (uint8_t*)&floatValue);\n")
-                elif(tag.numType == "integer"):
-                    self.writeDBSource(f"integerValue={tag.value}; ")
-                    self.writeDBSource(f"setValue(&{tag.tagName}, (uint8_t*)&integerValue);\n")
-            else:
-                if(tag.numType == "float"):
-                    self.writeDBSource(f"floatValue={tag.value}; ")
-                    self.writeDBSource(f"setValue({tag.tagName}, (uint8_t*)&floatValue);\n")
-                elif(tag.numType == "integer"):
-                    self.writeDBSource(f"integerValue={tag.value}; ")
-                    self.writeDBSource(f"setValue({tag.tagName}, (uint8_t*)&integerValue);\n")
-
         self.writeDBSource("""
         #ifdef PERSISTENCE_ENABLED
             /* If memory has not been verified, set persistent tags to default values */
-                if (!verifyMemory()){\n
+                if (!verifyPersistentMemory()){\n
             """)
 
         for tag in list(filter(lambda elem: elem.isPersistent == 1, self.dbBuilder.tagList)):
@@ -404,7 +388,14 @@ class IOTeqFileBuilder():
                 elif(tag.numType == "integer"):
                     self.writeDBSource(f"integerValue={tag.value}; ")
                     self.writeDBSource(f"setValue({tag.tagName}, (uint8_t*)&integerValue);\n")
-        self.writeDBSource("""markVerifiedMemory();\n}\n#endif\n}\n\n""")
+        self.writeDBSource("""markPersistentMemoryVerified();\n}
+        else {
+            for (int i = 0; i < sizeof(persistData); i++) {
+			uint16_t valueIndex = i - (i % 4);
+			getPersistentTag(valueIndex, (persistData + valueIndex));
+			i = valueIndex + 3;
+		    }
+        }\n#endif\n}\n\n""")
 
 
 
@@ -423,7 +414,7 @@ class IOTeqFileBuilder():
                 float floatValue;
                 """)
 
-        for tag in list(filter(lambda elem: elem.tagName != "tags" and elem.numOfChildren == 0 and elem.isPrivate == 0, self.dbBuilder.tagList)):
+        for tag in list(filter(lambda elem: elem.tagName != "tags" and elem.numOfChildren == 0 and elem.isPersistent == True, self.dbBuilder.tagList)):
            
             if ("[" in tag.tagName):
                 self.writeDBSource(f"if(tag == &{tag.tagName})"+ "{")

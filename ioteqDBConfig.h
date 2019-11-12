@@ -20,13 +20,25 @@
 #define IOTEQDBCONFIG_H_
 
 #include "fram_interface.h"
+#include "em_core.h"
+#include "ioteqDB.h"
+
 #ifdef PERSISTENCE_ENABLED
 
 #define setPersistentTag(tag, valueBuffer)  /* PLACE USER FUCTION HERE ->>>>>*/  	writePersistentMemory(tag, valueBuffer)
 #define getPersistentTag(tag, valueBuffer)  /* PLACE USER FUCTION HERE ->>>>>*/  	readPersistentMemory(tag, valueBuffer)
-#define setPrivateTag(tag, valueBuffer)  	/* PLACE USER FUCTION HERE ->>>>>*/  	writePrivateMemory(tag, valueBuffer)
-#define getPrivateTag(tag, valueBuffer)  	/* PLACE USER FUCTION HERE ->>>>>*/  	readPrivateMemory(tag, valueBuffer)
-#define verifyMemory()  					/* PLACE USER FUCTION HERE ->>>>>*/  	verifyPersistentMemory()
-#define markVerifiedMemory()  				/* PLACE USER FUCTION HERE ->>>>>*/ 	markPersistentMemoryVerified()
+#define verifyPersistentMemory()  			/* PLACE USER FUCTION HERE ->>>>>*/  	verifyPersistentMemory()
+#define markVerifiedPersistentMemory()  	/* PLACE USER FUCTION HERE ->>>>>*/ 	markPersistentMemoryVerified()
 #endif
+
+#ifdef PRIVATE_ENABLED
+
+#define setPrivateTag(tag, valueBuffer)  /* PLACE USER FUCTION HERE ->>>>>*/  	writePrivateMemory(tag, valueBuffer)
+#define getPrivateTag(tag, valueBuffer)  /* PLACE USER FUCTION HERE ->>>>>*/  	readPrivateMemory(tag, valueBuffer)
+#define verifyPrivateMemory()  			/* PLACE USER FUCTION HERE ->>>>>*/  	verifyPrivateMemory()
+#define markVerifiedPrivateMemory()  	/* PLACE USER FUCTION HERE ->>>>>*/ 	markPrivateMemoryVerified()
+#endif
+
+#define lock()		CORE_CriticalDisableIrq()
+#define	unlock()	CORE_CriticalEnableIrq()
 #endif
