@@ -12,7 +12,7 @@
                 * Programmed By: 	Reid Williams
                 * 					Inaki Zuloaga
                 *
-                * Date: November 06, 2019
+                * Date: November 12, 2019
                 * Contact: izi@iot-eq.com
                 *
                 *
@@ -29,7 +29,7 @@
                 #include <string.h>
 
                 #define TOTAL_NUMBER_OF_TAGS          60
-
+                #define CHECK_SUM                     0x00A5005A
                 typedef struct Tag {
                     uint32_t valuePtr;
                     uint32_t valueSize;
@@ -42,7 +42,6 @@
                     uint32_t nextSibling;
                     uint32_t numOfChildren;
                     uint32_t isPersistent;
-                    uint32_t isPrivate;
                 } Tag_t;
 
         #define PERSISTENCE_ENABLED
@@ -50,6 +49,12 @@
 extern const char str[];
 extern const Tag_t tree[TOTAL_NUMBER_OF_TAGS];
 extern uint8_t data[];
+
+extern uint8_t persistData[];
+
+uint8_t persistDataTemp[116];
+
+uint8_t persistDataPrevious[116];
 
 void initDB();
 

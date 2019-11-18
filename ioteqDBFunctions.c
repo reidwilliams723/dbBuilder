@@ -129,18 +129,18 @@ void setDefaultValue(const Tag_t* tag){
 	setValue(tag, data + tag->valuePtr);
 }
 
+#ifdef PERSISTENCE_ENABLED
 void savePersistentTags(){
 	lock();
 	memcpy(persistDataTemp, persistData, sizeof(persistDataTemp));
 	unlock();
 
 	for(int i = 0; i < sizeof(persistDataTemp); i++){
-		if(persistDataTemp[i] != persistDataPrevious[i]){
-			uint16_t valueIndex = i - (i % 4);
-			uint8_t value[4];
-			memcpy(value, &persistDataTemp[valueIndex], sizeof(uint32_t));
-			writePersistentMemory(i,value);
+		if(memcmp(&persistDataTemp[i], &persistDataPrevious[i], 4) != 0){
+			setPersistentTag(i, &persistDataTemp[i]);
 		}
+		i = i+3;
 	}
 	memcpy(persistDataPrevious, persistDataTemp, sizeof(persistDataPrevious));
 }
+#endif

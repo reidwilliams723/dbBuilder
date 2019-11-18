@@ -9,4 +9,6 @@ uint8_t* iterateChildrenValues(const Tag_t* tag, uint8_t* dataArray, uint8_t ind
 uint8_t iterateChildren(const Tag_t* tag, uint8_t size);
 uint8_t* getDefaultValue(const Tag_t* tag);
 void setDefaultValue(const Tag_t* tag);
+#ifdef PERSISTENCE_ENABLED
 void savePersistentTags();
+#endif

@@ -388,55 +388,23 @@ class IOTeqFileBuilder():
                 elif(tag.numType == "integer"):
                     self.writeDBSource(f"integerValue={tag.value}; ")
                     self.writeDBSource(f"setValue({tag.tagName}, (uint8_t*)&integerValue);\n")
-        self.writeDBSource("""markPersistentMemoryVerified();\n}
-        else {
-            for (int i = 0; i < sizeof(persistData); i++) {
-			uint16_t valueIndex = i - (i % 4);
-			getPersistentTag(valueIndex, (persistData + valueIndex));
-			i = valueIndex + 3;
-		    }
-        }\n#endif\n}\n\n""")
-
-
-
-        self.writeDBSource("""
-        /**
-            *
-            * setToDefault
-            *
-            *
-            * Sets a tag to it's default value
-            * @param tag  
-            *
-            **/
-            void setToDefault(Tag_t* tag){
-                uint32_t integerValue;
-                float floatValue;
-                """)
-
-        for tag in list(filter(lambda elem: elem.tagName != "tags" and elem.numOfChildren == 0 and elem.isPersistent == True, self.dbBuilder.tagList)):
-           
-            if ("[" in tag.tagName):
-                self.writeDBSource(f"if(tag == &{tag.tagName})"+ "{")
-                if(tag.numType == "float"):
-                    self.writeDBSource(f"floatValue={tag.value}; ")
-                    self.writeDBSource(f"setValue(&{tag.tagName}, (uint8_t*)&floatValue);\n")
-                elif(tag.numType == "integer"):
-                    self.writeDBSource(f"integerValue={tag.value}; ")
-                    self.writeDBSource(f"setValue(&{tag.tagName}, (uint8_t*)&integerValue);\n")
-            else:
-                self.writeDBSource(f"if(tag == {tag.tagName})"+ "{")
-                if(tag.numType == "float"):
-                    self.writeDBSource(f"floatValue={tag.value}; ")
-                    self.writeDBSource(f"setValue({tag.tagName}, (uint8_t*)&floatValue);\n")
-                elif(tag.numType == "integer"):
-                    self.writeDBSource(f"integerValue={tag.value}; ")
-                    self.writeDBSource(f"setValue({tag.tagName}, (uint8_t*)&integerValue);\n")
-            self.writeDBSource("}")
-        
-
-
-        self.writeDBSource("""}""")
+        self.writeDBSource("""markPersistentMemoryVerified();\n}\nelse {\n""")
+        for tag in list(filter(lambda elem: elem.isPersistent == 1, self.dbBuilder.tagList)):
+                    if ("[" in tag.tagName):
+                        if(tag.numType == "float"):
+                            self.writeDBSource(f"getPersistentTag({tag.tagName}.persistentPtr, (uint8_t*)&floatValue);\n")
+                            self.writeDBSource(f"setValue(&{tag.tagName}, (uint8_t*)&floatValue);\n")
+                        elif(tag.numType == "integer"):
+                            self.writeDBSource(f"getPersistentTag({tag.tagName}.persistentPtr, (uint8_t*)&integerValue);\n")
+                            self.writeDBSource(f"setValue(&{tag.tagName}, (uint8_t*)&integerValue);\n")
+                    else:
+                        if(tag.numType == "float"):
+                            self.writeDBSource(f"getPersistentTag({tag.tagName}->persistentPtr, (uint8_t*)&floatValue);\n")
+                            self.writeDBSource(f"setValue({tag.tagName}, (uint8_t*)&floatValue);\n")
+                        elif(tag.numType == "integer"):
+                            self.writeDBSource(f"getPersistentTag({tag.tagName}->persistentPtr, (uint8_t*)&integerValue);\n")
+                            self.writeDBSource(f"setValue({tag.tagName}, (uint8_t*)&integerValue);\n")
+        self.writeDBSource("""}\n#endif\n}\n\n""")
 
     def build(self):
         self.buildDBHeaderFile()

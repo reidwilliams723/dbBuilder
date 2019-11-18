@@ -19,7 +19,6 @@
 #ifndef IOTEQDBCONFIG_H_
 #define IOTEQDBCONFIG_H_
 
-#include "fram_interface.h"
 #include "em_core.h"
 #include "ioteqDB.h"
 
